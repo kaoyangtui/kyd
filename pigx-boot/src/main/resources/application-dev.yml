@@ -1,19 +1,16 @@
 spring:
-  cache:
-    type: redis
-  redis:
-    host: 14.103.149.91
-    port: 6379
-    password: wakeyoga123
-    database: 15
+  data:
+    redis:
+      host: pigx-redis
   # 数据库相关配置
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
-      password: 2cbef9494050eb99
-      url: jdbc:mysql://14.103.149.91:3306/pigxx_boot?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+      password: root
+      url: jdbc:mysql://pigx-mysql:3306/pigxx_boot?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+
 
 # 文件上传配置
 file:

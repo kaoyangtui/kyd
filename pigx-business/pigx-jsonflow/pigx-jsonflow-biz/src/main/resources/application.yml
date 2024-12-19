@@ -1,0 +1,32 @@
+server:
+  port: 7010
+
+spring:
+  application:
+    name: @artifactId@
+  cloud:
+    nacos:
+      username: @nacos.username@
+      password: @nacos.password@
+      discovery:
+        server-addr: ${NACOS_HOST:pigx-register}:${NACOS_PORT:8848}
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+  config:
+    import:
+      - optional:nacos:application-@profiles.active@.yml
+      - optional:nacos:${spring.application.name}-@profiles.active@.yml
+
+# jsonflow流程相关配置
+flow:
+  core:
+    orderHttpAddress: http://${pigx-order:127.0.0.1}:${pigx-gateway.port:9999}/order
+    queryOrder: /order-base/order/flow-inst-id
+    updateOrder: /order-base/update-order-info
+    startSubFlow: /order-base/start-sub-flow
+    restartSubFlow: /order-base/restart-sub-flow
+    backParFlow: /order-base/back-par-flow
+    listRunByRunJobIds: /handover-node-record/list-run/run-job-ids
+    isAllowNoRoleUser: true
+    isAllowInitSelf: false
+    isRejectAnyNode: true

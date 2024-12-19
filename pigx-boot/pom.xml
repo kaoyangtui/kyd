@@ -1,17 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 pig4cloud Authors. All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.pig4cloud</groupId>
         <artifactId>pigx</artifactId>
-        <version>5.7.0</version>
+        <version>5.6.0</version>
     </parent>
 
-    <artifactId>kyd</artifactId>
+    <artifactId>pigx-boot</artifactId>
     <packaging>jar</packaging>
 
-    <description>单体版本启动</description>
+    <description>pigx 单体版本启动</description>
 
     <dependencies>
         <!--必备：认证中心模块-->
@@ -26,18 +42,18 @@
             <artifactId>pigx-upms-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--可选：jsonflow模块-->
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-jsonflow-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-order-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!--可选：代码生成模块-->
+		<!--可选：jsonflow模块-->
+		<dependency>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>pigx-jsonflow-biz</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>pigx-order-biz</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+        <!--选配：代码生成模块 -->
         <dependency>
             <groupId>com.pig4cloud</groupId>
             <artifactId>pigx-codegen</artifactId>
@@ -45,27 +61,12 @@
         </dependency>
         <dependency>
             <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-daemon-quartz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-daemon-elastic-job</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-mp-platform</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-pay-platform</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
             <artifactId>pigx-app-server-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-daemon-quartz</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -78,6 +79,16 @@
             <artifactId>pigx-flow-task-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-mp-platform</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-pay-platform</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--安全模块-->
         <dependency>
             <groupId>com.pig4cloud</groupId>
@@ -86,7 +97,11 @@
         <!-- 接口文档UI  -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.springboot</groupId>
@@ -106,13 +121,6 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}</finalName>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -124,32 +132,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <properties>
-                <!-- 环境标识，需要与配置文件的名称相对应 -->
-                <profiles.active>dev</profiles.active>
-            </properties>
-            <activation>
-                <!-- 默认环境 -->
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
-            <id>test</id>
-            <properties>
-                <!-- 环境标识，需要与配置文件的名称相对应 -->
-                <profiles.active>test</profiles.active>
-            </properties>
-        </profile>
-        <profile>
-            <id>prod</id>
-            <properties>
-                <!-- 环境标识，需要与配置文件的名称相对应 -->
-                <profiles.active>prod</profiles.active>
-            </properties>
-        </profile>
-    </profiles>
 </project>

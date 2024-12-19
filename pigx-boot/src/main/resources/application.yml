@@ -28,7 +28,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   profiles:
-    active: @profiles.active@
+    active: dev
 
 ## spring security 对外暴露接口设置
 security:
@@ -66,9 +66,3 @@ mybatis-plus:
     shrink-whitespaces-in-sql: true
 mybatis-plus-join:
   banner: false
-# 查询以下前缀的表，不输出日志
-pigx:
-  mybatis:
-    skip-table:
-      - QRTZ_  #quartz 定时任务的表
-      - ACT_   #工作流相关的表
