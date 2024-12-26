@@ -28,7 +28,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   profiles:
-    active: dev
+    active: @profiles.active@
 
 ## spring security 对外暴露接口设置
 security:

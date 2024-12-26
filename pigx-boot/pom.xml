@@ -24,10 +24,10 @@
         <version>5.6.0</version>
     </parent>
 
-    <artifactId>pigx-boot</artifactId>
+    <artifactId>server-1.0</artifactId>
     <packaging>jar</packaging>
 
-    <description>pigx 单体版本启动</description>
+    <description>单体版本启动</description>
 
     <dependencies>
         <!--必备：认证中心模块-->
@@ -123,9 +123,25 @@
             <artifactId>log-trace-spring-boot3-starter</artifactId>
             <version>3.2.0</version>
         </dependency>
+        <!--必备: 操作数据源相关-->
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-common-data</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-common-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>${project.name}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -145,10 +161,6 @@
                 <!-- 环境标识，需要与配置文件的名称相对应 -->
                 <profiles.active>dev</profiles.active>
             </properties>
-            <activation>
-                <!-- 默认环境 -->
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
         <profile>
             <id>test</id>
