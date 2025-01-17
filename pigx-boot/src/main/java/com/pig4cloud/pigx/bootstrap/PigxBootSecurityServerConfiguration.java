@@ -28,6 +28,7 @@ import com.pig4cloud.pigx.auth.support.password.OAuth2ResourceOwnerPasswordAuthe
 import com.pig4cloud.pigx.auth.support.sms.OAuth2ResourceOwnerSmsAuthenticationProvider;
 import com.pig4cloud.pigx.common.core.constant.SecurityConstants;
 import com.pig4cloud.pigx.common.security.component.PermitAllUrlProperties;
+import com.pig4cloud.pigx.common.security.component.PigxBearerTokenExtractor;
 import com.pig4cloud.pigx.common.security.component.ResourceAuthExceptionEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +36,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -49,6 +49,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.util.stream.Collectors;
 
 /**
  * @author lengleng 认证授权服务器配置
@@ -65,6 +67,8 @@ public class PigxBootSecurityServerConfiguration {
 
     private final OAuth2AuthorizationService authorizationService;
 
+    private final PigxBearerTokenExtractor pigBearerTokenExtractor;
+
     private final PasswordDecoderFilter passwordDecoderFilter;
 
     private final OAuth2TokenGenerator oAuth2TokenGenerator;
@@ -75,34 +79,30 @@ public class PigxBootSecurityServerConfiguration {
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
+
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
                                                                       PigxAuthenticationSuccessEventHandler successEventHandler,
                                                                       PigxAuthenticationFailureEventHandler failureEventHandler) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
-        // 增加验证码过滤器
-        http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class);
-        // 增加密码解密过滤器
-        http.addFilterBefore(passwordDecoderFilter, UsernamePasswordAuthenticationFilter.class);
-
-        // 认证服务器配置
-        http.with(authorizationServerConfigurer.tokenEndpoint((tokenEndpoint) -> {// 个性化认证授权端点
+        http.addFilterAfter(passwordDecoderFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(validateCodeFilter, UsernamePasswordAuthenticationFilter.class);
+        http.apply(authorizationServerConfigurer.tokenEndpoint((tokenEndpoint) -> {// 个性化认证授权端点
                             tokenEndpoint.accessTokenRequestConverter(accessTokenRequestConverter) // 注入自定义的授权认证Converter
                                     .accessTokenResponseHandler(successEventHandler) // 登录成功处理器
                                     .errorResponseHandler(failureEventHandler);// 登录失败处理器
                         }).clientAuthentication(oAuth2ClientAuthenticationConfigurer -> // 个性化客户端认证
                                 oAuth2ClientAuthenticationConfigurer.errorResponseHandler(failureEventHandler))// 处理客户端认证异常
-                        , Customizer.withDefaults())
-                .with(authorizationServerConfigurer.authorizationService(authorizationService)// redis存储token的实现
-                                .authorizationServerSettings(
-                                        AuthorizationServerSettings.builder().issuer(SecurityConstants.PIGX_LICENSE).build()),
-                        Customizer.withDefaults());
+                        .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint// 授权码端点个性化confirm页面
+                                .consentPage(SecurityConstants.CUSTOM_CONSENT_PAGE_URI)))
+                .authorizationService(authorizationService)
+                .authorizationServerSettings(
+                        AuthorizationServerSettings.builder().issuer(SecurityConstants.PIGX_LICENSE).build());
 
-        // 资源服务器配置
         AntPathRequestMatcher[] requestMatchers = permitAllUrl.getIgnoreUrls()
                 .stream()
                 .map(AntPathRequestMatcher::new)
-                .toList()
+                .collect(Collectors.toList())
                 .toArray(new AntPathRequestMatcher[]{});
 
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests.requestMatchers(requestMatchers)
@@ -111,15 +111,11 @@ public class PigxBootSecurityServerConfiguration {
                         .authenticated())
                 .oauth2ResourceServer(
                         oauth2 -> oauth2.opaqueToken(token -> token.introspector(customOpaqueTokenIntrospector))
-                                .authenticationEntryPoint(resourceAuthExceptionEntryPoint))
+                                .authenticationEntryPoint(resourceAuthExceptionEntryPoint)
+                                .bearerTokenResolver(pigBearerTokenExtractor))
                 .exceptionHandling(configurer -> configurer.authenticationEntryPoint(resourceAuthExceptionEntryPoint))
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .csrf(AbstractHttpConfigurer::disable);
-
-        http.with(authorizationServerConfigurer.authorizationService(authorizationService)// redis存储token的实现
-                        .authorizationServerSettings(
-                                AuthorizationServerSettings.builder().issuer(SecurityConstants.PIGX_LICENSE).build()),
-                Customizer.withDefaults());
 
         DefaultSecurityFilterChain securityFilterChain = http.build();
 
@@ -154,3 +150,4 @@ public class PigxBootSecurityServerConfiguration {
     }
 
 }
+

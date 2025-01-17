@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.pig4cloud</groupId>
         <artifactId>pigx</artifactId>
-        <version>5.6.0</version>
+        <version>5.7.0</version>
     </parent>
 
     <artifactId>server-1.0</artifactId>
@@ -53,15 +53,10 @@
             <artifactId>pigx-order-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--选配：代码生成模块 -->
+        <!--可选：代码生成模块-->
         <dependency>
             <groupId>com.pig4cloud</groupId>
             <artifactId>pigx-codegen</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-app-server-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -71,12 +66,7 @@
         </dependency>
         <dependency>
             <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-flow-engine-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-flow-task-biz</artifactId>
+            <artifactId>pigx-daemon-elastic-job</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -89,6 +79,21 @@
             <artifactId>pigx-pay-platform</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-app-server-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-flow-engine-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-flow-task-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--安全模块-->
         <dependency>
             <groupId>com.pig4cloud</groupId>
@@ -97,11 +102,7 @@
         <!-- 接口文档UI  -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+            <artifactId>springdoc-openapi-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>io.springboot</groupId>
@@ -117,20 +118,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud.plugin</groupId>
-            <artifactId>log-trace-spring-boot3-starter</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-        <!--必备: 操作数据源相关-->
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-common-data</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.pig4cloud</groupId>
-            <artifactId>pigx-common-core</artifactId>
         </dependency>
     </dependencies>
 
