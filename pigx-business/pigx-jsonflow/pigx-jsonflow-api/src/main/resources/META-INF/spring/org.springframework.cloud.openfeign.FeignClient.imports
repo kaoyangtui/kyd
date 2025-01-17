@@ -1,3 +1,0 @@
-com.pig4cloud.pigx.jsonflow.api.feign.RemoteFlowVariableService
-com.pig4cloud.pigx.jsonflow.api.feign.RemoteRunFlowService
-com.pig4cloud.pigx.jsonflow.api.feign.RemoteRunJobService
