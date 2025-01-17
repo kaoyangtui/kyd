@@ -1,12 +1,11 @@
 spring:
   cache:
     type: redis
-  data:
-    redis:
-      host: 14.103.149.91
-      port: 6379
-      password: wakeyoga123
-      database: 15
+  redis:
+    host: 14.103.149.91
+    port: 6379
+    password: wakeyoga123
+    database: 15
   # 数据库相关配置
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
