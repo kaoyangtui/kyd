@@ -27,10 +27,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableOpenApi(value = "admin", isMicro = false)
 @EnablePigxResourceServer
 @SpringBootApplication
-public class PigxBootApplication {
+public class App {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PigxBootApplication.class, args);
+		SpringApplication.run(App.class, args);
 	}
 
 }
