@@ -32,6 +32,8 @@ spring:
 
 ## spring security 对外暴露接口设置
 security:
+  # 登录报文加密根密钥 ，必须是16位
+  encodeKey: pigxpigxpigxpigx
   micro: false
   oauth2:
     client:
@@ -72,3 +74,33 @@ pigx:
     skip-table:
       - QRTZ_  #quartz 定时任务的表
       - ACT_   #工作流相关的表
+
+# 文件上传配置
+file:
+  local:
+    enable: true
+    base-path: /Users/lengleng/Downloads/img
+# 验证码配置
+aj:
+  captcha:
+    water-mark: kunyida
+# 配置文件加密根密码
+jasypt:
+  encryptor:
+    password: pigx
+# swagger token url 配置
+swagger:
+  token-url: ${swagger.gateway}/admin/oauth2/token
+# jsonflow流程相关配置
+flow:
+  core:
+    orderHttpAddress: http://${pigx-admin:127.0.0.1}:${server.port:9999}/admin
+    queryOrder: /order-base/order/flow-inst-id
+    updateOrder: /order-base/update-order-info
+    startSubFlow: /order-base/start-sub-flow
+    restartSubFlow: /order-base/restart-sub-flow
+    backParFlow: /order-base/back-par-flow
+    listRunByRunJobIds: /handover-node-record/list-run/run-job-ids
+    isAllowNoRoleUser: true
+    isAllowInitSelf: false
+    isRejectAnyNode: true

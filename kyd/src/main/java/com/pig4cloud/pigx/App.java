@@ -20,6 +20,7 @@ import com.pig4cloud.pigx.common.security.annotation.EnablePigxResourceServer;
 import com.pig4cloud.pigx.common.swagger.annotation.EnableOpenApi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author lengleng 单体版本启动器，只需要运行此模块则整个系统启动
@@ -27,6 +28,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableOpenApi(value = "admin", isMicro = false)
 @EnablePigxResourceServer
 @SpringBootApplication
+@EnableScheduling
 public class App {
 
 	public static void main(String[] args) {
