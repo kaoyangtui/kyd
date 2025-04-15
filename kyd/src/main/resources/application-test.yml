@@ -1,3 +1,4 @@
+
 spring:
   cache:
     type: redis

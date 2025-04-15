@@ -4,6 +4,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,11 +12,14 @@ import com.pig4cloud.pigx.config.CnirpConfig;
 import com.pig4cloud.pigx.constants.CnirpApiConstants;
 import com.pig4cloud.pigx.constants.CnirpPatentInfoConstants;
 import com.pig4cloud.pigx.entity.PatentInfoEntity;
+import com.pig4cloud.pigx.entity.PatentLogEntity;
 import com.pig4cloud.pigx.exception.BizException;
 import com.pig4cloud.pigx.service.CniprService;
+import com.pig4cloud.pigx.service.PatentLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -33,10 +37,11 @@ import java.util.Map;
 public class CniprServiceImpl implements CniprService {
 
     private final StringRedisTemplate stringRedisTemplate;
-    private final CnirpConfig config;
+    private final CnirpConfig cnirpConfig;
+    private final PatentLogService patentLogService;
 
     @Override
-    public Page<PatentInfoEntity> page(int from, int size) {
+    public Page<PatentLogEntity> page(int from, int size) {
         String college = "'昆明医科大学' or '昆明医科大学第一附属医院' or '昆明医科大学第二附属医院' or '昆明医科大学第三附属医院'";
         String exp = StrUtil.format("专利权人=({}) or 历史专利权人=({}) or 申请（专利权）人=({})", college, college, college);
         String dbs = "FMZL,FMSQ,SYXX,WGZL";
@@ -51,7 +56,7 @@ public class CniprServiceImpl implements CniprService {
 
     @Override
     @SneakyThrows
-    public Page<PatentInfoEntity> page(String exp, String dbs, int option, String order, int from, int size, String displayCols, boolean highLight, boolean isDbAgg) {
+    public Page<PatentLogEntity> page(String exp, String dbs, int option, String order, int from, int size, String displayCols, boolean highLight, boolean isDbAgg) {
         Map<String, String> auth = this.getAuth();
         Map<String, Object> param = new HashMap<>();
         param.put("openid", MapUtil.getStr(auth, "open_id"));
@@ -65,12 +70,27 @@ public class CniprServiceImpl implements CniprService {
         param.put("displayCols", displayCols);
         param.put("highLight", highLight);
         param.put("isDbAgg", isDbAgg);
-        JSONObject patentResult = this.doPost(CnirpApiConstants.GET_PATENT_LIST, param);
-        Page<PatentInfoEntity> page = new Page<>();
+        JSONObject patentResult = this.doPost(
+                StrUtil.replace(CnirpApiConstants.GET_PATENT_LIST, "{client_id}", cnirpConfig.getClientId()),
+                param);
+        Page<PatentLogEntity> page = new Page<>();
         page.setTotal(MapUtil.getLong(patentResult, "total"));
         String results = patentResult.getStr("results");
-        List<PatentInfoEntity> patentList = JSONUtil.toList(JSONUtil.parseArray(results), PatentInfoEntity.class);
-        page.setRecords(patentList);
+        JSONArray resultJsonArray = JSONUtil.parseArray(results);
+        List<PatentLogEntity> patentLogEntityList = Lists.newArrayList();
+        resultJsonArray.forEach(item -> {
+            JSONObject resultJson = JSONUtil.parseObj(item);
+            PatentLogEntity patentLogEntity = new PatentLogEntity();
+            patentLogEntity.setPid(resultJson.getStr("pid"));
+            patentLogEntity.setRequestParam(JSONUtil.toJsonStr(param));
+            patentLogEntity.setResponseBody(resultJson.toString());
+            patentLogEntity.setAppDate(resultJson.getStr("appDate"));
+            patentLogEntity.setStatus(0);
+            patentLogEntityList.add(patentLogEntity);
+        });
+        patentLogService.saveBatch(patentLogEntityList);
+
+        page.setRecords(patentLogEntityList);
         return page;
     }
 
@@ -82,7 +102,7 @@ public class CniprServiceImpl implements CniprService {
      * @throws BizException 如果授权失败
      */
     public Map<String, String> getAuth() throws BizException {
-        String cacheKey = "cnirp:" + config.getClientId();
+        String cacheKey = "cnirp:" + cnirpConfig.getClientId();
 
         // 尝试从Redis中获取缓存的access_token和open_id
         String cachedAccessToken = stringRedisTemplate.opsForValue().get(cacheKey + ":access_token");
@@ -98,10 +118,10 @@ public class CniprServiceImpl implements CniprService {
 
         // 如果缓存不存在，执行API请求获取新的授权信息
         Map<String, Object> param = new HashMap<>();
-        param.put("user_account", config.getUserAccount());
-        param.put("user_password", config.getUserPassword());
-        param.put("client_id", config.getClientId());
-        param.put("client_secret", config.getClientSecret());
+        param.put("user_account", cnirpConfig.getUserAccount());
+        param.put("user_password", cnirpConfig.getUserPassword());
+        param.put("client_id", cnirpConfig.getClientId());
+        param.put("client_secret", cnirpConfig.getClientSecret());
         param.put("return_refresh_token", "1");
         param.put("grant_type", "password");
 

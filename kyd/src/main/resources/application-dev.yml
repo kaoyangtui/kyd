@@ -1,3 +1,9 @@
+## spring security 配置
+security:
+  oauth2:
+    client:
+      ignore-urls:
+        - /**
 spring:
   cache:
     type: redis
