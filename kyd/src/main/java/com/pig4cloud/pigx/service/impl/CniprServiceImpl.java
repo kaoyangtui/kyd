@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.config.CnirpConfig;
 import com.pig4cloud.pigx.constants.CnirpApiConstants;
 import com.pig4cloud.pigx.constants.CnirpPatentInfoConstants;
-import com.pig4cloud.pigx.entity.PatentInfoEntity;
+import com.pig4cloud.pigx.constants.TopicConstants;
 import com.pig4cloud.pigx.entity.PatentLogEntity;
 import com.pig4cloud.pigx.exception.BizException;
 import com.pig4cloud.pigx.service.CniprService;
@@ -20,8 +20,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.rocketmq.client.core.RocketMQClientTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +41,7 @@ public class CniprServiceImpl implements CniprService {
     private final StringRedisTemplate stringRedisTemplate;
     private final CnirpConfig cnirpConfig;
     private final PatentLogService patentLogService;
+    private final RocketMQClientTemplate rocketMQClientTemplate;
 
     @Override
     public Page<PatentLogEntity> page(int from, int size) {
@@ -56,6 +59,7 @@ public class CniprServiceImpl implements CniprService {
 
     @Override
     @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
     public Page<PatentLogEntity> page(String exp, String dbs, int option, String order, int from, int size, String displayCols, boolean highLight, boolean isDbAgg) {
         Map<String, String> auth = this.getAuth();
         Map<String, Object> param = new HashMap<>();
@@ -87,9 +91,11 @@ public class CniprServiceImpl implements CniprService {
             patentLogEntity.setAppDate(resultJson.getStr("appDate"));
             patentLogEntity.setStatus(0);
             patentLogEntityList.add(patentLogEntity);
+            rocketMQClientTemplate.syncSendNormalMessage(
+                    TopicConstants.TOPIC_PATENT,
+                    resultJson.toString());
         });
         patentLogService.saveBatch(patentLogEntityList);
-
         page.setRecords(patentLogEntityList);
         return page;
     }

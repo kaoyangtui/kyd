@@ -21,6 +21,7 @@ import com.pig4cloud.pigx.common.swagger.annotation.EnableOpenApi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @author lengleng 单体版本启动器，只需要运行此模块则整个系统启动
@@ -29,6 +30,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnablePigxResourceServer
 @SpringBootApplication
 @EnableScheduling
+@EnableTransactionManagement  // 启用事务管理
 public class App {
 
 	public static void main(String[] args) {

@@ -41,7 +41,7 @@ public class PatentInfoController {
 
     @GetMapping("/test")
     public R test() {
-        return R.ok(cniprService.page(0, 10));
+        return R.ok(cniprService.page(0, 2));
     }
 
 }

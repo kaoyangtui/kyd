@@ -78,6 +78,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
+        <!--rocketMQ-->
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-v5-client-spring-boot-starter</artifactId>
+            <version>2.3.2</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -20,6 +20,12 @@ spring:
       username: root
       password: 2cbef9494050eb99
       url: jdbc:mysql://14.103.149.91:3306/pigxx_boot?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+rocketmq:
+  producer:
+    endpoints: rmq-cn-rno475qsz1p.cn-shanghai.rmq.aliyuncs.com:8080
+    namespace: rmq-cn-rno475qsz1p
+    accessKey: q22sJo7VkoO5pAND
+    secretKey: igHmDe5l0DLteN7B
 
 cnipr:
   user-account: "zhonggao_gaotu"
