@@ -32,3 +32,11 @@ cnipr:
   user-password: "ZhongGao1314@"
   client-id: "F06C930529889BAC8978C141106C158D"
   client-secret: "6635D2B036D3A7E0B55137851DC71138"
+
+pigx:
+  mybatis:
+    # 跳过日志输出表
+    skip-table:
+      - sys_log
+    # 关闭SQL输出
+    show-sql: false

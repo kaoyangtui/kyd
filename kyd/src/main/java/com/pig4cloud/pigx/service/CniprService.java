@@ -1,7 +1,6 @@
 package com.pig4cloud.pigx.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.pig4cloud.pigx.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.entity.PatentLogEntity;
 
 /**

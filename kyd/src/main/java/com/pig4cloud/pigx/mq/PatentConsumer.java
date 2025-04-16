@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.mq;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.pig4cloud.pigx.constants.TopicConstants;
@@ -47,7 +48,15 @@ public class PatentConsumer implements RocketMQListener {
             }
             PatentInfoEntity patentInfo = JSONUtil.toBean(body, PatentInfoEntity.class);
             patentInfo.setId(null);
-            patentInfoService.save(patentInfo);
+            PatentInfoEntity oldPatentInfo = patentInfoService.lambdaQuery()
+                    .eq(PatentInfoEntity::getPid, patentInfo.getPid())
+                    .one();
+            if (oldPatentInfo != null) {
+                BeanUtil.copyProperties(patentInfo, oldPatentInfo, true);
+                patentInfoService.updateById(oldPatentInfo);
+            } else {
+                patentInfoService.save(patentInfo);
+            }
         } catch (Exception e) {
             log.info("消费消息: {}", JSONUtil.toJsonStr(messageView));
             log.error("消费消息异常: {}", e.getMessage(), e);

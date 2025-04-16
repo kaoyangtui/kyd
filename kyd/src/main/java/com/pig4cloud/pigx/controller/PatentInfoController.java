@@ -10,6 +10,7 @@ import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import com.pig4cloud.pigx.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.service.CniprService;
 import com.pig4cloud.pigx.service.PatentInfoService;
+import com.pig4cloud.pigx.service.PatentLogService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -36,12 +37,12 @@ import java.util.Objects;
 @SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
 public class PatentInfoController {
 
-    private final CniprService cniprService;
+    private final PatentLogService patentLogService;
 
 
     @GetMapping("/test")
     public R test() {
-        return R.ok(cniprService.page(0, 2));
+        return R.ok(patentLogService.updateStatus());
     }
 
 }
