@@ -3,12 +3,7 @@ package com.pig4cloud.pigx.constants;
 /**
  * 专利属性字段常量类
  */
-public class CnirpPatentInfoConstants {
-
-    /**
-     * 专利唯一ID
-     */
-    public static final String PID = "pid";
+public class CnirpDisplayColsConstants {
 
     /**
      * 名称
@@ -934,7 +929,7 @@ public class CnirpPatentInfoConstants {
                     SECOND_JUDGMENT_LIST;
 
     // 私有构造方法，防止类实例化
-    private CnirpPatentInfoConstants() {
+    private CnirpDisplayColsConstants() {
         throw new UnsupportedOperationException("常量类不允许实例化");
     }
 

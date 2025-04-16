@@ -3,11 +3,15 @@ package com.pig4cloud.pigx.controller;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
+import com.pig4cloud.pigx.common.security.annotation.Inner;
 import com.pig4cloud.pigx.entity.PatentInfoEntity;
+import com.pig4cloud.pigx.model.request.PatentSearchListReq;
+import com.pig4cloud.pigx.model.response.PatentSearchListRes;
 import com.pig4cloud.pigx.service.CniprService;
 import com.pig4cloud.pigx.service.PatentInfoService;
 import com.pig4cloud.pigx.service.PatentLogService;
@@ -38,7 +42,19 @@ import java.util.Objects;
 public class PatentInfoController {
 
     private final PatentLogService patentLogService;
+    private final PatentInfoService patentInfoService;
 
+    /**
+     * 搜索列表
+     *
+     * @param req 请求
+     * @return R
+     */
+    @Operation(summary = "搜索列表")
+    @PostMapping("/search_list")
+    public R<IPage<PatentSearchListRes>> searchList(@RequestBody PatentSearchListReq req) {
+        return R.ok(patentInfoService.searchList(req));
+    }
 
     @GetMapping("/test")
     public R test() {
