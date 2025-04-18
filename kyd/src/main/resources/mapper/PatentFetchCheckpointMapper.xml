@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.pig4cloud.pigx.admin.mapper.PatentLogMapper">
+<mapper namespace="com.pig4cloud.pigx.admin.mapper.PatentFetchCheckpointMapper">
 
-  <resultMap id="patentLogMap" type="com.pig4cloud.pigx.admin.entity.PatentLogEntity">
+  <resultMap id="patentFetchCheckpointMap" type="com.pig4cloud.pigx.admin.entity.PatentFetchCheckpointEntity">
         <id property="id" column="id"/>
-        <result property="requestParam" column="request_param"/>
-        <result property="responseBody" column="response_body"/>
-        <result property="appDate" column="app_date"/>
-        <result property="status" column="status"/>
+        <result property="taskKey" column="task_key"/>
+        <result property="offset" column="offset"/>
+        <result property="total" column="total"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
