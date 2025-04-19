@@ -39,4 +39,4 @@ pigx:
     skip-table:
       - sys_log
     # 关闭SQL输出
-    show-sql: false
+    show-sql: true

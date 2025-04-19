@@ -2,11 +2,13 @@ package com.pig4cloud.pigx.admin.mq;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.pig4cloud.pigx.admin.constants.TopicConstants;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
+import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import com.pig4cloud.pigx.admin.utils.RocketMQUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,11 +50,37 @@ public class PatentConsumer implements RocketMQListener {
             }
             PatentInfoEntity patentInfo = JSONUtil.toBean(body, PatentInfoEntity.class);
             patentInfo.setId(null);
+            patentInfo.setAppNumber(CodeUtils.getFirstCode(patentInfo.getAppNumber()));
+            patentInfo.setPubNumber(CodeUtils.getFirstCode(patentInfo.getPubNumber()));
+            patentInfo.setApplicantName(CodeUtils.formatCodes(patentInfo.getApplicantName()));
+            patentInfo.setApplicantType(CodeUtils.formatCodes(patentInfo.getApplicantType()));
+            patentInfo.setInventorName(CodeUtils.formatCodes(patentInfo.getInventorName()));
+            patentInfo.setPatentee(CodeUtils.formatCodes(patentInfo.getPatentee()));
+            patentInfo.setNec(CodeUtils.formatCodes(patentInfo.getNec()));
+            patentInfo.setIpc(CodeUtils.formatCodes(patentInfo.getIpc()));
+            patentInfo.setIpcSection(CodeUtils.formatCodes(patentInfo.getIpcSection()));
+            patentInfo.setIpcClass(CodeUtils.formatCodes(patentInfo.getIpcClass()));
+            patentInfo.setIpcSubClass(CodeUtils.formatCodes(patentInfo.getIpcSubClass()));
+            patentInfo.setIpcGroup(CodeUtils.formatCodes(patentInfo.getIpcGroup()));
+            patentInfo.setIpcSubGroup(CodeUtils.formatCodes(patentInfo.getIpcSubGroup()));
+            patentInfo.setAgentName(CodeUtils.formatCodes(patentInfo.getAgentName()));
+            patentInfo.setCitationForwardCountry(CodeUtils.formatCodes(patentInfo.getCitationForwardCountry()));
+            patentInfo.setPatentWords(CodeUtils.formatCodes(patentInfo.getPatentWords()));
+            patentInfo.setTitleKey(CodeUtils.formatCodes(patentInfo.getTitleKey()));
+            patentInfo.setClKey(CodeUtils.formatCodes(patentInfo.getClKey()));
+            patentInfo.setBgKey(CodeUtils.formatCodes(patentInfo.getBgKey()));
+            patentInfo.setHistoryPatentee(CodeUtils.formatCodes(patentInfo.getHistoryPatentee()));
+            patentInfo.setPatenteType(CodeUtils.formatCodes(patentInfo.getPatenteType()));
             PatentInfoEntity oldPatentInfo = patentInfoService.lambdaQuery()
                     .eq(PatentInfoEntity::getPid, patentInfo.getPid())
                     .one();
             if (oldPatentInfo != null) {
-                BeanUtil.copyProperties(patentInfo, oldPatentInfo, true);
+                // 全局忽略源对象中为 null 的属性，目标对象原值不动
+                BeanUtil.copyProperties(
+                        patentInfo,
+                        oldPatentInfo,
+                        CopyOptions.create().setIgnoreNullValue(true)
+                );
                 patentInfoService.updateById(oldPatentInfo);
             } else {
                 patentInfoService.save(patentInfo);

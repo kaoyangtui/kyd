@@ -49,10 +49,10 @@ public class PatentInfoController {
     }
 
 
-    @GetMapping("/fetchAllPatents")
-    public R fetchAllPatents() {
-        kunyidaPatentService.fetchAllPatents();
-        return R.ok();
-    }
+//    @GetMapping("/fetchAllPatents")
+//    public R fetchAllPatents() {
+//        kunyidaPatentService.fetchAllPatents();
+//        return R.ok();
+//    }
 
 }
