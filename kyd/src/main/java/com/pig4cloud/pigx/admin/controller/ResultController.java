@@ -1,0 +1,110 @@
+package com.pig4cloud.pigx.admin.controller;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.vo.*;
+import com.pig4cloud.pigx.common.core.util.R;
+import com.pig4cloud.pigx.common.excel.annotation.Sheet;
+import com.pig4cloud.pigx.common.log.annotation.SysLog;
+import com.pig4cloud.pigx.admin.entity.ResultEntity;
+import com.pig4cloud.pigx.admin.service.ResultService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpHeaders;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+/**
+ * 科研成果表
+ *
+ * @author pigx
+ * @date 2025-05-11 15:44:51
+ */
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/result")
+@Tag(description = "科研成果表管理", name = "科研成果表管理")
+@SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
+public class ResultController {
+
+    private final ResultService resultService;
+
+    @PostMapping("/create")
+    @Operation(summary = "新增科研成果")
+    @PreAuthorize("@pms.hasPermission('result_add')")
+    public R<ResultResponse> create(@RequestBody ResultCreateRequest request) {
+        return R.ok(resultService.createResult(request));
+    }
+
+    @PostMapping("/update/{id}")
+    @Operation(summary = "更新科研成果")
+    @PreAuthorize("@pms.hasPermission('result_edit')")
+    public R<Boolean> update(@PathVariable Long id, @RequestBody ResultCreateRequest request) {
+        return R.ok(resultService.updateResult(id, request));
+    }
+
+    @PostMapping("/page")
+    @Operation(summary = "分页查询科研成果")
+    @PreAuthorize("@pms.hasPermission('result_view')")
+    public R<IPage<ResultResponse>> page(@RequestBody ResultPageRequest request) {
+        return R.ok(resultService.pageResult(request));
+    }
+
+    @PostMapping("/shelf")
+    @Operation(summary = "成果上下架")
+    @PreAuthorize("@pms.hasPermission('result_edit')")
+    public R<Boolean> shelf(@RequestBody ResultShelfRequest request) {
+        return R.ok(resultService.updateShelfStatus(request));
+    }
+
+
+    @PostMapping("/detail")
+    @Operation(summary = "查询成果详情")
+    @PreAuthorize("@pms.hasPermission('result_view')")
+    public R<ResultResponse> detail(@RequestBody IdRequest request) {
+        return R.ok(resultService.getDetail(request.getId()));
+    }
+
+
+    @PostMapping("/remove")
+    @Operation(summary = "删除科研成果")
+    @SysLog("删除科研成果")
+    @PreAuthorize("@pms.hasPermission('result_del')")
+    public R<Boolean> remove(@RequestBody IdListRequest request) {
+        return R.ok(resultService.removeResult(request));
+    }
+
+    @ResponseExcel(name = "科研成果导出", sheets = {@Sheet(sheetName = "科研成果列表")})
+    @GetMapping("/export")
+    @Operation(summary = "导出成果")
+    @PreAuthorize("@pms.hasPermission('result_export')")
+    public List<ResultResponse> export(ResultEntity filter, Long[] ids) {
+        LambdaQueryWrapper<ResultEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(StrUtil.isNotBlank(filter.getSubject()), ResultEntity::getSubject, filter.getSubject());
+        wrapper.like(StrUtil.isNotBlank(filter.getName()), ResultEntity::getName, filter.getName());
+        wrapper.eq(ObjectUtil.isNotNull(filter.getShelfStatus()), ResultEntity::getShelfStatus, filter.getShelfStatus());
+        if (ArrayUtil.isNotEmpty(ids)) {
+            wrapper.in(ResultEntity::getId, ids);
+        }
+        List<ResultEntity> list = resultService.list(wrapper);
+        return list.stream()
+                .map(entity -> BeanUtil.copyProperties(entity, ResultResponse.class))
+                .collect(Collectors.toList());
+    }
+
+}

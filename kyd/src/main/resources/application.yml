@@ -25,6 +25,10 @@ spring:
       redis.enabled: false
     sentinel:
       enabled: false
+  freemarker: # freemarker 配置，授权码模式页面渲染使用
+    suffix: .ftl
+    template-loader-path: classpath:/templates/
+    request-context-attribute: request
   main:
     allow-bean-definition-overriding: true
   profiles:
@@ -44,7 +48,7 @@ security:
         - /swagger-ui.html
         - /swagger-ui/**
         - /swagger-resources
-        - /token/check_token
+        - /token/**
         - /error
         - /druid/**
         - /actuator/**
@@ -66,41 +70,49 @@ mybatis-plus:
     jdbc-type-for-null: 'null'
     call-setters-on-nulls: true
     shrink-whitespaces-in-sql: true
-mybatis-plus-join:
-  banner: false
 # 查询以下前缀的表，不输出日志
 pigx:
   mybatis:
     skip-table:
       - QRTZ_  #quartz 定时任务的表
       - ACT_   #工作流相关的表
+    show-sql: false
 
 # 文件上传配置
 file:
+  bucketName: s3demo # 上文创建的桶名称
   local:
     enable: true
-    base-path: /Users/lengleng/Downloads/img
+    base-path: /data
+
 # 验证码配置
 aj:
   captcha:
-    water-mark: kunyida
+    water-mark: pig4cloud
+
 # 配置文件加密根密码
 jasypt:
   encryptor:
     password: pigx
+
 # swagger token url 配置
 swagger:
   token-url: ${swagger.gateway}/admin/oauth2/token
+
 # jsonflow流程相关配置
 flow:
   core:
-    orderHttpAddress: http://${pigx-admin:127.0.0.1}:${server.port:9999}/admin
+    isCallDefHttp: true
+    orderHttpAddress:
+      - http://${pigx-admin:127.0.0.1}:${server.port:9999}/admin
+      - pigx-admin@http://${pigx-admin:127.0.0.1}:${server.port:9999}/admin
     queryOrder: /order-base/order/flow-inst-id
-    updateOrder: /order-base/update-order-info
+    updateOrder: pigx-admin@/order-base/update-order-info
     startSubFlow: /order-base/start-sub-flow
     restartSubFlow: /order-base/restart-sub-flow
     backParFlow: /order-base/back-par-flow
     listRunByRunJobIds: /handover-node-record/list-run/run-job-ids
+    listTabsOptionByIds: /flow-application/list/ids
     isAllowNoRoleUser: true
     isAllowInitSelf: false
     isRejectAnyNode: true

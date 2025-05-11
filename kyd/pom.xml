@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.pig4cloud</groupId>
         <artifactId>pigx</artifactId>
-        <version>5.7.0</version>
+        <version>5.8.0</version>
     </parent>
 
     <artifactId>kyd</artifactId>
@@ -53,6 +53,22 @@
             <artifactId>pigx-order-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--选配：代码生成模块 -->
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-codegen</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-app-server-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pig4cloud</groupId>
+            <artifactId>pigx-daemon-quartz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--安全模块-->
         <dependency>
             <groupId>com.pig4cloud</groupId>
@@ -61,7 +77,11 @@
         <!-- 接口文档UI  -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.springboot</groupId>
@@ -87,7 +107,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -98,6 +118,17 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.pig4cloud.pigx.App</mainClass> <!-- 👈 替换为你的主类 -->
+                    <skip>false</skip> <!-- ✅ 显式启用 repackage -->
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>
@@ -113,6 +144,10 @@
                 <!-- 环境标识，需要与配置文件的名称相对应 -->
                 <profiles.active>dev</profiles.active>
             </properties>
+            <activation>
+                <!-- 默认环境 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
         <profile>
             <id>test</id>
