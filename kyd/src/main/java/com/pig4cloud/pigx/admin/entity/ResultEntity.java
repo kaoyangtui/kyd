@@ -159,7 +159,7 @@ public class ResultEntity extends Model<ResultEntity> {
 	* 所属院系
 	*/
     @Schema(description="所属院系")
-    private String createByDept;
+    private Long deptId;
 
 	/**
 	* 创建/提交人

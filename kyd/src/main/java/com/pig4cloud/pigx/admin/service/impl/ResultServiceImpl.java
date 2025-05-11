@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
 import com.pig4cloud.pigx.admin.service.ResultService;
 import com.pig4cloud.pigx.admin.vo.*;
+import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +58,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
                 .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getCode, request.getKeyword());
 
         wrapper.eq(StrUtil.isNotBlank(request.getSubject()), ResultEntity::getSubject, request.getSubject());
-        wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), ResultEntity::getCreateByDept, request.getCreateByDept());
+        wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), ResultEntity::getDeptId, request.getCreateByDept());
         wrapper.eq(ObjectUtil.isNotNull(request.getShelfStatus()), ResultEntity::getShelfStatus, request.getShelfStatus());
         wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), ResultEntity::getFlowStatus, request.getFlowStatus());
         wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), ResultEntity::getCurrentNodeName, request.getCurrentNodeName());
@@ -65,7 +66,11 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResultEntity::getCreateTime, request.getBeginTime());
         wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResultEntity::getCreateTime, request.getEndTime());
 
-        Page<ResultEntity> page = this.page(new Page<>(request.getCurrent(), request.getSize()), wrapper);
+        Page<ResultEntity> page = baseMapper.selectPageByScope(
+                new Page<>(request.getCurrent(), request.getSize()),
+                wrapper,
+                DataScope.of()
+        );
 
         return page.convert(entity -> {
             ResultResponse res = new ResultResponse();
