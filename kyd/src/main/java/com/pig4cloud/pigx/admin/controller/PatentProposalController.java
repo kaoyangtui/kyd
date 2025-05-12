@@ -1,53 +1,53 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.net.HttpHeaders;
+import com.pig4cloud.pigx.admin.service.PatentProposalService;
+import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
+import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.vo.*;
 import com.pig4cloud.pigx.common.core.util.R;
+import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
-import com.pig4cloud.pigx.admin.service.PatentProposalService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.http.HttpHeaders;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
-/**
- * 专利提案表
- *
- * @author pigx
- * @date 2025-05-11 17:08:56
- */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/patentProposal" )
-@Tag(description = "patentProposal" , name = "专利提案表管理" )
+@RequestMapping("/patentProposal")
+@Tag(description = "专利提案表管理", name = "专利提案表管理")
 @SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
 public class PatentProposalController {
 
-    private final  PatentProposalService patentProposalService;
+    private final PatentProposalService patentProposalService;
 
     @PostMapping("/page")
-    @Operation(summary = "分页查询")
+    @Operation(summary = "分页查询专利提案")
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_view')")
     public R<IPage<PatentProposalResponse>> page(@RequestBody PatentProposalPageRequest request) {
         return R.ok(patentProposalService.pageResult(request));
     }
 
     @PostMapping("/detail")
-    @Operation(summary = "详情")
+    @Operation(summary = "专利提案详情")
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_view')")
     public R<PatentProposalResponse> detail(@RequestBody IdRequest request) {
         return R.ok(patentProposalService.getDetail(request.getId()));
     }
 
     @PostMapping("/create")
-    @Operation(summary = "新增")
+    @Operation(summary = "新增专利提案")
     @SysLog("新增专利提案")
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_add')")
     public R<Boolean> create(@RequestBody PatentProposalCreateRequest request) {
@@ -55,7 +55,7 @@ public class PatentProposalController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "修改")
+    @Operation(summary = "修改专利提案")
     @SysLog("修改专利提案")
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_edit')")
     public R<Boolean> update(@RequestBody PatentProposalUpdateRequest request) {
@@ -63,18 +63,29 @@ public class PatentProposalController {
     }
 
     @PostMapping("/remove")
-    @Operation(summary = "删除")
+    @Operation(summary = "删除专利提案")
     @SysLog("删除专利提案")
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(patentProposalService.removeProposals(request.getIds()));
     }
 
+    @PostMapping("/export/fields")
+    @Operation(summary = "获取专利提案导出字段列表")
+    public R<ExportFieldListResponse> exportFields() {
+        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(PatentProposalResponse.class);
+        ExportFieldListResponse response = new ExportFieldListResponse();
+        response.setBizCode(PatentProposalResponse.BIZ_CODE);
+        response.setFields(fields);
+        return R.ok(response);
+    }
+
     @PostMapping("/export")
-    @Operation(summary = "导出")
-    @ResponseExcel(name = "专利提案", sheets = {@Sheet(sheetName = "提案列表")})
+    @ResponseExcel(name = "专利提案导出", sheets = {@Sheet(sheetName = "提案列表")})
+    @Operation(summary = "导出专利提案")
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_export')")
-    public List<PatentProposalResponse> export(@RequestBody PatentProposalPageRequest request) {
-        return patentProposalService.exportList(request);
+    public List<Map<String, Object>> export(@RequestBody PatentProposalExportWrapperRequest request) {
+        IPage<PatentProposalResponse> pageData = patentProposalService.pageResult(request.getQuery());
+        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
     }
 }

@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 @Schema(description = "科研成果返回信息")
 public class ResultResponse {
 
+    public static final String BIZ_CODE = "result_list";
+
     /**
      * 主键
      */
@@ -153,7 +155,7 @@ public class ResultResponse {
     /**
      * 所属院系
      */
-    @Schema(description="所属院系")
+    @Schema(description = "所属院系")
     private Long deptId;
 
     /**

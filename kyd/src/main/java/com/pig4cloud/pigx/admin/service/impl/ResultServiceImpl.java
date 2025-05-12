@@ -54,30 +54,36 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     public IPage<ResultResponse> pageResult(ResultPageRequest request) {
         LambdaQueryWrapper<ResultEntity> wrapper = Wrappers.lambdaQuery();
 
-        wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getName, request.getKeyword())
-                .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getCode, request.getKeyword());
+        if (CollUtil.isNotEmpty(request.getIds())) {
+            wrapper.in(ResultEntity::getId, request.getIds());
+        } else {
+            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getName, request.getKeyword())
+                    .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getCode, request.getKeyword());
+            wrapper.eq(StrUtil.isNotBlank(request.getSubject()), ResultEntity::getSubject, request.getSubject());
+            wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), ResultEntity::getDeptId, request.getCreateByDept());
+            wrapper.eq(ObjectUtil.isNotNull(request.getShelfStatus()), ResultEntity::getShelfStatus, request.getShelfStatus());
+            wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), ResultEntity::getFlowStatus, request.getFlowStatus());
+            wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), ResultEntity::getCurrentNodeName, request.getCurrentNodeName());
+            wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResultEntity::getCreateTime, request.getBeginTime());
+            wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResultEntity::getCreateTime, request.getEndTime());
+        }
 
-        wrapper.eq(StrUtil.isNotBlank(request.getSubject()), ResultEntity::getSubject, request.getSubject());
-        wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), ResultEntity::getDeptId, request.getCreateByDept());
-        wrapper.eq(ObjectUtil.isNotNull(request.getShelfStatus()), ResultEntity::getShelfStatus, request.getShelfStatus());
-        wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), ResultEntity::getFlowStatus, request.getFlowStatus());
-        wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), ResultEntity::getCurrentNodeName, request.getCurrentNodeName());
-
-        wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResultEntity::getCreateTime, request.getBeginTime());
-        wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResultEntity::getCreateTime, request.getEndTime());
+        long pageNo = 1;
+        long pageSize = request.getSize();
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            pageSize = request.getEndNo() - request.getStartNo() + 1;
+            pageNo = request.getStartNo() / pageSize + 1;
+        }
 
         Page<ResultEntity> page = baseMapper.selectPageByScope(
-                new Page<>(request.getCurrent(), request.getSize()),
+                new Page<>(pageNo, pageSize),
                 wrapper,
                 DataScope.of()
         );
 
-        return page.convert(entity -> {
-            ResultResponse res = new ResultResponse();
-            BeanUtil.copyProperties(entity, res);
-            return res;
-        });
+        return page.convert(entity -> BeanUtil.copyProperties(entity, ResultResponse.class));
     }
+
 
     @Override
     public Boolean updateShelfStatus(ResultShelfRequest request) {

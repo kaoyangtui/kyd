@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -9,6 +10,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
+import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.vo.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -26,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -89,22 +93,26 @@ public class ResultController {
         return R.ok(resultService.removeResult(request));
     }
 
+    @PostMapping("/export/fields")
+    @Operation(summary = "获取导出字段列表")
+    public R<ExportFieldListResponse> exportFields() {
+        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(ResultResponse.class);
+        ExportFieldListResponse response = new ExportFieldListResponse();
+        response.setBizCode(ResultResponse.BIZ_CODE);
+        response.setFields(fields);
+        return R.ok(response);
+    }
+
+
+
+    @PostMapping("/export")
     @ResponseExcel(name = "科研成果导出", sheets = {@Sheet(sheetName = "科研成果列表")})
-    @GetMapping("/export")
     @Operation(summary = "导出成果")
     @PreAuthorize("@pms.hasPermission('result_export')")
-    public List<ResultResponse> export(ResultEntity filter, Long[] ids) {
-        LambdaQueryWrapper<ResultEntity> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(StrUtil.isNotBlank(filter.getSubject()), ResultEntity::getSubject, filter.getSubject());
-        wrapper.like(StrUtil.isNotBlank(filter.getName()), ResultEntity::getName, filter.getName());
-        wrapper.eq(ObjectUtil.isNotNull(filter.getShelfStatus()), ResultEntity::getShelfStatus, filter.getShelfStatus());
-        if (ArrayUtil.isNotEmpty(ids)) {
-            wrapper.in(ResultEntity::getId, ids);
-        }
-        List<ResultEntity> list = resultService.list(wrapper);
-        return list.stream()
-                .map(entity -> BeanUtil.copyProperties(entity, ResultResponse.class))
-                .collect(Collectors.toList());
+    public List<Map<String, Object>> export(@RequestBody ResultExportWrapperRequest request) {
+        IPage<ResultResponse> pageData = resultService.pageResult(request.getQuery());
+        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
     }
+
 
 }

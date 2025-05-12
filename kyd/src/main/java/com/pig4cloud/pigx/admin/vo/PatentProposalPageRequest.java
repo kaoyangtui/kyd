@@ -2,10 +2,19 @@ package com.pig4cloud.pigx.admin.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+/**
+ * 专利提案分页查询请求
+ * 支持关键字、类型、流程状态、时间、按 ID、按 range 查询
+ * 继承统一分页查询基类
+ * @author zhaoliang
+ */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "专利提案分页查询请求")
-public class PatentProposalPageRequest {
+public class PatentProposalPageRequest extends BasePageQuery {
+
     @Schema(description = "编码或专利名称关键词")
     private String keyword;
 
@@ -21,15 +30,9 @@ public class PatentProposalPageRequest {
     @Schema(description = "当前流程节点")
     private String currentNodeName;
 
-    @Schema(description = "起始提交时间")
+    @Schema(description = "起始提交时间（yyyy-MM-dd）")
     private String beginTime;
 
-    @Schema(description = "结束提交时间")
+    @Schema(description = "结束提交时间（yyyy-MM-dd）")
     private String endTime;
-
-    @Schema(description = "页码")
-    private long current = 1;
-
-    @Schema(description = "分页大小")
-    private long size = 10;
 }
