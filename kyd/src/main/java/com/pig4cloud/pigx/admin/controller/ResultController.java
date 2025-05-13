@@ -1,27 +1,19 @@
 package com.pig4cloud.pigx.admin.controller;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.vo.*;
+import com.pig4cloud.pigx.admin.vo.ExportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.vo.ExportExecute.ExportFieldResponse;
+import com.pig4cloud.pigx.admin.vo.Result.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
-import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.service.ResultService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,8 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 科研成果表

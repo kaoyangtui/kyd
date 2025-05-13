@@ -1,13 +1,13 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.pig4cloud.pigx.admin.service.SoftCopyService;
+import com.pig4cloud.pigx.admin.service.SoftCopyRegService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.vo.*;
 import com.pig4cloud.pigx.admin.vo.ExportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.vo.ExportExecute.ExportFieldResponse;
-import com.pig4cloud.pigx.admin.vo.SoftCopy.*;
+import com.pig4cloud.pigx.admin.vo.SoftCopyReg.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -23,73 +23,71 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author zhaoliang
- */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/softCopy")
-@Tag(name = "软著提案管理", description = "软著提案管理")
+@RequestMapping("/softCopyReg")
+@Tag(name = "软著登记管理", description = "软著登记管理")
 @SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
-public class SoftCopyController {
+public class SoftCopyRegController {
 
-    private final SoftCopyService softCopyService;
+    private final SoftCopyRegService softCopyRegService;
 
     @PostMapping("/page")
     @Operation(summary = "分页查询")
-    @PreAuthorize("@pms.hasPermission('soft_copy_view')")
-    public R<IPage<SoftCopyResponse>> page(@RequestBody SoftCopyPageRequest request) {
-        return R.ok(softCopyService.pageResult(request));
+    @PreAuthorize("@pms.hasPermission('soft_copy_reg_view')")
+    public R<IPage<SoftCopyRegResponse>> page(@RequestBody SoftCopyRegPageRequest request) {
+        return R.ok(softCopyRegService.pageResult(request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "详情")
-    @PreAuthorize("@pms.hasPermission('soft_copy_view')")
-    public R<SoftCopyResponse> detail(@RequestBody IdRequest request) {
-        return R.ok(softCopyService.getDetail(request.getId()));
+    @PreAuthorize("@pms.hasPermission('soft_copy_reg_view')")
+    public R<SoftCopyRegResponse> detail(@RequestBody IdRequest request) {
+        return R.ok(softCopyRegService.getDetail(request.getId()));
     }
 
     @PostMapping("/create")
     @Operation(summary = "新增")
-    @SysLog("新增软著提案")
-    @PreAuthorize("@pms.hasPermission('soft_copy_add')")
-    public R<Boolean> create(@RequestBody SoftCopyCreateRequest request) {
-        return R.ok(softCopyService.createProposal(request));
+    @SysLog("新增软著登记")
+    @PreAuthorize("@pms.hasPermission('soft_copy_reg_add')")
+    public R<Boolean> create(@RequestBody SoftCopyRegCreateRequest request) {
+        return R.ok(softCopyRegService.createReg(request));
     }
 
     @PostMapping("/update")
     @Operation(summary = "修改")
-    @SysLog("修改软著提案")
-    @PreAuthorize("@pms.hasPermission('soft_copy_edit')")
-    public R<Boolean> update(@RequestBody SoftCopyUpdateRequest request) {
-        return R.ok(softCopyService.updateProposal(request));
+    @SysLog("修改软著登记")
+    @PreAuthorize("@pms.hasPermission('soft_copy_reg_edit')")
+    public R<Boolean> update(@RequestBody SoftCopyRegUpdateRequest request) {
+        return R.ok(softCopyRegService.updateReg(request));
     }
 
     @PostMapping("/remove")
     @Operation(summary = "删除")
-    @SysLog("删除软著提案")
-    @PreAuthorize("@pms.hasPermission('soft_copy_del')")
+    @SysLog("删除软著登记")
+    @PreAuthorize("@pms.hasPermission('soft_copy_reg_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
-        return R.ok(softCopyService.removeProposals(request.getIds()));
+        return R.ok(softCopyRegService.removeRegs(request.getIds()));
     }
 
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
-    @PreAuthorize("@pms.hasPermission('soft_copy_export')")
+    @PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
     public R<ExportFieldListResponse> exportFields() {
-        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(SoftCopyResponse.class);
+        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(SoftCopyRegResponse.class);
         ExportFieldListResponse response = new ExportFieldListResponse();
-        response.setBizCode(SoftCopyResponse.BIZ_CODE);
+        response.setBizCode(SoftCopyRegResponse.BIZ_CODE);
         response.setFields(fields);
         return R.ok(response);
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "软著提案导出", sheets = {@Sheet(sheetName = "软著提案列表")})
+    @ResponseExcel(name = "软著登记导出", sheets = {@Sheet(sheetName = "软著登记列表")})
     @Operation(summary = "导出")
-    @PreAuthorize("@pms.hasPermission('soft_copy_export')")
-    public List<Map<String, Object>> export(@RequestBody SoftCopyExportWrapperRequest request) {
-        IPage<SoftCopyResponse> pageData = softCopyService.pageResult(request.getQuery());
+    @PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
+    public List<Map<String, Object>> export(@RequestBody SoftCopyRegExportWrapperRequest request) {
+        IPage<SoftCopyRegResponse> pageData = softCopyRegService.pageResult(request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
     }
+
 }

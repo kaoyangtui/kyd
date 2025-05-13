@@ -1,10 +1,13 @@
 package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.vo.*;
+import com.pig4cloud.pigx.admin.vo.Result.ResultCreateRequest;
+import com.pig4cloud.pigx.admin.vo.Result.ResultPageRequest;
+import com.pig4cloud.pigx.admin.vo.Result.ResultResponse;
+import com.pig4cloud.pigx.admin.vo.Result.ResultShelfRequest;
 
 /**
  * @author zhaoliang
