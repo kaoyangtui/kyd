@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.vo.*;
-import com.pig4cloud.pigx.admin.vo.Result.ResultCreateRequest;
-import com.pig4cloud.pigx.admin.vo.Result.ResultPageRequest;
-import com.pig4cloud.pigx.admin.vo.Result.ResultResponse;
-import com.pig4cloud.pigx.admin.vo.Result.ResultShelfRequest;
+import com.pig4cloud.pigx.admin.vo.result.ResultCreateRequest;
+import com.pig4cloud.pigx.admin.vo.result.ResultPageRequest;
+import com.pig4cloud.pigx.admin.vo.result.ResultResponse;
+import com.pig4cloud.pigx.admin.vo.result.ResultShelfRequest;
 
 /**
  * @author zhaoliang

@@ -3,7 +3,7 @@ package com.pig4cloud.pigx.admin.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
-import com.pig4cloud.pigx.admin.vo.IcLayout.*;
+import com.pig4cloud.pigx.admin.vo.icLayout.*;
 
 import java.util.List;
 

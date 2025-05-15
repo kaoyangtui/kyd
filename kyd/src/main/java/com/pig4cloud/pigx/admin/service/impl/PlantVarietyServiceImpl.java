@@ -15,12 +15,13 @@ import com.pig4cloud.pigx.admin.mapper.PlantVarietyMapper;
 import com.pig4cloud.pigx.admin.service.PlantVarietyBreederService;
 import com.pig4cloud.pigx.admin.service.PlantVarietyOwnerService;
 import com.pig4cloud.pigx.admin.service.PlantVarietyService;
-import com.pig4cloud.pigx.admin.vo.PlantVariety.*;
+import com.pig4cloud.pigx.admin.vo.plantVariety.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,7 +97,7 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
 
     @Override
     public Boolean replaceOwners(Long plantVarietyId, List<PlantVarietyOwnerVO> owners) {
-        ownerService.removeByPlantVarietyId(plantVarietyId);
+        ownerService.removeByPlantVarietyIds(Collections.singletonList(plantVarietyId));
         if (CollUtil.isNotEmpty(owners)) {
             List<PlantVarietyOwnerEntity> entities = owners.stream()
                     .map(item -> {
@@ -111,7 +112,7 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
 
     @Override
     public Boolean replaceBreeders(Long plantVarietyId, List<PlantVarietyBreederVO> breeders) {
-        breederService.removeByPlantVarietyId(plantVarietyId);
+        breederService.removeByPlantVarietyIds(Collections.singletonList(plantVarietyId));
         if (CollUtil.isNotEmpty(breeders)) {
             List<PlantVarietyBreederEntity> entities = breeders.stream()
                     .map(item -> {

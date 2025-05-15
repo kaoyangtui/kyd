@@ -1,7 +1,6 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -14,11 +13,10 @@ import com.pig4cloud.pigx.admin.mapper.SoftCopyRegMapper;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegCompleterService;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegOwnerService;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegService;
-import com.pig4cloud.pigx.admin.vo.*;
-import com.pig4cloud.pigx.admin.vo.SoftCopyReg.SoftCopyRegCreateRequest;
-import com.pig4cloud.pigx.admin.vo.SoftCopyReg.SoftCopyRegPageRequest;
-import com.pig4cloud.pigx.admin.vo.SoftCopyReg.SoftCopyRegResponse;
-import com.pig4cloud.pigx.admin.vo.SoftCopyReg.SoftCopyRegUpdateRequest;
+import com.pig4cloud.pigx.admin.vo.softCopyReg.SoftCopyRegCreateRequest;
+import com.pig4cloud.pigx.admin.vo.softCopyReg.SoftCopyRegPageRequest;
+import com.pig4cloud.pigx.admin.vo.softCopyReg.SoftCopyRegResponse;
+import com.pig4cloud.pigx.admin.vo.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
