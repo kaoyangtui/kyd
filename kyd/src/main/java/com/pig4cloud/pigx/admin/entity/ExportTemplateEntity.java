@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.pig4cloud.pigx.common.core.util.TenantTable;
+
 import java.time.LocalDateTime;
 
 /**
@@ -22,88 +23,88 @@ import java.time.LocalDateTime;
 public class ExportTemplateEntity extends Model<ExportTemplateEntity> {
 
 
-	/**
-	* 主键
-	*/
+    /**
+     * 主键
+     */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="主键")
+    @Schema(description = "主键")
     private Long id;
 
-	/**
-	* 所属院系
-	*/
-    @Schema(description="所属院系")
+    /**
+     * 所属院系
+     */
+    @Schema(description = "所属院系")
     private String deptId;
 
-	/**
-	* 业务编码（如 patent_list / result_list）
-	*/
-    @Schema(description="业务编码（如 patent_list / result_list）")
+    /**
+     * 业务编码（如 patent_list / result_list）
+     */
+    @Schema(description = "业务编码（如 patent_list / result_list）")
     private String bizCode;
 
-	/**
-	* 模板名称
-	*/
-    @Schema(description="模板名称")
+    /**
+     * 模板名称
+     */
+    @Schema(description = "模板名称")
     private String templateName;
 
-	/**
-	* 所属用户（为空代表全局）
-	*/
-    @Schema(description="所属用户（为空代表全局）")
+    /**
+     * 所属用户（为空代表全局）
+     */
+    @Schema(description = "所属用户（为空代表全局）")
     private Long userId;
 
-	/**
-	* 是否默认模板：0 否，1 是
-	*/
-    @Schema(description="是否默认模板：0 否，1 是")
+    /**
+     * 是否默认模板：0 否，1 是
+     */
+    @Schema(description = "是否默认模板：0 否，1 是")
     private Integer isDefault;
 
-	/**
-	* 导出字段的 key 列表，多个以 ; 分隔
-	*/
-    @Schema(description="导出字段的 key 列表，多个以 ; 分隔")
+    /**
+     * 导出字段的 key 列表，多个以 ; 分隔
+     */
+    @Schema(description = "导出字段的 key 列表，多个以 ; 分隔")
     private String fieldKeys;
 
-	/**
-	* 创建/提交人
-	*/
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建/提交人")
+    /**
+     * 创建/提交人
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建/提交人")
     private String createBy;
 
-	/**
-	* 创建/提交时间
-	*/
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建/提交时间")
+    /**
+     * 创建/提交时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建/提交时间")
     private LocalDateTime createTime;
 
-	/**
-	* 更新人
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新人")
+    /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新人")
     private String updateBy;
 
-	/**
-	* 更新时间
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新时间")
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
-	/**
-	* 删除标识 0-未删除 1-已删除
-	*/
+    /**
+     * 删除标识 0-未删除 1-已删除
+     */
     @TableLogic
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="删除标识 0-未删除 1-已删除")
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "删除标识 0-未删除 1-已删除")
     private String delFlag;
 
-	/**
-	* 租户
-	*/
-    @Schema(description="租户")
+    /**
+     * 租户
+     */
+    @Schema(description = "租户")
     private Long tenantId;
 }

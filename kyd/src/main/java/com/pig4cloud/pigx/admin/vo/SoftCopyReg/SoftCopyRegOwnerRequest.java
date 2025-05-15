@@ -5,6 +5,7 @@ import lombok.Data;
 
 /**
  * 软著登记著作权人信息
+ *
  * @author zhaoliang
  */
 @Data

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.pig4cloud.pigx.common.core.util.TenantTable;
+
 import java.time.LocalDateTime;
 
 /**
@@ -22,106 +23,106 @@ import java.time.LocalDateTime;
 public class SoftCopyRegCompleterEntity extends Model<SoftCopyRegCompleterEntity> {
 
 
-	/**
-	* 主键
-	*/
+    /**
+     * 主键
+     */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="主键")
+    @Schema(description = "主键")
     private Long id;
 
-	/**
-	* 关联登记ID
-	*/
-    @Schema(description="关联登记ID")
+    /**
+     * 关联登记ID
+     */
+    @Schema(description = "关联登记ID")
     private Long softCopyRegId;
 
-	/**
-	* 学工号
-	*/
-    @Schema(description="学工号")
+    /**
+     * 学工号
+     */
+    @Schema(description = "学工号")
     private String jobNo;
 
-	/**
-	* 姓名
-	*/
-    @Schema(description="姓名")
+    /**
+     * 姓名
+     */
+    @Schema(description = "姓名")
     private String name;
 
-	/**
-	* 人员类型 教师、学生、校外人员
-	*/
-    @Schema(description="人员类型 教师、学生、校外人员")
+    /**
+     * 人员类型 教师、学生、校外人员
+     */
+    @Schema(description = "人员类型 教师、学生、校外人员")
     private String type;
 
-	/**
-	* 院系或单位
-	*/
-    @Schema(description="院系或单位")
+    /**
+     * 院系或单位
+     */
+    @Schema(description = "院系或单位")
     private String deptName;
 
-	/**
-	* 电话
-	*/
-    @Schema(description="电话")
+    /**
+     * 电话
+     */
+    @Schema(description = "电话")
     private String phone;
 
-	/**
-	* 邮箱
-	*/
-    @Schema(description="邮箱")
+    /**
+     * 邮箱
+     */
+    @Schema(description = "邮箱")
     private String email;
 
-	/**
-	* 是否负责人 0否1是
-	*/
-    @Schema(description="是否负责人 0否1是")
+    /**
+     * 是否负责人 0否1是
+     */
+    @Schema(description = "是否负责人 0否1是")
     private Integer isLeader;
 
-	/**
-	* 所属院系
-	*/
-    @Schema(description="所属院系")
+    /**
+     * 所属院系
+     */
+    @Schema(description = "所属院系")
     private String deptId;
 
-	/**
-	* 创建人
-	*/
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建人")
+    /**
+     * 创建人
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人")
     private String createBy;
 
-	/**
-	* 创建时间
-	*/
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建时间")
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建时间")
     private LocalDateTime createTime;
 
-	/**
-	* 更新人
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新人")
+    /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新人")
     private String updateBy;
 
-	/**
-	* 更新时间
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新时间")
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
-	/**
-	* 删除标识
-	*/
+    /**
+     * 删除标识
+     */
     @TableLogic
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="删除标识")
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "删除标识")
     private String delFlag;
 
-	/**
-	* 租户
-	*/
-    @Schema(description="租户")
+    /**
+     * 租户
+     */
+    @Schema(description = "租户")
     private Long tenantId;
 }

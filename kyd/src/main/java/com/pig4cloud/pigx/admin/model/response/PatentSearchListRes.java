@@ -36,7 +36,7 @@ public class PatentSearchListRes {
     @Schema(description = "公开日")
     private String publicationDate;
 
-    @Schema(description="授权日")
+    @Schema(description = "授权日")
     private String grantDate;
 
     @Schema(description = "IPC分类")

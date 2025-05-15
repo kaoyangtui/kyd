@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pigx.admin.mapper.IcLayoutMapper">
+
+  <resultMap id="icLayoutMap" type="com.pig4cloud.pigx.admin.entity.IcLayoutEntity">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="flowInstId" column="flow_inst_id"/>
+        <result property="flowKey" column="flow_key"/>
+        <result property="flowStatus" column="flow_status"/>
+        <result property="currentNodeName" column="current_node_name"/>
+        <result property="name" column="name"/>
+        <result property="regNo" column="reg_no"/>
+        <result property="applyDate" column="apply_date"/>
+        <result property="publishDate" column="publish_date"/>
+        <result property="certFileUrl" column="cert_file_url"/>
+        <result property="creatorOutName" column="creator_out_name"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="tenantId" column="tenant_id"/>
+  </resultMap>
+</mapper>

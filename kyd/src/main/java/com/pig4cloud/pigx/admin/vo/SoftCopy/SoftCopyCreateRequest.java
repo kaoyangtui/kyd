@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * 软著提案新增请求 DTO
+ *
  * @author zhaoliang
  */
 @Data

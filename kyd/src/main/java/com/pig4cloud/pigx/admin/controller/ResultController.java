@@ -94,7 +94,6 @@ public class ResultController {
     }
 
 
-
     @PostMapping("/export")
     @ResponseExcel(name = "科研成果导出", sheets = {@Sheet(sheetName = "科研成果列表")})
     @Operation(summary = "导出成果")

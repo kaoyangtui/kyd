@@ -12,9 +12,14 @@ import java.util.List;
 
 public interface ExportTemplateService extends IService<ExportTemplateEntity> {
     IPage<ExportTemplateResponse> pageTemplate(ExportTemplatePageRequest request);
+
     ExportTemplateResponse getDetail(Long id);
+
     Boolean createTemplate(ExportTemplateCreateRequest request);
+
     Boolean updateTemplate(ExportTemplateUpdateRequest request);
+
     Boolean removeTemplates(List<Long> ids);
+
     Boolean setDefault(Long id);
 }

@@ -23,82 +23,82 @@ import java.time.LocalDateTime;
 public class PatentLogEntity extends Model<PatentLogEntity> {
 
 
-	/**
-	* ID
-	*/
+    /**
+     * ID
+     */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="ID")
+    @Schema(description = "ID")
     private Long id;
 
-	/**
-	 * 专利唯一ID
-	 */
-	@Schema(description="专利唯一ID")
-	private String pid;
- 
-	/**
-	* requestParam
-	*/
-    @Schema(description="requestParam")
+    /**
+     * 专利唯一ID
+     */
+    @Schema(description = "专利唯一ID")
+    private String pid;
+
+    /**
+     * requestParam
+     */
+    @Schema(description = "requestParam")
     private String requestParam;
- 
-	/**
-	* responseBody
-	*/
-    @Schema(description="responseBody")
+
+    /**
+     * responseBody
+     */
+    @Schema(description = "responseBody")
     private String responseBody;
- 
-	/**
-	* appDate
-	*/
-    @Schema(description="appDate")
+
+    /**
+     * appDate
+     */
+    @Schema(description = "appDate")
     private String appDate;
- 
-	/**
-	* status
-	*/
-    @Schema(description="status")
+
+    /**
+     * status
+     */
+    @Schema(description = "status")
     private Integer status;
 
-	/**
-	* 创建人
-	*/
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建人")
+    /**
+     * 创建人
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人")
     private String createBy;
 
-	/**
-	* 创建时间
-	*/
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建时间")
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建时间")
     private LocalDateTime createTime;
 
-	/**
-	* 修改人
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="修改人")
+    /**
+     * 修改人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "修改人")
     private String updateBy;
 
-	/**
-	* 更新时间
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新时间")
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
-	/**
-	* 删除标记，0未删除，1已删除
-	*/
+    /**
+     * 删除标记，0未删除，1已删除
+     */
     @TableLogic
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="删除标记，0未删除，1已删除")
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "删除标记，0未删除，1已删除")
     private String delFlag;
 
-	/**
-	* 租户ID
-	*/
-    @Schema(description="租户ID")
+    /**
+     * 租户ID
+     */
+    @Schema(description = "租户ID")
     private Long tenantId;
 }

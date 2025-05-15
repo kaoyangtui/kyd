@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
  * 专利提案分页查询请求
  * 支持关键字、类型、流程状态、时间、按 ID、按 range 查询
  * 继承统一分页查询基类
+ *
  * @author zhaoliang
  */
 @EqualsAndHashCode(callSuper = true)

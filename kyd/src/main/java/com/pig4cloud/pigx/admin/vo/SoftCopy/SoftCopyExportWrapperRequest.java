@@ -1,16 +1,16 @@
 package com.pig4cloud.pigx.admin.vo.SoftCopy;
 
-import com.pig4cloud.pigx.admin.vo.ExportExecute.ExportExecuteRequest;
+import com.pig4cloud.pigx.admin.vo.ExportWrapperRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+/**
+ * @author zhaoliang
+ */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "软著导出请求包装")
-public class SoftCopyExportWrapperRequest {
+public class SoftCopyExportWrapperRequest  extends ExportWrapperRequest<SoftCopyPageRequest> {
 
-    @Schema(description = "查询条件")
-    private SoftCopyPageRequest query;
-
-    @Schema(description = "导出执行配置")
-    private ExportExecuteRequest export;
 }

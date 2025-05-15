@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 软著提案修改请求
+ *
  * @author zhaoliang
  */
 @EqualsAndHashCode(callSuper = true)

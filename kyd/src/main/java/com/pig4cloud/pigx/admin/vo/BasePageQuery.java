@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 通用分页查询请求（支持分页、按 ID 查询、范围导出）
  * 建议所有分页请求统一继承此类
- * 
+ *
  * @author zhaoliang
  */
 @Data

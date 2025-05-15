@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 
 /**
  * 自定义业务异常
+ *
  * @author zhaoliang
  */
 public class BizException extends Exception {

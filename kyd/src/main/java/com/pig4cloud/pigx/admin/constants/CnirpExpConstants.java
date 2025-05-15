@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.constants;
 
 /**
  * 专利属性字段常量类
+ *
  * @author zhaoliang
  */
 public class CnirpExpConstants {
