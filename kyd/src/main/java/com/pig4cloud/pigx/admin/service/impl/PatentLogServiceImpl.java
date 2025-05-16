@@ -1,16 +1,12 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.TopicConstants;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentLogMapper;
 import com.pig4cloud.pigx.admin.service.PatentLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.core.RocketMQClientTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 专利数据拉取日志表
@@ -22,20 +18,5 @@ import java.util.List;
 @Service
 @Slf4j
 public class PatentLogServiceImpl extends ServiceImpl<PatentLogMapper, PatentLogEntity> implements PatentLogService {
-    private final RocketMQClientTemplate rocketMQClientTemplate;
 
-    @Override
-    public Boolean updateStatus() {
-        List<PatentLogEntity> list = this.lambdaQuery()
-                .eq(PatentLogEntity::getStatus, 0)
-                .list();
-        list.forEach(item -> {
-            item.setStatus(1);
-            this.updateById(item);
-            rocketMQClientTemplate.syncSendNormalMessage(
-                    TopicConstants.TOPIC_PATENT,
-                    item.getResponseBody());
-        });
-        return true;
-    }
 }

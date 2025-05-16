@@ -29,7 +29,6 @@ public class PatentInfoController {
 
     private final PatentLogService patentLogService;
     private final PatentInfoService patentInfoService;
-    private final KunyidaPatentService kunyidaPatentService;
 
     /**
      * 搜索列表
@@ -42,12 +41,6 @@ public class PatentInfoController {
     public R<IPage<PatentSearchListRes>> searchList(@RequestBody PatentSearchListReq req) {
         return R.ok(patentInfoService.searchList(req));
     }
-
-    @GetMapping("/test")
-    public R test() {
-        return R.ok(patentLogService.updateStatus());
-    }
-
 
 //    @GetMapping("/fetchAllPatents")
 //    public R fetchAllPatents() {

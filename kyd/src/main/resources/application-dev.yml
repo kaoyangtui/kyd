@@ -9,24 +9,25 @@ spring:
     type: redis
   data:
     redis:
-      host: 47.100.8.163
+      host: 14.103.149.91
       port: 6379
-      password: Sq^7XikvSiDvKlUi
+      password: wakeyoga123
       database: 15
   # 数据库相关配置
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      username: End_master
-      password: End_master
-      url: jdbc:mysql://mysql-e2e14a41c6a0-public.rds.volces.com:3306/pigxx_boot?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+      username: root
+      password: 2cbef9494050eb99
+      url: jdbc:mysql://14.103.149.91:3306/pigxx_boot?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
 rocketmq:
+  name-server: 14.103.181.209:9876
   producer:
-    endpoints: rmq-cn-pe336a2zb0u.cn-shanghai.rmq.aliyuncs.com:8080
-    namespace: rmq-cn-pe336a2zb0u
-    accessKey: 00l26kQG3DZ6e4Li
-    secretKey: 7CsbvhYD206ga5QB
+    group: my-producer-group
+    send-message-timeout: 10000 # 默认3000ms，改成10秒
+    retry-times-when-send-failed: 3 # 失败重试次数
+    retry-next-server: true # 失败切换broker
 
 cnipr:
   user-account: "zhonggao_gaotu"

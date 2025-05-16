@@ -8,5 +8,4 @@ import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
  */
 public interface PatentLogService extends IService<PatentLogEntity> {
 
-    Boolean updateStatus();
 }
