@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.vo.*;
-import com.pig4cloud.pigx.admin.vo.result.ResultCreateRequest;
-import com.pig4cloud.pigx.admin.vo.result.ResultPageRequest;
-import com.pig4cloud.pigx.admin.vo.result.ResultResponse;
-import com.pig4cloud.pigx.admin.vo.result.ResultShelfRequest;
+import com.pig4cloud.pigx.admin.vo.result.*;
 
 /**
  * @author zhaoliang
@@ -16,7 +13,7 @@ public interface ResultService extends IService<ResultEntity> {
 
     ResultResponse createResult(ResultCreateRequest request);
 
-    Boolean updateResult(Long id, ResultCreateRequest request);
+    Boolean updateResult(ResultUpdateRequest request);
 
     IPage<ResultResponse> pageResult(ResultPageRequest request);
 

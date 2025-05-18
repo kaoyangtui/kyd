@@ -73,8 +73,10 @@ public class PatentConsumer implements RocketMQListener<String> {
                         CopyOptions.create().setIgnoreNullValue(true)
                 );
                 patentInfoService.updateById(oldPatentInfo);
+                log.info("更新成功: {}", oldPatentInfo);
             } else {
                 patentInfoService.save(patentInfo);
+                log.info("保存成功: {}", patentInfo);
             }
         } catch (Exception e) {
             log.info("消费消息: {}", message);

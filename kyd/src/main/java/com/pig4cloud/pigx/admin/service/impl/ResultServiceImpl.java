@@ -16,10 +16,7 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
 import com.pig4cloud.pigx.admin.service.ResultService;
 import com.pig4cloud.pigx.admin.vo.*;
-import com.pig4cloud.pigx.admin.vo.result.ResultCreateRequest;
-import com.pig4cloud.pigx.admin.vo.result.ResultPageRequest;
-import com.pig4cloud.pigx.admin.vo.result.ResultResponse;
-import com.pig4cloud.pigx.admin.vo.result.ResultShelfRequest;
+import com.pig4cloud.pigx.admin.vo.result.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -45,8 +42,8 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
 
     @SneakyThrows
     @Override
-    public Boolean updateResult(Long id, ResultCreateRequest request) {
-        ResultEntity entity = getById(id);
+    public Boolean updateResult(ResultUpdateRequest request) {
+        ResultEntity entity = getById(request.getId());
         if (entity == null) {
             throw new BizException("成果不存在");
         }

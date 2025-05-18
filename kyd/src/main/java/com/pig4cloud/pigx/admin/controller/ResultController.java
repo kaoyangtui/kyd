@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
@@ -45,11 +46,11 @@ public class ResultController {
         return R.ok(resultService.createResult(request));
     }
 
-    @PostMapping("/update/{id}")
+    @PostMapping("/update")
     @Operation(summary = "更新科研成果")
     @PreAuthorize("@pms.hasPermission('result_edit')")
-    public R<Boolean> update(@PathVariable Long id, @RequestBody ResultCreateRequest request) {
-        return R.ok(resultService.updateResult(id, request));
+    public R<Boolean> update(@RequestBody ResultUpdateRequest request) {
+        return R.ok(resultService.updateResult(request));
     }
 
     @PostMapping("/page")
@@ -102,6 +103,5 @@ public class ResultController {
         IPage<ResultResponse> pageData = resultService.pageResult(request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
     }
-
 
 }
