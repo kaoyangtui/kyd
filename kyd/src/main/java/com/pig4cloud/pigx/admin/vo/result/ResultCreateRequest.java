@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author zhaoliang
@@ -42,8 +43,8 @@ public class ResultCreateRequest {
     @Schema(description = "是否有实物，0否1是")
     private Integer hasObj;
 
-    @Schema(description = "转化方式；多个用;分隔")
-    private String transWay;
+    @Schema(description = "转化方式")
+    private List<String> transWay;
 
     @Schema(description = "转化价格(万元)")
     private BigDecimal transPrice;
@@ -52,8 +53,8 @@ public class ResultCreateRequest {
     private String award;
 
     @Schema(description = "成果图片URL")
-    private String imgUrl;
+    private List<String> imgUrl;
 
-    @Schema(description = "成果附件路径，多个用;分隔")
-    private String fileUrl;
+    @Schema(description = "成果附件路径")
+    private List<String> fileUrl;
 }

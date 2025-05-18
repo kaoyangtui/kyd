@@ -101,7 +101,8 @@ public class ResultController {
     @PreAuthorize("@pms.hasPermission('result_export')")
     public List<Map<String, Object>> export(@RequestBody ResultExportWrapperRequest request) {
         IPage<ResultResponse> pageData = resultService.pageResult(request.getQuery());
-        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
+        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), ResultResponse.class);
     }
+
 
 }

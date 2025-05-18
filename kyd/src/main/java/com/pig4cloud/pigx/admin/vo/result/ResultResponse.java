@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author zhaoliang
@@ -118,7 +119,7 @@ public class ResultResponse {
      * 转化方式，多选用;分隔
      */
     @Schema(description = "转化方式，多选用;分隔")
-    private String transWay;
+    private List<String> transWay;
 
     /**
      * 转化价格(万元)
@@ -136,13 +137,13 @@ public class ResultResponse {
      * 成果图片URL
      */
     @Schema(description = "成果图片URL")
-    private String imgUrl;
+    private List<String> imgUrl;
 
     /**
-     * 附件URL，多个用;分隔
+     * 附件URL，多个
      */
-    @Schema(description = "附件URL，多个用;分隔")
-    private String fileUrl;
+    @Schema(description = "附件URL，多个")
+    private List<String> fileUrl;
 
     /**
      * 上下架状态，0下架1上架

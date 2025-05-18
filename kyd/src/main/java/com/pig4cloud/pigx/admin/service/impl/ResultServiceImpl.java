@@ -36,8 +36,24 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     public ResultResponse createResult(ResultCreateRequest request) {
         ResultEntity entity = BeanUtil.copyProperties(request, ResultEntity.class);
         entity.setCode("CG" + IdUtil.getSnowflakeNextIdStr());
+        if (request.getTransWay() != null && !request.getTransWay().isEmpty()) {
+            String transWayString = StrUtil.join(";", request.getTransWay());
+            entity.setTransWay(transWayString);
+        }
+        if (request.getImgUrl() != null && !request.getImgUrl().isEmpty()) {
+            String imgUrl = StrUtil.join(";", request.getImgUrl());
+            entity.setImgUrl(imgUrl);
+        }
+        if (request.getFileUrl() != null && !request.getFileUrl().isEmpty()) {
+            String fileUrl = StrUtil.join(";", request.getFileUrl());
+            entity.setFileUrl(fileUrl);
+        }
         save(entity);
-        return BeanUtil.copyProperties(entity, ResultResponse.class);
+        ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
+        response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
+        response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
+        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        return response;
     }
 
     @SneakyThrows
@@ -48,6 +64,18 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             throw new BizException("成果不存在");
         }
         BeanUtil.copyProperties(request, entity, CopyOptions.create().ignoreNullValue());
+        if (request.getTransWay() != null && !request.getTransWay().isEmpty()) {
+            String transWayString = StrUtil.join(";", request.getTransWay());
+            entity.setTransWay(transWayString);
+        }
+        if (request.getImgUrl() != null && !request.getImgUrl().isEmpty()) {
+            String imgUrl = StrUtil.join(";", request.getImgUrl());
+            entity.setImgUrl(imgUrl);
+        }
+        if (request.getFileUrl() != null && !request.getFileUrl().isEmpty()) {
+            String fileUrl = StrUtil.join(";", request.getFileUrl());
+            entity.setFileUrl(fileUrl);
+        }
         return updateById(entity);
     }
 
@@ -82,7 +110,13 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
                 DataScope.of()
         );
 
-        return page.convert(entity -> BeanUtil.copyProperties(entity, ResultResponse.class));
+        return page.convert(entity -> {
+            ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
+            response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
+            response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
+            response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+            return response;
+        });
     }
 
 
@@ -100,7 +134,11 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        return BeanUtil.copyProperties(entity, ResultResponse.class);
+        ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
+        response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
+        response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
+        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        return response;
     }
 
     @SneakyThrows

@@ -89,6 +89,6 @@ public class PatentProposalController {
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_export')")
     public List<Map<String, Object>> export(@RequestBody PatentProposalExportWrapperRequest request) {
         IPage<PatentProposalResponse> pageData = patentProposalService.pageResult(request.getQuery());
-        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
+        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), PatentProposalResponse.class);
     }
 }

@@ -88,7 +88,7 @@ public class PlantVarietyController {
     @PreAuthorize("@pms.hasPermission('plant_variety_export')")
     public List<Map<String, Object>> export(@RequestBody PlantVarietyExportWrapperRequest request) {
         IPage<PlantVarietyResponse> pageData = plantVarietyService.pageResult(request.getQuery());
-        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
+        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), PlantVarietyResponse.class);
     }
 
 }

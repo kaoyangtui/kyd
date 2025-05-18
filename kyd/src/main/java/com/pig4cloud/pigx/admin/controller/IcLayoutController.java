@@ -75,7 +75,7 @@ public class IcLayoutController {
     @PreAuthorize("@pms.hasPermission('ic_layout_export')")
     public List<Map<String, Object>> export(@RequestBody ExportWrapperRequest<IcLayoutPageRequest> request) {
         IPage<IcLayoutResponse> pageData = icLayoutService.pageResult(request.getQuery());
-        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
+        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), IcLayoutResponse.class);
     }
 
     @PostMapping("/export/fields")

@@ -69,7 +69,7 @@ public class StandardController {
     @PreAuthorize("@pms.hasPermission('standard_export')")
     public List<Map<String, Object>> export(@RequestBody StandardExportWrapperRequest request) {
         IPage<StandardResponse> pageData = standardService.pageResult(request.getQuery());
-        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
+        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), StandardResponse.class);
     }
 
     @PostMapping("/export/fields")

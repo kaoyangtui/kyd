@@ -87,7 +87,7 @@ public class SoftCopyRegController {
     @PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
     public List<Map<String, Object>> export(@RequestBody SoftCopyRegExportWrapperRequest request) {
         IPage<SoftCopyRegResponse> pageData = softCopyRegService.pageResult(request.getQuery());
-        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys());
+        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), SoftCopyRegResponse.class);
     }
 
 }
