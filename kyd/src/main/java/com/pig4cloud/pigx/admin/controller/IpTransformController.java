@@ -1,0 +1,94 @@
+package com.pig4cloud.pigx.admin.controller;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.service.IpTransformService;
+import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
+import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
+import com.pig4cloud.pigx.admin.vo.IdListRequest;
+import com.pig4cloud.pigx.admin.vo.IdRequest;
+import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.vo.ipTransform.*;
+import com.pig4cloud.pigx.common.core.util.R;
+import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
+import com.pig4cloud.pigx.common.excel.annotation.Sheet;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/ipTransform")
+@Tag(name = "知识产权转化管理")
+@SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
+public class IpTransformController {
+
+    private final IpTransformService ipTransformService;
+
+    @PostMapping("/create")
+    @Operation(summary = "新增转化")
+    @PreAuthorize("@pms.hasPermission('ip_transform_add')")
+    public R<Boolean> create(@RequestBody IpTransformCreateRequest request) {
+        return R.ok(ipTransformService.create(request));
+    }
+
+    @PostMapping("/update")
+    @Operation(summary = "更新转化")
+    @PreAuthorize("@pms.hasPermission('ip_transform_edit')")
+    public R<Boolean> update(@RequestBody IpTransformUpdateRequest request) {
+        return R.ok(ipTransformService.update(request));
+    }
+
+    @PostMapping("/detail")
+    @Operation(summary = "查看详情")
+    @PreAuthorize("@pms.hasPermission('ip_transform_view')")
+    public R<IpTransformResponse> detail(@RequestBody IdRequest request) {
+        return R.ok(ipTransformService.getDetail(request.getId()));
+    }
+
+    @PostMapping("/remove")
+    @Operation(summary = "批量删除")
+    @PreAuthorize("@pms.hasPermission('ip_transform_del')")
+    public R<Boolean> remove(@RequestBody IdListRequest request) {
+        return R.ok(ipTransformService.removeByIds(request.getIds()));
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "分页查询")
+    @PreAuthorize("@pms.hasPermission('ip_transform_view')")
+    public R<IPage<IpTransformResponse>> page(@ParameterObject Page page, @ParameterObject IpTransformPageRequest request) {
+        return R.ok(ipTransformService.pageResult(page, request));
+    }
+
+    @PostMapping("/export/fields")
+    @Operation(summary = "获取导出字段列表")
+    @PreAuthorize("@pms.hasPermission('ip_transform_export')")
+    public R<ExportFieldListResponse> exportFields() {
+        ExportFieldListResponse response = ExportFieldHelper.buildExportFieldList(
+                IpTransformResponse.BIZ_CODE,
+                IpTransformResponse.class
+        );
+        return R.ok(response);
+    }
+
+    @PostMapping("/export")
+    @ResponseExcel(name = "知识产权转化导出", sheets = {@Sheet(sheetName = "转化列表")})
+    @Operation(summary = "导出记录")
+    @PreAuthorize("@pms.hasPermission('ip_transform_export')")
+    public List<Map<String, Object>> export(@RequestBody IpTransformExportWrapperRequest request) {
+        IPage<IpTransformResponse> pageData = ipTransformService.pageResult(new Page<>(), request.getQuery());
+        return ExportFilterUtil.filterFields(
+                pageData.getRecords(),
+                request.getExport().getFieldKeys(),
+                IpTransformResponse.class
+        );
+    }
+}
