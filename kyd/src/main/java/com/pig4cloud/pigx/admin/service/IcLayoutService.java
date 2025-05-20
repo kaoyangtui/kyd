@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.vo.icLayout.*;
@@ -8,7 +9,7 @@ import com.pig4cloud.pigx.admin.vo.icLayout.*;
 import java.util.List;
 
 public interface IcLayoutService extends IService<IcLayoutEntity> {
-    IPage<IcLayoutResponse> pageResult(IcLayoutPageRequest request);
+    IPage<IcLayoutResponse> pageResult(Page page, IcLayoutPageRequest request);
 
     IcLayoutResponse getDetail(Long id);
 

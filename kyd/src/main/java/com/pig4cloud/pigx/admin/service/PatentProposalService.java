@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalCreateRequest;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public interface PatentProposalService extends IService<PatentProposalEntity> {
 
-    IPage<PatentProposalResponse> pageResult(PatentProposalPageRequest request);
+    IPage<PatentProposalResponse> pageResult(Page page, PatentProposalPageRequest request);
 
     PatentProposalResponse getDetail(Long id);
 

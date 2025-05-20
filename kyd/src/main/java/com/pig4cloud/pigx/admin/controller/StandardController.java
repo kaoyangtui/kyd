@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.service.StandardService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
@@ -13,6 +14,7 @@ import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,11 +30,11 @@ public class StandardController {
 
     private final StandardService standardService;
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询标准信息")
     @PreAuthorize("@pms.hasPermission('standard_view')")
-    public R<IPage<StandardResponse>> page(@RequestBody StandardPageRequest request) {
-        return R.ok(standardService.pageResult(request));
+    public R<IPage<StandardResponse>> page(@ParameterObject Page page, @RequestBody StandardPageRequest request) {
+        return R.ok(standardService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
@@ -68,7 +70,7 @@ public class StandardController {
     @Operation(summary = "导出标准信息")
     @PreAuthorize("@pms.hasPermission('standard_export')")
     public List<Map<String, Object>> export(@RequestBody StandardExportWrapperRequest request) {
-        IPage<StandardResponse> pageData = standardService.pageResult(request.getQuery());
+        IPage<StandardResponse> pageData = standardService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), StandardResponse.class);
     }
 

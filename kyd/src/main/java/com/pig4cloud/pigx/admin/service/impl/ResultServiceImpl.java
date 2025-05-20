@@ -80,7 +80,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     }
 
     @Override
-    public IPage<ResultResponse> pageResult(ResultPageRequest request) {
+    public IPage<ResultResponse> pageResult(Page reqPage, ResultPageRequest request) {
         LambdaQueryWrapper<ResultEntity> wrapper = Wrappers.lambdaQuery();
 
         if (CollUtil.isNotEmpty(request.getIds())) {
@@ -97,20 +97,17 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResultEntity::getCreateTime, request.getEndTime());
         }
 
-        long pageNo = 1;
-        long pageSize = request.getSize();
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
-            pageSize = request.getEndNo() - request.getStartNo() + 1;
-            pageNo = request.getStartNo() / pageSize + 1;
+            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
+            reqPage.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            reqPage.setSize(request.getIds().size());
+            reqPage.setCurrent(1);
         }
 
-        Page<ResultEntity> page = baseMapper.selectPageByScope(
-                new Page<>(pageNo, pageSize),
-                wrapper,
-                DataScope.of()
-        );
+        IPage<ResultEntity> resPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
 
-        return page.convert(entity -> {
+        return resPage.convert(entity -> {
             ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
             response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
             response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));

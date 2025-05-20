@@ -34,14 +34,14 @@ import java.util.Optional;
 @Service
 public class ExportTemplateServiceImpl extends ServiceImpl<ExportTemplateMapper, ExportTemplateEntity> implements ExportTemplateService {
     @Override
-    public IPage<ExportTemplateResponse> pageTemplate(ExportTemplatePageRequest request) {
+    public IPage<ExportTemplateResponse> pageTemplate(Page reqPage, ExportTemplatePageRequest request) {
         LambdaQueryWrapper<ExportTemplateEntity> wrapper = Wrappers.lambdaQuery();
 
         wrapper.eq(StrUtil.isNotBlank(request.getBizCode()), ExportTemplateEntity::getBizCode, request.getBizCode())
                 .like(StrUtil.isNotBlank(request.getTemplateName()), ExportTemplateEntity::getTemplateName, request.getTemplateName());
 
         Page<ExportTemplateEntity> page = baseMapper.selectPageByScope(
-                new Page<>(request.getCurrent(), request.getSize()),
+                reqPage,
                 wrapper,
                 DataScope.of()
         );

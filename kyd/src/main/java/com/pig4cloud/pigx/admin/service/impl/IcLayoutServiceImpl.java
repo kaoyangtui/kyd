@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -51,7 +52,7 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
     }
 
     @Override
-    public IPage<IcLayoutResponse> pageResult(IcLayoutPageRequest request) {
+    public IPage<IcLayoutResponse> pageResult(Page reqPage, IcLayoutPageRequest request) {
         LambdaQueryWrapper<IcLayoutEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
                 w.like(IcLayoutEntity::getRegNo, request.getKeyword())
@@ -59,9 +60,16 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
         wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), IcLayoutEntity::getDeptId, request.getDeptId());
         wrapper.ge(StrUtil.isNotBlank(request.getPublishBeginTime()), IcLayoutEntity::getPublishDate, request.getPublishBeginTime());
         wrapper.le(StrUtil.isNotBlank(request.getPublishEndTime()), IcLayoutEntity::getPublishDate, request.getPublishEndTime());
-        wrapper.orderByDesc(IcLayoutEntity::getCreateTime);
 
-        Page<IcLayoutEntity> page = baseMapper.selectPageByScope(new Page<>(request.getCurrent(), request.getSize()), wrapper, DataScope.of());
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
+            reqPage.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            reqPage.setSize(request.getIds().size());
+            reqPage.setCurrent(1);
+        }
+
+        Page<IcLayoutEntity> page = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
 
         return page.convert(entity -> {
             IcLayoutResponse res = new IcLayoutResponse();

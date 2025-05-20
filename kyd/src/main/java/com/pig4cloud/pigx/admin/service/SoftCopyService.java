@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
 import com.pig4cloud.pigx.admin.vo.softCopy.SoftCopyCreateRequest;
@@ -18,7 +19,7 @@ public interface SoftCopyService extends IService<SoftCopyEntity> {
     /**
      * 分页查询
      */
-    IPage<SoftCopyResponse> pageResult(SoftCopyPageRequest request);
+    IPage<SoftCopyResponse> pageResult(Page page, SoftCopyPageRequest request);
 
     /**
      * 新增软著提案
@@ -40,8 +41,4 @@ public interface SoftCopyService extends IService<SoftCopyEntity> {
      */
     SoftCopyResponse getDetail(Long id);
 
-    /**
-     * 导出
-     */
-    List<SoftCopyResponse> exportList(SoftCopyPageRequest request);
 }

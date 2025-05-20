@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.SoftCopyRegEntity;
 import com.pig4cloud.pigx.admin.vo.softCopyReg.SoftCopyRegCreateRequest;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public interface SoftCopyRegService extends IService<SoftCopyRegEntity> {
 
-    IPage<SoftCopyRegResponse> pageResult(SoftCopyRegPageRequest request);
+    IPage<SoftCopyRegResponse> pageResult(Page page, SoftCopyRegPageRequest request);
 
     SoftCopyRegResponse getDetail(Long id);
 

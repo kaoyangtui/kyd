@@ -1,7 +1,9 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.vo.*;
@@ -12,6 +14,7 @@ import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import com.pig4cloud.pigx.admin.service.ResultService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -53,11 +56,11 @@ public class ResultController {
         return R.ok(resultService.updateResult(request));
     }
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询科研成果")
     @PreAuthorize("@pms.hasPermission('result_view')")
-    public R<IPage<ResultResponse>> page(@RequestBody ResultPageRequest request) {
-        return R.ok(resultService.pageResult(request));
+    public R<IPage<ResultResponse>> page(@ParameterObject Page page, @ParameterObject ResultPageRequest request) {
+        return R.ok(resultService.pageResult(page, request));
     }
 
     @PostMapping("/shelf")
@@ -100,7 +103,7 @@ public class ResultController {
     @Operation(summary = "导出成果")
     @PreAuthorize("@pms.hasPermission('result_export')")
     public List<Map<String, Object>> export(@RequestBody ResultExportWrapperRequest request) {
-        IPage<ResultResponse> pageData = resultService.pageResult(request.getQuery());
+        IPage<ResultResponse> pageData = resultService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), ResultResponse.class);
     }
 

@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Service
 public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper, PatentProposalEntity> implements PatentProposalService {
     @Override
-    public IPage<PatentProposalResponse> pageResult(PatentProposalPageRequest request) {
+    public IPage<PatentProposalResponse> pageResult(Page reqPage, PatentProposalPageRequest request) {
         LambdaQueryWrapper<PatentProposalEntity> wrapper = Wrappers.lambdaQuery();
 
         if (CollUtil.isNotEmpty(request.getIds())) {
@@ -49,22 +49,17 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), PatentProposalEntity::getCreateTime, request.getEndTime());
         }
 
-        long pageNo = 1;
-        long pageSize = request.getSize();
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
-            pageSize = request.getEndNo() - request.getStartNo() + 1;
-            pageNo = request.getStartNo() / pageSize + 1;
-        } else {
-            pageNo = request.getCurrent();
+            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
+            reqPage.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            reqPage.setSize(request.getIds().size());
+            reqPage.setCurrent(1);
         }
 
-        Page<PatentProposalEntity> page = baseMapper.selectPageByScope(
-                new Page<>(pageNo, pageSize),
-                wrapper,
-                DataScope.of()
-        );
+        Page<PatentProposalEntity> resPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
 
-        return page.convert(entity -> BeanUtil.copyProperties(entity, PatentProposalResponse.class));
+        return resPage.convert(entity -> BeanUtil.copyProperties(entity, PatentProposalResponse.class));
     }
 
 

@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +34,11 @@ public class SoftCopyRegController {
 
     private final SoftCopyRegService softCopyRegService;
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询")
     @PreAuthorize("@pms.hasPermission('soft_copy_reg_view')")
-    public R<IPage<SoftCopyRegResponse>> page(@RequestBody SoftCopyRegPageRequest request) {
-        return R.ok(softCopyRegService.pageResult(request));
+    public R<IPage<SoftCopyRegResponse>> page(@ParameterObject Page page, @ParameterObject SoftCopyRegPageRequest request) {
+        return R.ok(softCopyRegService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
@@ -86,7 +88,7 @@ public class SoftCopyRegController {
     @Operation(summary = "导出")
     @PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
     public List<Map<String, Object>> export(@RequestBody SoftCopyRegExportWrapperRequest request) {
-        IPage<SoftCopyRegResponse> pageData = softCopyRegService.pageResult(request.getQuery());
+        IPage<SoftCopyRegResponse> pageData = softCopyRegService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), SoftCopyRegResponse.class);
     }
 

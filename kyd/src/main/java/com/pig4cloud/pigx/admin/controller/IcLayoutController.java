@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.service.IcLayoutService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
@@ -15,6 +16,7 @@ import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,11 +36,11 @@ public class IcLayoutController {
 
     private final IcLayoutService icLayoutService;
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询集成电路布图")
     @PreAuthorize("@pms.hasPermission('ic_layout_view')")
-    public R<IPage<IcLayoutResponse>> page(@RequestBody IcLayoutPageRequest request) {
-        return R.ok(icLayoutService.pageResult(request));
+    public R<IPage<IcLayoutResponse>> page(@ParameterObject Page page, @ParameterObject IcLayoutPageRequest request) {
+        return R.ok(icLayoutService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
@@ -74,7 +76,7 @@ public class IcLayoutController {
     @Operation(summary = "导出集成电路布图")
     @PreAuthorize("@pms.hasPermission('ic_layout_export')")
     public List<Map<String, Object>> export(@RequestBody ExportWrapperRequest<IcLayoutPageRequest> request) {
-        IPage<IcLayoutResponse> pageData = icLayoutService.pageResult(request.getQuery());
+        IPage<IcLayoutResponse> pageData = icLayoutService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), IcLayoutResponse.class);
     }
 

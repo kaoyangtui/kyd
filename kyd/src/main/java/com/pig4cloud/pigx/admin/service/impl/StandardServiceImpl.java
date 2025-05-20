@@ -63,7 +63,7 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
     }
 
     @Override
-    public IPage<StandardResponse> pageResult(StandardPageRequest request) {
+    public IPage<StandardResponse> pageResult(Page reqPage, StandardPageRequest request) {
         LambdaQueryWrapper<StandardEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w -> w.like(StandardEntity::getCode, request.getKeyword()).or().like(StandardEntity::getName, request.getKeyword()));
         wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), StandardEntity::getDeptId, request.getDeptId());
@@ -71,9 +71,16 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         wrapper.le(StrUtil.isNotBlank(request.getPubEndTime()), StandardEntity::getPubDate, request.getPubEndTime());
         wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), StandardEntity::getFlowStatus, request.getFlowStatus());
         wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), StandardEntity::getCurrentNodeName, request.getCurrentNodeName());
-        wrapper.orderByDesc(StandardEntity::getCreateTime);
 
-        Page<StandardEntity> page = baseMapper.selectPageByScope(new Page<>(request.getCurrent(), request.getSize()), wrapper, DataScope.of());
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
+            reqPage.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            reqPage.setSize(request.getIds().size());
+            reqPage.setCurrent(1);
+        }
+
+        Page<StandardEntity> page = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
 
         return page.convert(entity -> {
             StandardResponse res = new StandardResponse();
@@ -92,11 +99,6 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         ownerService.removeByStandardIds(ids);
         drafterInService.removeByStandardIds(ids);
         return Boolean.TRUE;
-    }
-
-    @Override
-    public List<StandardResponse> exportList(StandardPageRequest request) {
-        return this.pageResult(request).getRecords();
     }
 
 }

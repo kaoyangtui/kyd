@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.net.HttpHeaders;
 import com.pig4cloud.pigx.admin.service.PatentProposalService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
@@ -17,11 +18,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -35,11 +34,11 @@ public class PatentProposalController {
 
     private final PatentProposalService patentProposalService;
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询专利提案")
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_view')")
-    public R<IPage<PatentProposalResponse>> page(@RequestBody PatentProposalPageRequest request) {
-        return R.ok(patentProposalService.pageResult(request));
+    public R<IPage<PatentProposalResponse>> page(@ParameterObject Page page, @ParameterObject PatentProposalPageRequest request) {
+        return R.ok(patentProposalService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
@@ -88,7 +87,7 @@ public class PatentProposalController {
     @Operation(summary = "导出专利提案")
     @PreAuthorize("@pms.hasPermission('admin_patent_proposal_export')")
     public List<Map<String, Object>> export(@RequestBody PatentProposalExportWrapperRequest request) {
-        IPage<PatentProposalResponse> pageData = patentProposalService.pageResult(request.getQuery());
+        IPage<PatentProposalResponse> pageData = patentProposalService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), PatentProposalResponse.class);
     }
 }

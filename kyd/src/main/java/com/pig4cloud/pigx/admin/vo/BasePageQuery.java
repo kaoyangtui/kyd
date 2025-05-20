@@ -1,5 +1,7 @@
 package com.pig4cloud.pigx.admin.vo;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.vo.result.ResultResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -23,10 +25,4 @@ public class BasePageQuery {
 
     @Schema(description = "结束条数（仅在 range 模式下有效）")
     private Long endNo;
-
-    @Schema(description = "分页当前页（默认 1）")
-    private Long current = 1L;
-
-    @Schema(description = "分页每页条数（默认 20）")
-    private Long size = 20L;
 }

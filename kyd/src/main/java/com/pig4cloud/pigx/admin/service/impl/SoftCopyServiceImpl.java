@@ -71,7 +71,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
     }
 
     @Override
-    public IPage<SoftCopyResponse> pageResult(SoftCopyPageRequest request) {
+    public IPage<SoftCopyResponse> pageResult(Page reqPage, SoftCopyPageRequest request) {
         LambdaQueryWrapper<SoftCopyEntity> wrapper = Wrappers.lambdaQuery();
 
         wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
@@ -85,8 +85,16 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), SoftCopyEntity::getCreateTime, request.getBeginTime());
         wrapper.le(StrUtil.isNotBlank(request.getEndTime()), SoftCopyEntity::getCreateTime, request.getEndTime());
 
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
+            reqPage.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            reqPage.setSize(request.getIds().size());
+            reqPage.setCurrent(1);
+        }
+
         Page<SoftCopyEntity> page = baseMapper.selectPageByScope(
-                new Page<>(request.getCurrent(), request.getSize()),
+                reqPage,
                 wrapper,
                 DataScope.of()
         );
@@ -112,9 +120,4 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         return this.removeBatchByIds(ids);
     }
 
-    @Override
-    public List<SoftCopyResponse> exportList(SoftCopyPageRequest request) {
-        IPage<SoftCopyResponse> pageData = this.pageResult(request);
-        return pageData.getRecords();
-    }
 }

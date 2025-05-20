@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -59,7 +60,7 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
     }
 
     @Override
-    public IPage<PlantVarietyResponse> pageResult(PlantVarietyPageRequest request) {
+    public IPage<PlantVarietyResponse> pageResult(Page reqPage, PlantVarietyPageRequest request) {
         LambdaQueryWrapper<PlantVarietyEntity> wrapper = Wrappers.lambdaQuery();
         wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
                 w.like(PlantVarietyEntity::getRightNo, request.getKeyword())
@@ -67,11 +68,18 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
         wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PlantVarietyEntity::getDeptId, request.getDeptId());
         wrapper.ge(StrUtil.isNotBlank(request.getAuthBeginTime()), PlantVarietyEntity::getAuthDate, request.getAuthBeginTime());
         wrapper.le(StrUtil.isNotBlank(request.getAuthEndTime()), PlantVarietyEntity::getAuthDate, request.getAuthEndTime());
-        wrapper.orderByDesc(PlantVarietyEntity::getCreateTime);
 
-        Page<PlantVarietyEntity> page = baseMapper.selectPageByScope(new Page<>(request.getCurrent(), request.getSize()), wrapper, DataScope.of());
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
+            reqPage.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            reqPage.setSize(request.getIds().size());
+            reqPage.setCurrent(1);
+        }
 
-        return page.convert(entity -> {
+        Page<PlantVarietyEntity> resPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
+
+        return resPage.convert(entity -> {
             PlantVarietyResponse res = new PlantVarietyResponse();
             res.setMain(BeanUtil.copyProperties(entity, PlantVarietyVO.class));
             res.setOwners(

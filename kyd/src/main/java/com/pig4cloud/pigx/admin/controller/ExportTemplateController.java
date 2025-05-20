@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.vo.*;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportTemplateCreateRequest;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportTemplatePageRequest;
@@ -9,6 +10,7 @@ import com.pig4cloud.pigx.admin.vo.exportExecute.ExportTemplateUpdateRequest;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import com.pig4cloud.pigx.admin.service.ExportTemplateService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.access.prepost.PreAuthorize;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpHeaders;
@@ -33,11 +35,11 @@ public class ExportTemplateController {
     private final ExportTemplateService exportTemplateService;
 
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询")
     @PreAuthorize("@pms.hasPermission('admin_export_template_view')")
-    public R<IPage<ExportTemplateResponse>> page(@RequestBody ExportTemplatePageRequest request) {
-        return R.ok(exportTemplateService.pageTemplate(request));
+    public R<IPage<ExportTemplateResponse>> page(@ParameterObject Page page, @ParameterObject ExportTemplatePageRequest request) {
+        return R.ok(exportTemplateService.pageTemplate(page, request));
     }
 
     @PostMapping("/detail")

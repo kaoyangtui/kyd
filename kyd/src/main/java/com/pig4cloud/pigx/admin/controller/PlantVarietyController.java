@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.service.PlantVarietyService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
@@ -16,6 +17,7 @@ import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,11 +35,11 @@ public class PlantVarietyController {
 
     private final PlantVarietyService plantVarietyService;
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询植物新品种权")
     @PreAuthorize("@pms.hasPermission('plant_variety_view')")
-    public R<IPage<PlantVarietyResponse>> page(@RequestBody PlantVarietyPageRequest request) {
-        return R.ok(plantVarietyService.pageResult(request));
+    public R<IPage<PlantVarietyResponse>> page(@ParameterObject Page page, @ParameterObject PlantVarietyPageRequest request) {
+        return R.ok(plantVarietyService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
@@ -87,7 +89,7 @@ public class PlantVarietyController {
     @Operation(summary = "导出植物新品种权")
     @PreAuthorize("@pms.hasPermission('plant_variety_export')")
     public List<Map<String, Object>> export(@RequestBody PlantVarietyExportWrapperRequest request) {
-        IPage<PlantVarietyResponse> pageData = plantVarietyService.pageResult(request.getQuery());
+        IPage<PlantVarietyResponse> pageData = plantVarietyService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), PlantVarietyResponse.class);
     }
 

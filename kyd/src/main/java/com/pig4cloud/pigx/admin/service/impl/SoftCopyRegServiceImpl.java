@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -32,7 +33,7 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
     private final SoftCopyRegCompleterService completerService;
 
     @Override
-    public IPage<SoftCopyRegResponse> pageResult(SoftCopyRegPageRequest request) {
+    public IPage<SoftCopyRegResponse> pageResult(Page reqPage, SoftCopyRegPageRequest request) {
         LambdaQueryWrapper<SoftCopyRegEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
                 w.like(SoftCopyRegEntity::getName, request.getKeyword())
@@ -40,10 +41,17 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
         wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), SoftCopyRegEntity::getDeptId, request.getDeptId());
         wrapper.ge(StrUtil.isNotBlank(request.getBeginCertDate()), SoftCopyRegEntity::getCertDate, request.getBeginCertDate());
         wrapper.le(StrUtil.isNotBlank(request.getEndCertDate()), SoftCopyRegEntity::getCertDate, request.getEndCertDate());
-        wrapper.orderByDesc(SoftCopyRegEntity::getCreateTime);
+
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
+            reqPage.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            reqPage.setSize(request.getIds().size());
+            reqPage.setCurrent(1);
+        }
 
         Page<SoftCopyRegEntity> page = baseMapper.selectPageByScope(
-                new Page<>(request.getCurrent(), request.getSize()),
+                reqPage,
                 wrapper,
                 DataScope.of()
         );
