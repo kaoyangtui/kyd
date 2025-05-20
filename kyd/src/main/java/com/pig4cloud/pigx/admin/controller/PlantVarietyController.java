@@ -9,6 +9,8 @@ import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
 import com.pig4cloud.pigx.admin.vo.IdListRequest;
 import com.pig4cloud.pigx.admin.vo.IdRequest;
+import com.pig4cloud.pigx.admin.vo.ipAssign.IpAssignResponse;
+import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.vo.plantVariety.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
@@ -77,11 +79,11 @@ public class PlantVarietyController {
     @Operation(summary = "获取导出字段列表")
     @PreAuthorize("@pms.hasPermission('plant_variety_export')")
     public R<ExportFieldListResponse> exportFields() {
-        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(PlantVarietyResponse.class);
-        ExportFieldListResponse response = new ExportFieldListResponse();
-        response.setBizCode(PlantVarietyResponse.BIZ_CODE);
-        response.setFields(fields);
-        return R.ok(response);
+        ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
+                IpAssignResponse.BIZ_CODE,
+                PlantVarietyVO.class
+        );
+        return R.ok(fields);
     }
 
     @PostMapping("/export")

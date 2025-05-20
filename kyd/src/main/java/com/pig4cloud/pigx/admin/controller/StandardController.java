@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author zhaoliang
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/standard")
@@ -33,7 +36,7 @@ public class StandardController {
     @GetMapping("/page")
     @Operation(summary = "分页查询标准信息")
     @PreAuthorize("@pms.hasPermission('standard_view')")
-    public R<IPage<StandardResponse>> page(@ParameterObject Page page, @RequestBody StandardPageRequest request) {
+    public R<IPage<StandardResponse>> page(@ParameterObject Page page, @ParameterObject StandardPageRequest request) {
         return R.ok(standardService.pageResult(page, request));
     }
 
@@ -78,11 +81,12 @@ public class StandardController {
     @Operation(summary = "获取标准导出字段列表")
     @PreAuthorize("@pms.hasPermission('standard_export')")
     public R<ExportFieldListResponse> exportFields() {
-        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(StandardResponse.class);
-        ExportFieldListResponse response = new ExportFieldListResponse();
-        response.setBizCode(StandardResponse.BIZ_CODE);
-        response.setFields(fields);
+        ExportFieldListResponse response = ExportFieldHelper.buildExportFieldList(
+                StandardResponse.BIZ_CODE,
+                StandardMainVO.class
+        );
         return R.ok(response);
     }
+
 
 }

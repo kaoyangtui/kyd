@@ -9,6 +9,8 @@ import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.vo.*;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
+import com.pig4cloud.pigx.admin.vo.ipAssign.IpAssignResponse;
+import com.pig4cloud.pigx.admin.vo.plantVariety.PlantVarietyVO;
 import com.pig4cloud.pigx.admin.vo.result.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -90,11 +92,11 @@ public class ResultController {
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
     public R<ExportFieldListResponse> exportFields() {
-        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(ResultResponse.class);
-        ExportFieldListResponse response = new ExportFieldListResponse();
-        response.setBizCode(ResultResponse.BIZ_CODE);
-        response.setFields(fields);
-        return R.ok(response);
+        ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
+                IpAssignResponse.BIZ_CODE,
+                ResultResponse.class
+        );
+        return R.ok(fields);
     }
 
 

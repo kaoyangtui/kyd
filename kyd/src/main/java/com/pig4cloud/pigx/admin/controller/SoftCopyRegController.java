@@ -8,6 +8,8 @@ import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.vo.*;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
+import com.pig4cloud.pigx.admin.vo.ipAssign.IpAssignResponse;
+import com.pig4cloud.pigx.admin.vo.softCopy.SoftCopyResponse;
 import com.pig4cloud.pigx.admin.vo.softCopyReg.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
@@ -76,11 +78,11 @@ public class SoftCopyRegController {
     @Operation(summary = "获取导出字段列表")
     @PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
     public R<ExportFieldListResponse> exportFields() {
-        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(SoftCopyRegResponse.class);
-        ExportFieldListResponse response = new ExportFieldListResponse();
-        response.setBizCode(SoftCopyRegResponse.BIZ_CODE);
-        response.setFields(fields);
-        return R.ok(response);
+        ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
+                IpAssignResponse.BIZ_CODE,
+                SoftCopyRegMainResponse.class
+        );
+        return R.ok(fields);
     }
 
     @PostMapping("/export")

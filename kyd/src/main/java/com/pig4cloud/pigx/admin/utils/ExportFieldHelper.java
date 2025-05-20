@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.utils;
 
 import cn.hutool.core.util.ReflectUtil;
+import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -23,4 +24,20 @@ public class ExportFieldHelper {
         }
         return result;
     }
+
+    /**
+     * 构建导出字段列表响应，支持传入嵌套结构的主表 VO。
+     *
+     * @param bizCode 业务编码
+     * @param dtoClass 导出字段实际定义的主表 VO class（如 IpAssignMainVO.class）
+     * @return 导出字段列表响应结构
+     */
+    public static ExportFieldListResponse buildExportFieldList(String bizCode, Class<?> dtoClass) {
+        List<ExportFieldResponse> fields = getFieldsFromDto(dtoClass);
+        ExportFieldListResponse response = new ExportFieldListResponse();
+        response.setBizCode(bizCode);
+        response.setFields(fields);
+        return response;
+    }
+
 }

@@ -9,6 +9,7 @@ import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.vo.*;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
+import com.pig4cloud.pigx.admin.vo.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.vo.patentProposal.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
@@ -75,11 +76,11 @@ public class PatentProposalController {
     @PostMapping("/export/fields")
     @Operation(summary = "获取专利提案导出字段列表")
     public R<ExportFieldListResponse> exportFields() {
-        List<ExportFieldResponse> fields = ExportFieldHelper.getFieldsFromDto(PatentProposalResponse.class);
-        ExportFieldListResponse response = new ExportFieldListResponse();
-        response.setBizCode(PatentProposalResponse.BIZ_CODE);
-        response.setFields(fields);
-        return R.ok(response);
+        ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
+                IpAssignResponse.BIZ_CODE,
+                PatentProposalResponse.class
+        );
+        return R.ok(fields);
     }
 
     @PostMapping("/export")

@@ -84,9 +84,11 @@ public class IcLayoutController {
     @Operation(summary = "获取导出字段列表")
     @PreAuthorize("@pms.hasPermission('ic_layout_export')")
     public R<ExportFieldListResponse> exportFields() {
-        ExportFieldListResponse response = new ExportFieldListResponse();
-        response.setBizCode(IcLayoutResponse.BIZ_CODE);
-        response.setFields(ExportFieldHelper.getFieldsFromDto(IcLayoutResponse.class));
+        ExportFieldListResponse response = ExportFieldHelper.buildExportFieldList(
+                IcLayoutResponse.BIZ_CODE,
+                IcLayoutMainVO.class
+        );
         return R.ok(response);
     }
+
 }
