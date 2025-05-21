@@ -11,14 +11,24 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.api.entity.SysFile;
+import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.entity.FileEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
+import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.ResultService;
+import com.pig4cloud.pigx.admin.service.SysFileService;
 import com.pig4cloud.pigx.admin.vo.*;
+import com.pig4cloud.pigx.admin.vo.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.vo.file.FileResponse;
 import com.pig4cloud.pigx.admin.vo.result.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +40,14 @@ import java.util.List;
  * @author pigx
  * @date 2025-05-11 15:44:51
  */
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> implements ResultService {
+
+    private final FileService fileService;
+    private final SysFileService sysFileService;
+
     @Override
     public ResultResponse createResult(ResultCreateRequest request) {
         ResultEntity entity = BeanUtil.copyProperties(request, ResultEntity.class);
@@ -44,9 +60,27 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             String imgUrl = StrUtil.join(";", request.getImgUrl());
             entity.setImgUrl(imgUrl);
         }
-        if (request.getFileUrl() != null && !request.getFileUrl().isEmpty()) {
-            String fileUrl = StrUtil.join(";", request.getFileUrl());
+        if (request.getFileNames() != null && !request.getFileNames().isEmpty()) {
+            String fileUrl = StrUtil.join(";", request.getFileNames());
             entity.setFileUrl(fileUrl);
+            List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
+            request.getFileNames().forEach(fileName -> {
+                SysFile sysFile = sysFileService.lambdaQuery()
+                        .eq(SysFile::getFileName, fileName)
+                        .orderByDesc(SysFile::getCreateTime)
+                        .last("limit 1")
+                        .one();
+                FileCreateRequest fileCreateRequest = new FileCreateRequest();
+                fileCreateRequest.setCode(entity.getCode());
+                fileCreateRequest.setApplyType(ResultResponse.BIZ_CODE);
+                fileCreateRequest.setSubjectName(entity.getName());
+                fileCreateRequest.setBizType(FileBizTypeEnum.ATTACHMENT.getValue());
+                fileCreateRequest.setFileName(sysFile.getFileName());
+                fileCreateRequest.setFileType(sysFile.getType());
+                fileCreateRequest.setDownloadName(sysFile.getOriginal());
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+            fileService.batchCreate(fileCreateRequestList);
         }
         save(entity);
         ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
@@ -72,9 +106,27 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             String imgUrl = StrUtil.join(";", request.getImgUrl());
             entity.setImgUrl(imgUrl);
         }
-        if (request.getFileUrl() != null && !request.getFileUrl().isEmpty()) {
-            String fileUrl = StrUtil.join(";", request.getFileUrl());
+        if (request.getFileNames() != null && !request.getFileNames().isEmpty()) {
+            String fileUrl = StrUtil.join(";", request.getFileNames());
             entity.setFileUrl(fileUrl);
+            List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
+            request.getFileNames().forEach(fileName -> {
+                SysFile sysFile = sysFileService.lambdaQuery()
+                        .eq(SysFile::getFileName, fileName)
+                        .orderByDesc(SysFile::getCreateTime)
+                        .last("limit 1")
+                        .one();
+                FileCreateRequest fileCreateRequest = new FileCreateRequest();
+                fileCreateRequest.setCode(entity.getCode());
+                fileCreateRequest.setApplyType(ResultResponse.BIZ_CODE);
+                fileCreateRequest.setSubjectName(entity.getName());
+                fileCreateRequest.setBizType(FileBizTypeEnum.ATTACHMENT.getValue());
+                fileCreateRequest.setFileName(sysFile.getFileName());
+                fileCreateRequest.setFileType(sysFile.getType());
+                fileCreateRequest.setDownloadName(sysFile.getOriginal());
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+            fileService.batchCreate(fileCreateRequestList);
         }
         return updateById(entity);
     }
