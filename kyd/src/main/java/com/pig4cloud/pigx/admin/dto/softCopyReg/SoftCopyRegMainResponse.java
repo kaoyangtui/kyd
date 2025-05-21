@@ -10,6 +10,8 @@ import lombok.Data;
 @Schema(description = "软著登记主表响应")
 public class SoftCopyRegMainResponse {
 
+    public static final String BIZ_CODE = "soft_copy_reg_list";
+
     @Schema(description = "ID")
     private Long id;
 
@@ -33,4 +35,5 @@ public class SoftCopyRegMainResponse {
 
     @Schema(description = "证书文件URL")
     private String certFileUrl;
+
 }

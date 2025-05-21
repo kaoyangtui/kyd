@@ -80,7 +80,7 @@ public class SoftCopyController {
     @PreAuthorize("@pms.hasPermission('soft_copy_export')")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
-                IpAssignResponse.BIZ_CODE,
+                SoftCopyResponse.BIZ_CODE,
                 SoftCopyResponse.class
         );
         return R.ok(fields);

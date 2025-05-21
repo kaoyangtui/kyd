@@ -89,7 +89,7 @@ public class ResultController {
     @Operation(summary = "获取导出字段列表")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
-                IpAssignResponse.BIZ_CODE,
+                ResultResponse.BIZ_CODE,
                 ResultResponse.class
         );
         return R.ok(fields);

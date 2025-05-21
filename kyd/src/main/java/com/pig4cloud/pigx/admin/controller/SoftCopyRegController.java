@@ -77,7 +77,7 @@ public class SoftCopyRegController {
     @PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
-                IpAssignResponse.BIZ_CODE,
+                SoftCopyRegMainResponse.BIZ_CODE,
                 SoftCopyRegMainResponse.class
         );
         return R.ok(fields);
