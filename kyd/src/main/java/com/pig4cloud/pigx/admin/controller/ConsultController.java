@@ -1,16 +1,14 @@
 package com.pig4cloud.pigx.admin.controller;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.service.ConsultService;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
-import com.pig4cloud.pigx.admin.vo.IdListRequest;
-import com.pig4cloud.pigx.admin.vo.IdRequest;
-import com.pig4cloud.pigx.admin.vo.consult.*;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.dto.IdListRequest;
+import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.consult.*;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;

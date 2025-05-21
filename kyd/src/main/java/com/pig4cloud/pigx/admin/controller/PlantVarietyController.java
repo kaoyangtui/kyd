@@ -5,13 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.service.PlantVarietyService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
-import com.pig4cloud.pigx.admin.vo.IdListRequest;
-import com.pig4cloud.pigx.admin.vo.IdRequest;
-import com.pig4cloud.pigx.admin.vo.ipAssign.IpAssignResponse;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalResponse;
-import com.pig4cloud.pigx.admin.vo.plantVariety.*;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.dto.IdListRequest;
+import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
+import com.pig4cloud.pigx.admin.dto.plantVariety.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -80,7 +78,7 @@ public class PlantVarietyController {
     @PreAuthorize("@pms.hasPermission('plant_variety_export')")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
-                IpAssignResponse.BIZ_CODE,
+                PlantVarietyResponse.BIZ_CODE,
                 PlantVarietyVO.class
         );
         return R.ok(fields);

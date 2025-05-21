@@ -16,7 +16,7 @@ import com.pig4cloud.pigx.admin.mapper.PlantVarietyMapper;
 import com.pig4cloud.pigx.admin.service.PlantVarietyBreederService;
 import com.pig4cloud.pigx.admin.service.PlantVarietyOwnerService;
 import com.pig4cloud.pigx.admin.service.PlantVarietyService;
-import com.pig4cloud.pigx.admin.vo.plantVariety.*;
+import com.pig4cloud.pigx.admin.dto.plantVariety.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

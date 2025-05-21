@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.entity.StandardDrafterInEntity;
 import com.pig4cloud.pigx.admin.mapper.StandardDrafterInMapper;
 import com.pig4cloud.pigx.admin.service.StandardDrafterInService;
-import com.pig4cloud.pigx.admin.vo.standard.StandardDrafterInVO;
+import com.pig4cloud.pigx.admin.dto.standard.StandardDrafterInVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

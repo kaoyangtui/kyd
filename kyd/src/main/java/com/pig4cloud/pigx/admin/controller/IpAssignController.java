@@ -1,21 +1,17 @@
 package com.pig4cloud.pigx.admin.controller;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ArrayUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.service.IpAssignService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
-import com.pig4cloud.pigx.admin.vo.IdListRequest;
-import com.pig4cloud.pigx.admin.vo.IdRequest;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
-import com.pig4cloud.pigx.admin.vo.ipAssign.*;
+import com.pig4cloud.pigx.admin.dto.IdListRequest;
+import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.dto.ipAssign.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
-import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

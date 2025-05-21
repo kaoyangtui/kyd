@@ -7,7 +7,7 @@ import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.DemandSignupMapper;
 import com.pig4cloud.pigx.admin.service.DemandSignupService;
-import com.pig4cloud.pigx.admin.vo.demand.DemandSignupRequest;
+import com.pig4cloud.pigx.admin.dto.demand.DemandSignupRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;

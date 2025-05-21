@@ -15,7 +15,7 @@ import com.pig4cloud.pigx.admin.mapper.IcLayoutMapper;
 import com.pig4cloud.pigx.admin.service.IcLayoutOwnerService;
 import com.pig4cloud.pigx.admin.service.IcLayoutCreatorInService;
 import com.pig4cloud.pigx.admin.service.IcLayoutService;
-import com.pig4cloud.pigx.admin.vo.icLayout.*;
+import com.pig4cloud.pigx.admin.dto.icLayout.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

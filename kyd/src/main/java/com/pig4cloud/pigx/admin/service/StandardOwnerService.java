@@ -2,7 +2,7 @@ package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.StandardOwnerEntity;
-import com.pig4cloud.pigx.admin.vo.standard.StandardOwnerVO;
+import com.pig4cloud.pigx.admin.dto.standard.StandardOwnerVO;
 
 import java.util.List;
 

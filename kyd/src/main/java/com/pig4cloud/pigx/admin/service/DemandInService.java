@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
-import com.pig4cloud.pigx.admin.vo.demandIn.DemandInCreateRequest;
-import com.pig4cloud.pigx.admin.vo.demandIn.DemandInPageRequest;
-import com.pig4cloud.pigx.admin.vo.demandIn.DemandInResponse;
-import com.pig4cloud.pigx.admin.vo.demandIn.DemandInUpdateRequest;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInCreateRequest;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

@@ -12,10 +12,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentProposalMapper;
 import com.pig4cloud.pigx.admin.service.PatentProposalService;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalCreateRequest;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalPageRequest;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalResponse;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalUpdateRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import org.springframework.stereotype.Service;
 

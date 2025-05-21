@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
-import com.pig4cloud.pigx.admin.vo.softCopy.SoftCopyCreateRequest;
-import com.pig4cloud.pigx.admin.vo.softCopy.SoftCopyPageRequest;
-import com.pig4cloud.pigx.admin.vo.softCopy.SoftCopyResponse;
-import com.pig4cloud.pigx.admin.vo.softCopy.SoftCopyUpdateRequest;
+import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyCreateRequest;
+import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyPageRequest;
+import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
+import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyUpdateRequest;
 
 import java.util.List;
 

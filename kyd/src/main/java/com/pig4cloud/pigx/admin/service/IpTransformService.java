@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
-import com.pig4cloud.pigx.admin.vo.ipTransform.*;
+import com.pig4cloud.pigx.admin.dto.ipTransform.*;
 
 import java.util.List;
 

@@ -11,7 +11,7 @@ import com.pig4cloud.pigx.admin.entity.FileEntity;
 import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.mapper.FileMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
-import com.pig4cloud.pigx.admin.vo.file.*;
+import com.pig4cloud.pigx.admin.dto.file.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

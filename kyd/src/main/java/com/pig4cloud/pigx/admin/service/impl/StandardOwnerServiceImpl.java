@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.entity.StandardOwnerEntity;
 import com.pig4cloud.pigx.admin.mapper.StandardOwnerMapper;
 import com.pig4cloud.pigx.admin.service.StandardOwnerService;
-import com.pig4cloud.pigx.admin.vo.standard.StandardOwnerVO;
+import com.pig4cloud.pigx.admin.dto.standard.StandardOwnerVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

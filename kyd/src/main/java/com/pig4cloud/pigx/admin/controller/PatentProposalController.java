@@ -6,11 +6,10 @@ import com.google.common.net.HttpHeaders;
 import com.pig4cloud.pigx.admin.service.PatentProposalService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
-import com.pig4cloud.pigx.admin.vo.*;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
-import com.pig4cloud.pigx.admin.vo.ipAssign.IpAssignResponse;
-import com.pig4cloud.pigx.admin.vo.patentProposal.*;
+import com.pig4cloud.pigx.admin.dto.*;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -77,7 +76,7 @@ public class PatentProposalController {
     @Operation(summary = "获取专利提案导出字段列表")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
-                IpAssignResponse.BIZ_CODE,
+                PatentProposalResponse.BIZ_CODE,
                 PatentProposalResponse.class
         );
         return R.ok(fields);

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.StandardEntity;
-import com.pig4cloud.pigx.admin.vo.standard.*;
+import com.pig4cloud.pigx.admin.dto.standard.*;
 
 import java.util.List;
 

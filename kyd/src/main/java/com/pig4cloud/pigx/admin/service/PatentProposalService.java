@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalCreateRequest;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalPageRequest;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalResponse;
-import com.pig4cloud.pigx.admin.vo.patentProposal.PatentProposalUpdateRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 
 import java.util.List;
 

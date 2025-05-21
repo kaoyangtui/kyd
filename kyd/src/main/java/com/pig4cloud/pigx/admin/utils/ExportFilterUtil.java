@@ -1,7 +1,7 @@
 package com.pig4cloud.pigx.admin.utils;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldResponse;
 
 import java.util.LinkedHashMap;
 import java.util.List;

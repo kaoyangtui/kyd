@@ -1,8 +1,8 @@
 package com.pig4cloud.pigx.admin.utils;
 
 import cn.hutool.core.util.ReflectUtil;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldListResponse;
-import com.pig4cloud.pigx.admin.vo.exportExecute.ExportFieldResponse;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.lang.reflect.Field;

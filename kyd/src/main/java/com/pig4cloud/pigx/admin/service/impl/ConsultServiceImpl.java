@@ -12,7 +12,7 @@ import com.pig4cloud.pigx.admin.entity.ConsultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ConsultMapper;
 import com.pig4cloud.pigx.admin.service.ConsultService;
-import com.pig4cloud.pigx.admin.vo.consult.*;
+import com.pig4cloud.pigx.admin.dto.consult.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

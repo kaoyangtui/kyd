@@ -12,7 +12,7 @@ import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.IpAssignMapper;
 import com.pig4cloud.pigx.admin.service.IpAssignService;
-import com.pig4cloud.pigx.admin.vo.ipAssign.*;
+import com.pig4cloud.pigx.admin.dto.ipAssign.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
