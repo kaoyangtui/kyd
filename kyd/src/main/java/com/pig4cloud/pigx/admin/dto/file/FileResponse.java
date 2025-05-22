@@ -41,5 +41,5 @@ public class FileResponse {
     @Schema(description = "提交时间")
     private LocalDateTime createTime;
 
-    public static final String BIZ_CODE = "file_list";
+    public static final String BIZ_CODE = "FILE";
 }

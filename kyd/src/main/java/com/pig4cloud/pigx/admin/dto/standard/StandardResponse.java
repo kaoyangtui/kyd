@@ -21,5 +21,5 @@ public class StandardResponse {
     @Schema(description = "校内起草人列表")
     private List<StandardDrafterInVO> drafters;
 
-    public static final String BIZ_CODE = "standard_list";
+    public static final String BIZ_CODE = "STANDARD";
 }

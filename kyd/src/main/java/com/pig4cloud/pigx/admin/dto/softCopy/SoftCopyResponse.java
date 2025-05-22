@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.softCopy;
 
+import com.baomidou.mybatisplus.annotation.*;
 import com.pig4cloud.pigx.admin.entity.SoftCopyCompleterEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyOwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,61 +12,139 @@ import java.util.List;
 @Data
 @Schema(description = "软著提案返回信息")
 public class SoftCopyResponse {
-    public static final String BIZ_CODE = "soft_copy_list";
+    public static final String BIZ_CODE = "SOFT_COPY";
 
-    @Schema(description = "主键")
+
+    /**
+     * 主键
+     */
+    @TableId(type = IdType.ASSIGN_ID)
+    @Schema(description="主键")
     private Long id;
 
-    @Schema(description = "业务编码")
+    /**
+     * 业务编码
+     */
+    @Schema(description="业务编码")
     private String code;
 
-    @Schema(description = "流程实例 ID")
+    /**
+     * 流程实例 ID
+     */
+    @Schema(description="流程实例 ID")
     private String flowInstId;
 
-    @Schema(description = "流程 KEY")
+    /**
+     * 流程KEY
+     */
+    @Schema(description="流程KEY")
     private String flowKey;
 
-    @Schema(description = "流程状态")
+    /**
+     * 流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回
+     */
+    @Schema(description="流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回")
     private Integer flowStatus;
 
-    @Schema(description = "当前流程节点名称")
+    /**
+     * 当前流程节点名称
+     */
+    @Schema(description="当前流程节点名称")
     private String currentNodeName;
 
-    @Schema(description = "软著名称")
+    /**
+     * 所属组织ID
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description="所属组织ID")
+    private Long deptId;
+
+    /**
+     * 组织名称
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description="组织名称")
+    private String deptName;
+
+    /**
+     * 软著名称
+     */
+    @Schema(description="软著名称")
     private String softName;
 
-    @Schema(description = "技术领域")
+    /**
+     * 技术领域
+     */
+    @Schema(description="技术领域")
     private String techField;
 
-    @Schema(description = "是否依托项目（0否1是）")
+    /**
+     * 依托项目 0否1是
+     */
+    @Schema(description="依托项目 0否1是")
     private Integer relyProject;
 
-    @Schema(description = "项目类型")
+    /**
+     * 项目类型
+     */
+    @Schema(description="项目类型")
     private String projectType;
 
-    @Schema(description = "项目名称")
+    /**
+     * 项目名称
+     */
+    @Schema(description="项目名称")
     private String projectName;
 
-    @Schema(description = "经办人姓名")
+    /**
+     * 经办人姓名
+     */
+    @Schema(description="经办人姓名")
     private String agentName;
 
-    @Schema(description = "经办人联系方式")
+    /**
+     * 经办人联系方式
+     */
+    @Schema(description="经办人联系方式")
     private String agentContact;
 
-    @Schema(description = "负责人承诺（0否1是）")
+    /**
+     * 负责人承诺 0否1是
+     */
+    @Schema(description="负责人承诺 0否1是")
     private Integer pledge;
 
-    @Schema(description = "附件路径，分号分隔")
-    private String attachmentUrls;
+    /**
+     * 附件路径;分号分隔
+     */
+    @Schema(description="附件路径;分号分隔")
+    private List<String> attachmentUrls;
 
-    @Schema(description = "所属院系")
-    private String deptId;
+    /**
+     * 负责人 ID
+     */
+    @Schema(description="负责人 ID")
+    private String leaderCode;
 
-    @Schema(description = "创建时间")
-    private LocalDateTime createTime;
+    /**
+     * 负责人姓名
+     */
+    @Schema(description="负责人姓名")
+    private String leaderName;
 
-    @Schema(description = "创建人")
+    /**
+     * 创建人
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description="创建人")
     private String createBy;
+
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description="创建时间")
+    private LocalDateTime createTime;
 
     @Schema(description = "完成人列表")
     private List<SoftCopyCompleterEntity> completers;

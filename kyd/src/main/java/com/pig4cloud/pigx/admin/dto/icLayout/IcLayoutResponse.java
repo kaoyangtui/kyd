@@ -18,5 +18,5 @@ public class IcLayoutResponse {
     @Schema(description = "权利人列表")
     private List<IcLayoutOwnerVO> owners;
 
-    public static final String BIZ_CODE = "ic_layout_list";
+    public static final String BIZ_CODE = "IC_LAYOUT";
 }

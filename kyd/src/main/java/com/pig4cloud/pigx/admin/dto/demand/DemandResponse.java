@@ -75,5 +75,5 @@ public class DemandResponse {
     @Schema(description = "企业需求附件")
     private List<String> attachFileUrl;
 
-    public static final String BIZ_CODE = "demand_list";
+    public static final String BIZ_CODE = "DEMAND";
 }

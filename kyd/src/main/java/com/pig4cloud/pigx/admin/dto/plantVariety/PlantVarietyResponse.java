@@ -18,5 +18,5 @@ public class PlantVarietyResponse {
     @Schema(description = "校内培育人列表")
     private List<PlantVarietyBreederVO> breeders;
 
-    public static final String BIZ_CODE = "plant_variety_list";
+    public static final String BIZ_CODE = "PLANT_VARIETY";
 }

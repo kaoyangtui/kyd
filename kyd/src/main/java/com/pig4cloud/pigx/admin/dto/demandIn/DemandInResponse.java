@@ -55,5 +55,5 @@ public class DemandInResponse {
     @Schema(description = "所属院系")
     private String deptId;
 
-    public static final String BIZ_CODE = "demand_in_list";
+    public static final String BIZ_CODE = "DEMAND_IN";
 }

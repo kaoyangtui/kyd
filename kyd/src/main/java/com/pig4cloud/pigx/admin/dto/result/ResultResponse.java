@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.dto.result;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.pig4cloud.pigx.admin.entity.ResultCompleterEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @Schema(description = "科研成果返回信息")
 public class ResultResponse {
 
-    public static final String BIZ_CODE = "result_list";
+    public static final String BIZ_CODE = "RESULT";
 
     /**
      * 主键
@@ -188,5 +189,5 @@ public class ResultResponse {
     private LocalDateTime createTime;
 
     @Schema(description = "完成人信息列表")
-    private List<ResultCompleterRequest> completers;
+    private List<ResultCompleterEntity> completers;
 }

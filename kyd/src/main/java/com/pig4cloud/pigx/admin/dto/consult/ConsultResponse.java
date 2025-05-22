@@ -43,5 +43,5 @@ public class ConsultResponse {
     @Schema(description = "回复内容")
     private String replyContent;
 
-    public static final String BIZ_CODE = "consult_list";
+    public static final String BIZ_CODE = "CONSULT";
 }

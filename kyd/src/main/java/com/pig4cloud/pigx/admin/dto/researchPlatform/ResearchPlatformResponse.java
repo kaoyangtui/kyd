@@ -45,5 +45,5 @@ public class ResearchPlatformResponse implements Serializable {
     @Schema(description = "业务编码")
     private String bizCode;
 
-    public static final String BIZ_CODE = "research_platform_list";
+    public static final String BIZ_CODE = "RESEARCH_PLATFORM";
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Schema(description = "专利提案响应对象")
 public class PatentProposalResponse {
 
-    public static final String BIZ_CODE = "patent_list";
+    public static final String BIZ_CODE = "PATENT";
 
     /**
      * 主键

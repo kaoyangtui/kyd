@@ -58,5 +58,5 @@ public class IpTransformResponse {
     @Schema(description = "所属院系")
     private String deptId;
 
-    public static final String BIZ_CODE = "ip_transform_list";
+    public static final String BIZ_CODE = "IP_TRANSFORM";
 }

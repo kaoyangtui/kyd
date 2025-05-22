@@ -12,7 +12,7 @@ import java.util.List;
 @Schema(description = "软著登记主表响应")
 public class SoftCopyRegResponse {
 
-    public static final String BIZ_CODE = "soft_copy_reg_list";
+    public static final String BIZ_CODE = "SOFT_COPY_REG";
 
     @Schema(description = "ID")
     private Long id;

@@ -48,5 +48,5 @@ public class IpAssignResponse {
     @Schema(description = "创建人所属院系")
     private String deptId;
 
-    public static final String BIZ_CODE = "ip_assign_list";
+    public static final String BIZ_CODE = "IP_ASSIGN";
 }

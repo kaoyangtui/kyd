@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Schema(description = "科研团队返回信息")
 public class ResearchTeamResponse {
 
-    public static final String BIZ_CODE = "research_team_list";
+    public static final String BIZ_CODE = "RESEARCH_TEAM";
 
     @Schema(description = "主键")
     private Long id;

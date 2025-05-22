@@ -26,6 +26,7 @@ import com.pig4cloud.pigx.admin.dto.*;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -47,22 +48,15 @@ import java.util.List;
 @Service
 public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> implements ResultService {
 
-    private final SysDeptService sysDeptService;
     private final FileService fileService;
     private final SysFileService sysFileService;
     private final ResultCompleterService resultCompleterService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ResultResponse createResult(ResultCreateRequest request) {
         ResultEntity entity = BeanUtil.copyProperties(request, ResultEntity.class);
-        entity.setCode("CG" + IdUtil.getSnowflakeNextIdStr());
-       //Long deptId = SecurityUtils.getUser().getDeptId();
-       //if (deptId != null) {
-       //    SysDept sysDept = sysDeptService.lambdaQuery().eq(SysDept::getDeptId, deptId).one();
-       //    if (null != sysDept) {
-       //        entity.setDeptName(sysDept.getName());
-       //    }
-       //}
+        entity.setCode(ParamResolver.getStr(ResultResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
         if (request.getTransWay() != null && !request.getTransWay().isEmpty()) {
             String transWayString = StrUtil.join(";", request.getTransWay());
             entity.setTransWay(transWayString);
@@ -148,6 +142,12 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             });
             fileService.batchCreate(fileCreateRequestList);
         }
+        request.getCompleters().forEach(completer -> {
+            if (completer.getCompleterLeader() == 1) {
+                entity.setLeaderCode(completer.getCompleterNo());
+                entity.setLeaderName(completer.getCompleterName());
+            }
+        });
         updateById(entity);
         List<ResultCompleterEntity> completerEntities = BeanUtil.copyToList(request.getCompleters(), ResultCompleterEntity.class);
         resultCompleterService.replaceCompleters(entity.getId(), completerEntities);
@@ -210,12 +210,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-        response.setCompleters(
-                BeanUtil.copyToList(resultCompleterService.lambdaQuery()
-                                .eq(ResultCompleterEntity::getResultId, id).list(),
-                        ResultCompleterRequest.class)
-        );
-
+        response.setCompleters(resultCompleterService.lambdaQuery().eq(ResultCompleterEntity::getResultId, id).list());
         return response;
     }
 
