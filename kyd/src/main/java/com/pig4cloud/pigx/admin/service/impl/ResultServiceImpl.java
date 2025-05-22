@@ -11,18 +11,22 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.api.entity.SysDept;
 import com.pig4cloud.pigx.admin.api.entity.SysFile;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegOwnerRequest;
+import com.pig4cloud.pigx.admin.entity.ResultCompleterEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
+import com.pig4cloud.pigx.admin.entity.SoftCopyCompleterEntity;
+import com.pig4cloud.pigx.admin.entity.SoftCopyRegOwnerEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
-import com.pig4cloud.pigx.admin.service.FileService;
-import com.pig4cloud.pigx.admin.service.ResultService;
-import com.pig4cloud.pigx.admin.service.SysFileService;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.dto.*;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -43,13 +47,22 @@ import java.util.List;
 @Service
 public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> implements ResultService {
 
+    private final SysDeptService sysDeptService;
     private final FileService fileService;
     private final SysFileService sysFileService;
+    private final ResultCompleterService resultCompleterService;
 
     @Override
     public ResultResponse createResult(ResultCreateRequest request) {
         ResultEntity entity = BeanUtil.copyProperties(request, ResultEntity.class);
         entity.setCode("CG" + IdUtil.getSnowflakeNextIdStr());
+       //Long deptId = SecurityUtils.getUser().getDeptId();
+       //if (deptId != null) {
+       //    SysDept sysDept = sysDeptService.lambdaQuery().eq(SysDept::getDeptId, deptId).one();
+       //    if (null != sysDept) {
+       //        entity.setDeptName(sysDept.getName());
+       //    }
+       //}
         if (request.getTransWay() != null && !request.getTransWay().isEmpty()) {
             String transWayString = StrUtil.join(";", request.getTransWay());
             entity.setTransWay(transWayString);
@@ -80,11 +93,20 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             });
             fileService.batchCreate(fileCreateRequestList);
         }
+        request.getCompleters().forEach(completer -> {
+            if (completer.getCompleterLeader() == 1) {
+                entity.setLeaderCode(completer.getCompleterNo());
+                entity.setLeaderName(completer.getCompleterName());
+            }
+        });
         save(entity);
         ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
         response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+
+        List<ResultCompleterEntity> completerEntities = BeanUtil.copyToList(request.getCompleters(), ResultCompleterEntity.class);
+        resultCompleterService.replaceCompleters(entity.getId(), completerEntities);
         return response;
     }
 
@@ -126,7 +148,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             });
             fileService.batchCreate(fileCreateRequestList);
         }
-        return updateById(entity);
+        updateById(entity);
+        List<ResultCompleterEntity> completerEntities = BeanUtil.copyToList(request.getCompleters(), ResultCompleterEntity.class);
+        resultCompleterService.replaceCompleters(entity.getId(), completerEntities);
+        return Boolean.TRUE;
     }
 
     @Override
@@ -185,6 +210,12 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        response.setCompleters(
+                BeanUtil.copyToList(resultCompleterService.lambdaQuery()
+                                .eq(ResultCompleterEntity::getResultId, id).list(),
+                        ResultCompleterRequest.class)
+        );
+
         return response;
     }
 

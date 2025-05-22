@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -74,6 +75,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
     @Override
     public Boolean createProposal(PatentProposalCreateRequest request) {
         PatentProposalEntity entity = BeanUtil.copyProperties(request, PatentProposalEntity.class);
+        entity.setCode("ZT" + IdUtil.getSnowflakeNextIdStr());
         return this.save(entity);
     }
 

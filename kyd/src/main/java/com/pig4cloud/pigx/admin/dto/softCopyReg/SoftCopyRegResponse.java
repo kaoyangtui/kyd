@@ -1,29 +1,47 @@
 package com.pig4cloud.pigx.admin.dto.softCopyReg;
 
-import com.pig4cloud.pigx.admin.entity.SoftCopyRegCompleterEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyRegOwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
 
 /**
- * 软著登记响应
- *
- * @author zhaoliang
+ * 软著登记主表响应
  */
 @Data
-@Schema(description = "软著登记响应")
+@Schema(description = "软著登记主表响应")
 public class SoftCopyRegResponse {
 
-    @Schema(description = "主表信息")
-    private SoftCopyRegMainResponse main;
+    public static final String BIZ_CODE = "soft_copy_reg_list";
+
+    @Schema(description = "ID")
+    private Long id;
+
+    @Schema(description = "著作权名称")
+    private String name;
+
+    @Schema(description = "登记号")
+    private String regNo;
+
+    @Schema(description = "证书号")
+    private String certNo;
+
+    @Schema(description = "证书时间")
+    private String certDate;
+
+    @Schema(description = "开发完成时间")
+    private String devDate;
+
+    @Schema(description = "首次发表时间")
+    private String firstPubDate;
+
+    @Schema(description = "证书文件URL")
+    private String certFileUrl;
 
     @Schema(description = "著作权人列表")
-    private List<SoftCopyRegOwnerEntity> owners;
+    private List<SoftCopyRegOwnerRequest> owners;
 
     @Schema(description = "完成人列表")
-    private List<SoftCopyRegCompleterEntity> completers;
+    private List<SoftCopyRegCompleterRequest> completers;
 
-    public static final String BIZ_CODE = "soft_copy_reg_list";
 }

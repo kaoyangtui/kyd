@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 @Schema(description = "软著提案返回信息")
 public class SoftCopyResponse {
+    public static final String BIZ_CODE = "soft_copy_list";
 
     @Schema(description = "主键")
     private Long id;
@@ -72,5 +73,4 @@ public class SoftCopyResponse {
     @Schema(description = "著作权人列表")
     private List<SoftCopyOwnerEntity> owners;
 
-    public static final String BIZ_CODE = "soft_copy_list";
 }

@@ -36,14 +36,14 @@ public class PatentProposalController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询专利提案")
-    @PreAuthorize("@pms.hasPermission('admin_patent_proposal_view')")
+    @PreAuthorize("@pms.hasPermission('patent_proposal_view')")
     public R<IPage<PatentProposalResponse>> page(@ParameterObject Page page, @ParameterObject PatentProposalPageRequest request) {
         return R.ok(patentProposalService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "专利提案详情")
-    @PreAuthorize("@pms.hasPermission('admin_patent_proposal_view')")
+    @PreAuthorize("@pms.hasPermission('patent_proposal_view')")
     public R<PatentProposalResponse> detail(@RequestBody IdRequest request) {
         return R.ok(patentProposalService.getDetail(request.getId()));
     }
@@ -51,7 +51,7 @@ public class PatentProposalController {
     @PostMapping("/create")
     @Operation(summary = "新增专利提案")
     @SysLog("新增专利提案")
-    @PreAuthorize("@pms.hasPermission('admin_patent_proposal_add')")
+    @PreAuthorize("@pms.hasPermission('patent_proposal_add')")
     public R<Boolean> create(@RequestBody PatentProposalCreateRequest request) {
         return R.ok(patentProposalService.createProposal(request));
     }
@@ -59,7 +59,7 @@ public class PatentProposalController {
     @PostMapping("/update")
     @Operation(summary = "修改专利提案")
     @SysLog("修改专利提案")
-    @PreAuthorize("@pms.hasPermission('admin_patent_proposal_edit')")
+    @PreAuthorize("@pms.hasPermission('patent_proposal_edit')")
     public R<Boolean> update(@RequestBody PatentProposalUpdateRequest request) {
         return R.ok(patentProposalService.updateProposal(request));
     }
@@ -67,7 +67,7 @@ public class PatentProposalController {
     @PostMapping("/remove")
     @Operation(summary = "删除专利提案")
     @SysLog("删除专利提案")
-    @PreAuthorize("@pms.hasPermission('admin_patent_proposal_del')")
+    @PreAuthorize("@pms.hasPermission('patent_proposal_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(patentProposalService.removeProposals(request.getIds()));
     }
@@ -85,7 +85,7 @@ public class PatentProposalController {
     @PostMapping("/export")
     @ResponseExcel(name = "专利提案导出", sheets = {@Sheet(sheetName = "提案列表")})
     @Operation(summary = "导出专利提案")
-    @PreAuthorize("@pms.hasPermission('admin_patent_proposal_export')")
+    @PreAuthorize("@pms.hasPermission('patent_proposal_export')")
     public List<Map<String, Object>> export(@RequestBody PatentProposalExportWrapperRequest request) {
         IPage<PatentProposalResponse> pageData = patentProposalService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), PatentProposalResponse.class);

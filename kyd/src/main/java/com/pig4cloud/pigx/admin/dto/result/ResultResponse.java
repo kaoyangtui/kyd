@@ -152,10 +152,28 @@ public class ResultResponse {
     private Integer shelfStatus;
 
     /**
+     * 负责人编码
+     */
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String leaderName;
+
+    /**
      * 所属院系
      */
     @Schema(description = "所属院系")
     private Long deptId;
+
+    /**
+     * 院系名称
+     */
+    @Schema(description = "院系名称")
+    private String deptName;
 
     /**
      * 创建/提交人
@@ -168,4 +186,7 @@ public class ResultResponse {
      */
     @Schema(description = "创建/提交时间")
     private LocalDateTime createTime;
+
+    @Schema(description = "完成人信息列表")
+    private List<ResultCompleterRequest> completers;
 }

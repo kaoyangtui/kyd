@@ -57,4 +57,7 @@ public class ResultCreateRequest{
 
     @Schema(description = "成果附件路径")
     private List<String> fileNames;
+
+    @Schema(description = "完成人信息列表")
+    private List<ResultCompleterRequest> completers;
 }

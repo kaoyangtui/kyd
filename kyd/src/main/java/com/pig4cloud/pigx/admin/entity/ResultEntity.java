@@ -157,10 +157,30 @@ public class ResultEntity extends Model<ResultEntity> {
     private Integer shelfStatus;
 
     /**
+     * 负责人编码
+     */
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String leaderName;
+
+    /**
      * 所属院系
      */
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "所属院系")
     private Long deptId;
+
+    /**
+     * 院系名称
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "院系名称")
+    private String deptName;
 
     /**
      * 创建/提交人

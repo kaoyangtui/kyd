@@ -35,3 +35,6 @@ cnipr:
   client-id: "F06C930529889BAC8978C141106C158D"
   client-secret: "6635D2B036D3A7E0B55137851DC71138"
 
+pigx:
+  mybatis:
+    show-sql: true

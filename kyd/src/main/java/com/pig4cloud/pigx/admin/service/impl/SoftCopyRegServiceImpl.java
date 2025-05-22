@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.*;
+import com.pig4cloud.pigx.admin.entity.SoftCopyCompleterEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyRegEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyRegCompleterEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyRegOwnerEntity;
@@ -14,10 +16,6 @@ import com.pig4cloud.pigx.admin.mapper.SoftCopyRegMapper;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegCompleterService;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegOwnerService;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegService;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegCreateRequest;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegPageRequest;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,15 +61,22 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
     public SoftCopyRegResponse getDetail(Long id) {
         SoftCopyRegEntity entity = this.getById(id);
         SoftCopyRegResponse response = BeanUtil.copyProperties(entity, SoftCopyRegResponse.class);
-        response.setOwners(ownerService.lambdaQuery().eq(SoftCopyRegOwnerEntity::getSoftCopyRegId, id).list());
-        response.setCompleters(completerService.lambdaQuery().eq(SoftCopyRegCompleterEntity::getSoftCopyRegId, id).list());
+        response.setOwners(
+                BeanUtil.copyToList(ownerService.lambdaQuery()
+                                .eq(SoftCopyRegOwnerEntity::getSoftCopyRegId, id).list(),
+                        SoftCopyRegOwnerRequest.class)
+        );
+        response.setCompleters(BeanUtil.copyToList(completerService.lambdaQuery()
+                        .eq(SoftCopyRegCompleterEntity::getSoftCopyRegId, id).list(),
+                SoftCopyRegCompleterRequest.class)
+        );
         return response;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean createReg(SoftCopyRegCreateRequest request) {
-        SoftCopyRegEntity entity = BeanUtil.copyProperties(request.getMain(), SoftCopyRegEntity.class);
+        SoftCopyRegEntity entity = BeanUtil.copyProperties(request, SoftCopyRegEntity.class);
         this.save(entity);
 
         List<SoftCopyRegOwnerEntity> ownerEntities = BeanUtil.copyToList(request.getOwners(), SoftCopyRegOwnerEntity.class);
@@ -87,7 +92,7 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateReg(SoftCopyRegUpdateRequest request) {
-        SoftCopyRegEntity entity = BeanUtil.copyProperties(request.getMain(), SoftCopyRegEntity.class);
+        SoftCopyRegEntity entity = BeanUtil.copyProperties(request, SoftCopyRegEntity.class);
         this.updateById(entity);
 
         List<SoftCopyRegOwnerEntity> ownerEntities = BeanUtil.copyToList(request.getOwners(), SoftCopyRegOwnerEntity.class);

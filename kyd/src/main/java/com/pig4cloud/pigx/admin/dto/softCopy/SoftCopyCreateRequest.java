@@ -14,8 +14,32 @@ import java.util.List;
 @Schema(description = "软著提案新增请求")
 public class SoftCopyCreateRequest {
 
-    @Schema(description = "软著主表信息")
-    private SoftCopyMainRequest main;
+    @Schema(description = "软著名称")
+    private String softName;
+
+    @Schema(description = "技术领域")
+    private String techField;
+
+    @Schema(description = "是否依托项目")
+    private Integer relyProject;
+
+    @Schema(description = "项目类型")
+    private String projectType;
+
+    @Schema(description = "项目名称")
+    private String projectName;
+
+    @Schema(description = "经办人姓名")
+    private String agentName;
+
+    @Schema(description = "经办人联系方式")
+    private String agentContact;
+
+    @Schema(description = "负责人承诺")
+    private Integer pledge;
+
+    @Schema(description = "附件路径，分号分隔")
+    private String attachmentUrls;
 
     @Schema(description = "完成人信息列表")
     private List<SoftCopyCompleterRequest> completers;

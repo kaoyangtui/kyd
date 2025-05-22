@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -39,7 +40,8 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean createProposal(SoftCopyCreateRequest request) {
-        SoftCopyEntity entity = BeanUtil.copyProperties(request.getMain(), SoftCopyEntity.class);
+        SoftCopyEntity entity = BeanUtil.copyProperties(request, SoftCopyEntity.class);
+        entity.setCode("RT" + IdUtil.getSnowflakeNextIdStr());
         this.save(entity);
         Long softCopyId = entity.getId();
         if (ObjectUtil.isNull(softCopyId)) {
@@ -58,7 +60,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateProposal(SoftCopyUpdateRequest request) {
         Long id = request.getId();
-        SoftCopyEntity entity = BeanUtil.copyProperties(request.getMain(), SoftCopyEntity.class);
+        SoftCopyEntity entity = BeanUtil.copyProperties(request, SoftCopyEntity.class);
         entity.setId(id);
         this.updateById(entity);
 
