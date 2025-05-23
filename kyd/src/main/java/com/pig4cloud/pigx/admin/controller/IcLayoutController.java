@@ -6,8 +6,6 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.*;
-import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyPageRequest;
-import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
 import com.pig4cloud.pigx.admin.service.IcLayoutService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;

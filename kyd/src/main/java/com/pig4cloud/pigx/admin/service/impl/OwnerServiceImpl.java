@@ -3,7 +3,6 @@ package com.pig4cloud.pigx.admin.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import com.pig4cloud.pigx.admin.mapper.OwnerMapper;
 import com.pig4cloud.pigx.admin.service.OwnerService;

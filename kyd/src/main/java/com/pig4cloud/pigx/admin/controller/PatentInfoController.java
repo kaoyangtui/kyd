@@ -1,7 +1,6 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.pig4cloud.pigx.admin.service.KunyidaPatentService;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.admin.model.request.PatentSearchListReq;
 import com.pig4cloud.pigx.admin.model.response.PatentSearchListRes;
