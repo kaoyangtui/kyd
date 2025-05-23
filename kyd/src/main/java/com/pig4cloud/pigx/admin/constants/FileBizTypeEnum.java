@@ -9,7 +9,10 @@ import lombok.Getter;
  */
 @Getter
 public enum FileBizTypeEnum {
-    ATTACHMENT("附件");
+    ATTACHMENT("附件"),
+    CLAIMS("权利要求书附件"),
+    DESCRIPTION("说明书附件"),
+    ABSTRACT("说明书摘要附件");
 
     private final String value;
 

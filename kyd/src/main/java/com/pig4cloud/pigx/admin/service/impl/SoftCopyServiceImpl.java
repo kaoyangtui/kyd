@@ -43,7 +43,6 @@ import java.util.List;
 public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEntity> implements SoftCopyService {
 
     private final FileService fileService;
-    private final SysFileService sysFileService;
     private final SoftCopyCompleterService completerService;
     private final SoftCopyOwnerService ownerService;
 
@@ -58,19 +57,13 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
             entity.setAttachmentUrls(fileUrl);
             List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
             request.getAttachmentUrls().forEach(fileName -> {
-                SysFile sysFile = sysFileService.lambdaQuery()
-                        .eq(SysFile::getFileName, fileName)
-                        .orderByDesc(SysFile::getCreateTime)
-                        .last("limit 1")
-                        .one();
-                FileCreateRequest fileCreateRequest = new FileCreateRequest();
-                fileCreateRequest.setCode(entity.getCode());
-                fileCreateRequest.setApplyType(SoftCopyResponse.BIZ_CODE);
-                fileCreateRequest.setSubjectName(entity.getSoftName());
-                fileCreateRequest.setBizType(FileBizTypeEnum.ATTACHMENT.getValue());
-                fileCreateRequest.setFileName(sysFile.getFileName());
-                fileCreateRequest.setFileType(sysFile.getType());
-                fileCreateRequest.setDownloadName(sysFile.getOriginal());
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        SoftCopyResponse.BIZ_CODE,
+                        entity.getSoftName(),
+                        FileBizTypeEnum.ATTACHMENT.getValue()
+                );
                 fileCreateRequestList.add(fileCreateRequest);
             });
             fileService.batchCreate(fileCreateRequestList);
@@ -106,19 +99,13 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
             entity.setAttachmentUrls(fileUrl);
             List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
             request.getAttachmentUrls().forEach(fileName -> {
-                SysFile sysFile = sysFileService.lambdaQuery()
-                        .eq(SysFile::getFileName, fileName)
-                        .orderByDesc(SysFile::getCreateTime)
-                        .last("limit 1")
-                        .one();
-                FileCreateRequest fileCreateRequest = new FileCreateRequest();
-                fileCreateRequest.setCode(entity.getCode());
-                fileCreateRequest.setApplyType(SoftCopyResponse.BIZ_CODE);
-                fileCreateRequest.setSubjectName(entity.getSoftName());
-                fileCreateRequest.setBizType(FileBizTypeEnum.ATTACHMENT.getValue());
-                fileCreateRequest.setFileName(sysFile.getFileName());
-                fileCreateRequest.setFileType(sysFile.getType());
-                fileCreateRequest.setDownloadName(sysFile.getOriginal());
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        SoftCopyResponse.BIZ_CODE,
+                        entity.getSoftName(),
+                        FileBizTypeEnum.ATTACHMENT.getValue()
+                );
                 fileCreateRequestList.add(fileCreateRequest);
             });
             fileService.batchCreate(fileCreateRequestList);

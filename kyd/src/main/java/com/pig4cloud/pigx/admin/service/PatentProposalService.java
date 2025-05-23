@@ -23,5 +23,4 @@ public interface PatentProposalService extends IService<PatentProposalEntity> {
 
     Boolean removeProposals(List<Long> ids);
 
-    List<PatentProposalResponse> exportList(PatentProposalPageRequest request);
 }

@@ -8,6 +8,5 @@ import java.util.List;
 
 public interface SoftCopyCompleterService extends IService<SoftCopyCompleterEntity> {
 
-    @Transactional(rollbackFor = Exception.class)
     void replaceCompleters(Long softCopyId, List<SoftCopyCompleterEntity> entities);
 }

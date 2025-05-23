@@ -196,7 +196,16 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     public Boolean updateShelfStatus(ResultShelfRequest request) {
         return this.update(Wrappers.<ResultEntity>lambdaUpdate()
                 .eq(ResultEntity::getId, request.getId())
-                .set(ResultEntity::getShelfStatus, request.getStatus()));
+                .set(ResultEntity::getShelfStatus, request.getShelfStatus())
+                .set(null != request.getTechArea(), ResultEntity::getTechArea, request.getTechArea())
+                .set(null != request.getTags() && !request.getTags().isEmpty(),
+                        ResultEntity::getTags, StrUtil.join(";", request.getTags()))
+                .set(null != request.getTransWay() && !request.getTransWay().isEmpty(),
+                        ResultEntity::getTransWay, StrUtil.join(";", request.getTransWay()))
+                .set(null != request.getTransPrice(), ResultEntity::getTransPrice, request.getTransPrice())
+
+
+        );
     }
 
     @SneakyThrows

@@ -7,11 +7,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.api.entity.SysFile;
 import com.pig4cloud.pigx.admin.entity.FileEntity;
 import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.mapper.FileMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.dto.file.*;
+import com.pig4cloud.pigx.admin.service.SysFileService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> implements FileService {
+
+    private final SysFileService sysFileService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -54,7 +58,6 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         List<FileEntity> entityList = BeanUtil.copyToList(requestList, FileEntity.class);
         return this.saveBatch(entityList);
     }
-
 
 
     @Override
@@ -96,5 +99,27 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         Page<IcLayoutEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
 
         return resPage.convert(e -> BeanUtil.copyProperties(e, FileResponse.class));
+    }
+
+    @Override
+    public FileCreateRequest getFileCreateRequest(String fileName,
+                                                  String code,
+                                                  String applyType,
+                                                  String subjectName,
+                                                  String bizType) {
+        SysFile sysFile = sysFileService.lambdaQuery()
+                .eq(SysFile::getFileName, fileName)
+                .orderByDesc(SysFile::getCreateTime)
+                .last("limit 1")
+                .one();
+        FileCreateRequest fileCreateRequest = new FileCreateRequest();
+        fileCreateRequest.setCode(code);
+        fileCreateRequest.setApplyType(applyType);
+        fileCreateRequest.setSubjectName(subjectName);
+        fileCreateRequest.setBizType(bizType);
+        fileCreateRequest.setFileName(sysFile.getFileName());
+        fileCreateRequest.setFileType(sysFile.getType());
+        fileCreateRequest.setDownloadName(sysFile.getOriginal());
+        return fileCreateRequest;
     }
 }

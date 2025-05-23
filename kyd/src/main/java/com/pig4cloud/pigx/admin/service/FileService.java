@@ -19,4 +19,10 @@ public interface FileService extends IService<FileEntity> {
     Boolean removeByIds(List<Long> ids);
 
     IPage<FileResponse> pageResult(Page page, FilePageRequest request);
+
+    FileCreateRequest getFileCreateRequest(String fileName,
+                                           String code,
+                                           String applyType,
+                                           String subjectName,
+                                           String bizType);
 }

@@ -10,14 +10,22 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
+import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
+import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PatentProposalMapper;
-import com.pig4cloud.pigx.admin.service.PatentProposalService;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,7 +39,13 @@ import java.util.stream.Collectors;
  * @date 2025-05-11 17:08:56
  */
 @Service
+@RequiredArgsConstructor
 public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper, PatentProposalEntity> implements PatentProposalService {
+
+    private final FileService fileService;
+    private final PatentProposalCompleterService completerService;
+    private final PatentProposalOwnerService ownerService;
+
     @Override
     public IPage<PatentProposalResponse> pageResult(Page reqPage, PatentProposalPageRequest request) {
         LambdaQueryWrapper<PatentProposalEntity> wrapper = Wrappers.lambdaQuery();
@@ -64,25 +78,153 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
     }
 
 
+    @SneakyThrows
     @Override
     public PatentProposalResponse getDetail(Long id) {
         PatentProposalEntity entity = this.getById(id);
-        return Optional.ofNullable(entity)
-                .map(e -> BeanUtil.copyProperties(e, PatentProposalResponse.class))
-                .orElse(null);
+        if (entity == null) {
+            throw new BizException("数据不存在");
+        }
+        PatentProposalResponse res = BeanUtil.copyProperties(entity, PatentProposalResponse.class);
+        res.setClaimsFile(StrUtil.split(entity.getClaimsFile(), ";"));
+        res.setDescriptionFile(StrUtil.split(entity.getDescriptionFile(), ";"));
+        res.setDescFigureFile(StrUtil.split(entity.getDescFigureFile(), ";"));
+        res.setAbstractFigureFile(StrUtil.split(entity.getAbstractFigureFile(), ";"));
+        res.setAbstractFile(StrUtil.split(entity.getAbstractFile(), ";"));
+        res.setPatentProposalCompleterList(completerService.lambdaQuery().eq(PatentProposalCompleterEntity::getPatentProposalId, id).list());
+        res.setProposalOwnerList(ownerService.lambdaQuery().eq(PatentProposalOwnerEntity::getPatentProposalId, id).list());
+        return res;
     }
 
     @Override
     public Boolean createProposal(PatentProposalCreateRequest request) {
         PatentProposalEntity entity = BeanUtil.copyProperties(request, PatentProposalEntity.class);
-        entity.setCode("ZT" + IdUtil.getSnowflakeNextIdStr());
-        return this.save(entity);
+        entity.setCode(ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+        List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
+        if (request.getClaimsFile() != null && !request.getClaimsFile().isEmpty()) {
+            entity.setClaimsFile(StrUtil.join(";", request.getClaimsFile()));
+            request.getClaimsFile().forEach(fileName -> {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        PatentProposalResponse.BIZ_CODE,
+                        entity.getTitle(),
+                        FileBizTypeEnum.CLAIMS.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+        }
+        if (request.getDescriptionFile() != null && !request.getDescriptionFile().isEmpty()) {
+            entity.setDescriptionFile(StrUtil.join(";", request.getDescriptionFile()));
+            request.getDescriptionFile().forEach(fileName -> {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        PatentProposalResponse.BIZ_CODE,
+                        entity.getTitle(),
+                        FileBizTypeEnum.DESCRIPTION.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+        }
+        if (request.getDescFigureFile() != null && !request.getDescFigureFile().isEmpty()) {
+            entity.setDescFigureFile(StrUtil.join(";", request.getDescFigureFile()));
+        }
+        if (request.getAbstractFile() != null && !request.getAbstractFile().isEmpty()) {
+            entity.setAbstractFile(StrUtil.join(";", request.getAbstractFile()));
+            request.getAbstractFile().forEach(fileName -> {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        PatentProposalResponse.BIZ_CODE,
+                        entity.getTitle(),
+                        FileBizTypeEnum.ABSTRACT.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+        }
+        if (request.getAbstractFigureFile() != null && !request.getAbstractFigureFile().isEmpty()) {
+            entity.setAbstractFigureFile(StrUtil.join(";", request.getAbstractFigureFile()));
+        }
+        fileService.batchCreate(fileCreateRequestList);
+        request.getPatentProposalCompleterList().forEach(completer -> {
+            if (completer.getCompleterLeader() == 1) {
+                entity.setLeaderCode(completer.getCompleterNo());
+                entity.setLeaderName(completer.getCompleterName());
+            }
+        });
+        this.save(entity);
+        List<PatentProposalCompleterEntity> completerEntities = BeanUtil.copyToList(request.getPatentProposalCompleterList(), PatentProposalCompleterEntity.class);
+        List<PatentProposalOwnerEntity> ownerEntities = BeanUtil.copyToList(request.getProposalOwnerList(), PatentProposalOwnerEntity.class);
+
+        completerService.replaceCompleters(entity.getId(), completerEntities);
+        ownerService.replaceOwners(entity.getId(), ownerEntities);
+        return Boolean.TRUE;
     }
 
     @Override
     public Boolean updateProposal(PatentProposalUpdateRequest request) {
         PatentProposalEntity entity = BeanUtil.copyProperties(request, PatentProposalEntity.class);
-        return this.updateById(entity);
+        List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
+        if (request.getClaimsFile() != null && !request.getClaimsFile().isEmpty()) {
+            entity.setClaimsFile(StrUtil.join(";", request.getClaimsFile()));
+            request.getClaimsFile().forEach(fileName -> {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        PatentProposalResponse.BIZ_CODE,
+                        entity.getTitle(),
+                        FileBizTypeEnum.CLAIMS.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+        }
+        if (request.getDescriptionFile() != null && !request.getDescriptionFile().isEmpty()) {
+            entity.setDescriptionFile(StrUtil.join(";", request.getDescriptionFile()));
+            request.getDescriptionFile().forEach(fileName -> {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        PatentProposalResponse.BIZ_CODE,
+                        entity.getTitle(),
+                        FileBizTypeEnum.DESCRIPTION.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+        }
+        if (request.getDescFigureFile() != null && !request.getDescFigureFile().isEmpty()) {
+            entity.setDescFigureFile(StrUtil.join(";", request.getDescFigureFile()));
+        }
+        if (request.getAbstractFile() != null && !request.getAbstractFile().isEmpty()) {
+            entity.setAbstractFile(StrUtil.join(";", request.getAbstractFile()));
+            request.getAbstractFile().forEach(fileName -> {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        PatentProposalResponse.BIZ_CODE,
+                        entity.getTitle(),
+                        FileBizTypeEnum.ABSTRACT.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+        }
+        if (request.getAbstractFigureFile() != null && !request.getAbstractFigureFile().isEmpty()) {
+            entity.setAbstractFigureFile(StrUtil.join(";", request.getAbstractFigureFile()));
+        }
+        fileService.batchCreate(fileCreateRequestList);
+        request.getPatentProposalCompleterList().forEach(completer -> {
+            if (completer.getCompleterLeader() == 1) {
+                entity.setLeaderCode(completer.getCompleterNo());
+                entity.setLeaderName(completer.getCompleterName());
+            }
+        });
+        this.updateById(entity);
+        List<PatentProposalCompleterEntity> completerEntities = BeanUtil.copyToList(request.getPatentProposalCompleterList(), PatentProposalCompleterEntity.class);
+        List<PatentProposalOwnerEntity> ownerEntities = BeanUtil.copyToList(request.getProposalOwnerList(), PatentProposalOwnerEntity.class);
+
+        completerService.replaceCompleters(entity.getId(), completerEntities);
+        ownerService.replaceOwners(entity.getId(), ownerEntities);
+        return Boolean.TRUE;
     }
 
     @Override
@@ -90,22 +232,4 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         return this.removeBatchByIds(ids);
     }
 
-    @Override
-    public List<PatentProposalResponse> exportList(PatentProposalPageRequest request) {
-        LambdaQueryWrapper<PatentProposalEntity> wrapper = Wrappers.lambdaQuery();
-
-        wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
-                w.like(PatentProposalEntity::getCode, request.getKeyword())
-                        .or().like(PatentProposalEntity::getTitle, request.getKeyword()));
-
-        wrapper.eq(StrUtil.isNotBlank(request.getType()), PatentProposalEntity::getType, request.getType());
-        wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PatentProposalEntity::getDeptId, request.getDeptId());
-        wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), PatentProposalEntity::getFlowStatus, request.getFlowStatus());
-        wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), PatentProposalEntity::getCurrentNodeName, request.getCurrentNodeName());
-
-        List<PatentProposalEntity> list = this.list(wrapper);
-        return list.stream()
-                .map(e -> BeanUtil.copyProperties(e, PatentProposalResponse.class))
-                .collect(Collectors.toList());
-    }
 }
