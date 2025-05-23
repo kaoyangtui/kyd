@@ -1,11 +1,11 @@
 package com.pig4cloud.pigx.admin.mapper;
 
 import com.pig4cloud.pigx.common.data.datascope.PigxBaseMapper;
-import com.pig4cloud.pigx.admin.entity.SoftCopyCompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface SoftCopyCompleterMapper extends PigxBaseMapper<SoftCopyCompleterEntity> {
+public interface OwnerMapper extends PigxBaseMapper<OwnerEntity> {
 
 
 }

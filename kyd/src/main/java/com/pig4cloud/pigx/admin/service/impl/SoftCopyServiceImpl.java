@@ -14,10 +14,7 @@ import com.pig4cloud.pigx.admin.api.entity.SysFile;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
-import com.pig4cloud.pigx.admin.entity.ResultEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyCompleterEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyOwnerEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.SoftCopyMapper;
 import com.pig4cloud.pigx.admin.service.*;
@@ -43,8 +40,8 @@ import java.util.List;
 public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEntity> implements SoftCopyService {
 
     private final FileService fileService;
-    private final SoftCopyCompleterService completerService;
-    private final SoftCopyOwnerService ownerService;
+    private final CompleterService completerService;
+    private final OwnerService ownerService;
 
     @SneakyThrows
     @Override
@@ -80,11 +77,8 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
             throw new BizException("软著提案保存失败，未生成 ID");
         }
 
-        List<SoftCopyCompleterEntity> completerEntities = BeanUtil.copyToList(request.getCompleters(), SoftCopyCompleterEntity.class);
-        List<SoftCopyOwnerEntity> ownerEntities = BeanUtil.copyToList(request.getOwners(), SoftCopyOwnerEntity.class);
-
-        completerService.replaceCompleters(softCopyId, completerEntities);
-        ownerService.replaceOwners(softCopyId, ownerEntities);
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        ownerService.replaceOwners(entity.getCode(), request.getOwners());
         return Boolean.TRUE;
     }
 
@@ -118,11 +112,8 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         });
         this.updateById(entity);
 
-        List<SoftCopyCompleterEntity> completerEntities = BeanUtil.copyToList(request.getCompleters(), SoftCopyCompleterEntity.class);
-        List<SoftCopyOwnerEntity> ownerEntities = BeanUtil.copyToList(request.getOwners(), SoftCopyOwnerEntity.class);
-
-        completerService.replaceCompleters(id, completerEntities);
-        ownerService.replaceOwners(id, ownerEntities);
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        ownerService.replaceOwners(entity.getCode(), request.getOwners());
         return Boolean.TRUE;
     }
 
@@ -171,8 +162,8 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         }
         SoftCopyResponse res = BeanUtil.copyProperties(entity, SoftCopyResponse.class);
         res.setAttachmentUrls(StrUtil.split(entity.getAttachmentUrls(), ";"));
-        res.setCompleters(completerService.lambdaQuery().eq(SoftCopyCompleterEntity::getSoftCopyId, id).list());
-        res.setOwners(ownerService.lambdaQuery().eq(SoftCopyOwnerEntity::getSoftCopyId, id).list());
+        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
+        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
         return res;
     }
 

@@ -2,7 +2,7 @@ package com.pig4cloud.pigx.admin.dto.result;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.pig4cloud.pigx.admin.entity.ResultCompleterEntity;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -189,5 +189,5 @@ public class ResultResponse {
     private LocalDateTime createTime;
 
     @Schema(description = "完成人信息列表")
-    private List<ResultCompleterEntity> completers;
+    private List<CompleterEntity> completers;
 }

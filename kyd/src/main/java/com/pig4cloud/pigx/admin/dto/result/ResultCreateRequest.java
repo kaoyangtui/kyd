@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.result;
 
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -59,5 +60,5 @@ public class ResultCreateRequest{
     private List<String> fileNames;
 
     @Schema(description = "完成人信息列表")
-    private List<ResultCompleterRequest> completers;
+    private List<CompleterEntity> completers;
 }

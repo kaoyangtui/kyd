@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.pig4cloud.pigx.admin.entity.PatentProposalCompleterEntity;
-import com.pig4cloud.pigx.admin.entity.PatentProposalOwnerEntity;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -56,10 +56,10 @@ public class PatentProposalResponse {
     private String projectName;
 
     @Schema(description = "申请人信息")
-    private List<PatentProposalOwnerEntity> proposalOwnerList;
+    private List<OwnerEntity> owners;
 
     @Schema(description = "发明人信息（校内）")
-    private List<PatentProposalCompleterEntity> patentProposalCompleterList;
+    private List<CompleterEntity> completers;
 
     @Schema(description = "发明人（校外）")
     private String inventorsOuter;

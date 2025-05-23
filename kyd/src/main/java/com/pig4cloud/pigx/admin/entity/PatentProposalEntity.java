@@ -225,14 +225,14 @@ public class PatentProposalEntity extends Model<PatentProposalEntity> {
      * 所属组织ID
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "所属组织ID")
+    @Schema(description="所属组织ID")
     private Long deptId;
 
     /**
      * 组织名称
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "组织名称")
+    @Schema(description="组织名称")
     private String deptName;
 
     /**

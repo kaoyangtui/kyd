@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -9,165 +10,150 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.entity.PlantVarietyBreederEntity;
-import com.pig4cloud.pigx.admin.entity.PlantVarietyEntity;
-import com.pig4cloud.pigx.admin.entity.PlantVarietyOwnerEntity;
-import com.pig4cloud.pigx.admin.mapper.PlantVarietyMapper;
-import com.pig4cloud.pigx.admin.service.PlantVarietyBreederService;
-import com.pig4cloud.pigx.admin.service.PlantVarietyOwnerService;
-import com.pig4cloud.pigx.admin.service.PlantVarietyService;
+import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.*;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
+import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.mapper.PlantVarietyMapper;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * 植物新品种权登记信息
- *
- * @author pigx
- * @date 2025-05-15 10:55:21
- */
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, PlantVarietyEntity> implements PlantVarietyService {
 
-    private final PlantVarietyOwnerService ownerService;
-    private final PlantVarietyBreederService breederService;
+    private final FileService fileService;
+    private final CompleterService completerService;
+    private final OwnerService ownerService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean createVariety(PlantVarietyCreateRequest request) {
-        PlantVarietyEntity entity = BeanUtil.copyProperties(request.getMain(), PlantVarietyEntity.class);
-        this.save(entity);
-        this.replaceOwners(entity.getId(), request.getOwners());
-        this.replaceBreeders(entity.getId(), request.getBreeders());
-        return Boolean.TRUE;
-    }
+    public Boolean create(PlantVarietyCreateRequest request) {
+        PlantVarietyEntity entity = BeanUtil.copyProperties(request, PlantVarietyEntity.class);
+        entity.setCode(ParamResolver.getStr(PlantVarietyResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean updateVariety(PlantVarietyUpdateRequest request) {
-        PlantVarietyEntity entity = BeanUtil.copyProperties(request.getMain(), PlantVarietyEntity.class);
-        this.updateById(entity);
-        this.replaceOwners(entity.getId(), request.getOwners());
-        this.replaceBreeders(entity.getId(), request.getBreeders());
-        return Boolean.TRUE;
-    }
-
-    @Override
-    public IPage<PlantVarietyResponse> pageResult(Page reqPage, PlantVarietyPageRequest request) {
-        LambdaQueryWrapper<PlantVarietyEntity> wrapper = Wrappers.lambdaQuery();
-        wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
-                w.like(PlantVarietyEntity::getRightNo, request.getKeyword())
-                        .or().like(PlantVarietyEntity::getName, request.getKeyword()));
-        wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PlantVarietyEntity::getDeptId, request.getDeptId());
-        wrapper.ge(StrUtil.isNotBlank(request.getAuthBeginTime()), PlantVarietyEntity::getAuthDate, request.getAuthBeginTime());
-        wrapper.le(StrUtil.isNotBlank(request.getAuthEndTime()), PlantVarietyEntity::getAuthDate, request.getAuthEndTime());
-
-        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
-            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
-            reqPage.setCurrent(1);
-        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
-            reqPage.setSize(request.getIds().size());
-            reqPage.setCurrent(1);
+        if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
+            entity.setCertFileUrl(StrUtil.join(";", request.getCertFileUrl()));
+            List<FileCreateRequest> fileList = Lists.newArrayList();
+            request.getCertFileUrl().forEach(fileName -> {
+                FileCreateRequest file = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        PlantVarietyResponse.BIZ_CODE,
+                        entity.getName(),
+                        FileBizTypeEnum.PLANT_VARIETY.getValue()
+                );
+                fileList.add(file);
+            });
+            fileService.batchCreate(fileList);
         }
 
-        Page<PlantVarietyEntity> resPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
-
-        return resPage.convert(entity -> {
-            PlantVarietyResponse res = new PlantVarietyResponse();
-            res.setMain(BeanUtil.copyProperties(entity, PlantVarietyVO.class));
-            res.setOwners(
-                    ownerService.lambdaQuery()
-                            .eq(PlantVarietyOwnerEntity::getPlantVarietyId, entity.getId())
-                            .list()
-                            .stream()
-                            .map(o -> BeanUtil.copyProperties(o, PlantVarietyOwnerVO.class))
-                            .collect(Collectors.toList())
-            );
-
-            res.setBreeders(
-                    breederService.lambdaQuery()
-                            .eq(PlantVarietyBreederEntity::getPlantVarietyId, entity.getId())
-                            .list()
-                            .stream()
-                            .map(b -> BeanUtil.copyProperties(b, PlantVarietyBreederVO.class))
-                            .collect(Collectors.toList())
-            );
-            return res;
+        request.getCompleters().forEach(completer -> {
+            if (completer.getCompleterLeader() == 1) {
+                entity.setLeaderCode(completer.getCompleterNo());
+                entity.setLeaderName(completer.getCompleterName());
+            }
         });
-    }
 
-    @Override
-    public Boolean replaceOwners(Long plantVarietyId, List<PlantVarietyOwnerVO> owners) {
-        ownerService.removeByPlantVarietyIds(Collections.singletonList(plantVarietyId));
-        if (CollUtil.isNotEmpty(owners)) {
-            List<PlantVarietyOwnerEntity> entities = owners.stream()
-                    .map(item -> {
-                        PlantVarietyOwnerEntity entity = BeanUtil.copyProperties(item, PlantVarietyOwnerEntity.class);
-                        entity.setPlantVarietyId(plantVarietyId);
-                        return entity;
-                    }).collect(Collectors.toList());
-            ownerService.saveBatch(entities);
-        }
+        this.save(entity);
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        ownerService.replaceOwners(entity.getCode(), request.getOwners());
         return Boolean.TRUE;
     }
 
     @Override
-    public Boolean replaceBreeders(Long plantVarietyId, List<PlantVarietyBreederVO> breeders) {
-        breederService.removeByPlantVarietyIds(Collections.singletonList(plantVarietyId));
-        if (CollUtil.isNotEmpty(breeders)) {
-            List<PlantVarietyBreederEntity> entities = breeders.stream()
-                    .map(item -> {
-                        PlantVarietyBreederEntity entity = BeanUtil.copyProperties(item, PlantVarietyBreederEntity.class);
-                        entity.setPlantVarietyId(plantVarietyId);
-                        return entity;
-                    }).collect(Collectors.toList());
-            breederService.saveBatch(entities);
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean update(PlantVarietyUpdateRequest request) {
+        PlantVarietyEntity entity = BeanUtil.copyProperties(request, PlantVarietyEntity.class);
+
+        if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
+            entity.setCertFileUrl(StrUtil.join(";", request.getCertFileUrl()));
+            List<FileCreateRequest> fileList = Lists.newArrayList();
+            request.getCertFileUrl().forEach(fileName -> {
+                FileCreateRequest file = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        PlantVarietyResponse.BIZ_CODE,
+                        entity.getName(),
+                        FileBizTypeEnum.PLANT_VARIETY.getValue()
+                );
+                fileList.add(file);
+            });
+            fileService.batchCreate(fileList);
         }
+
+        request.getCompleters().forEach(completer -> {
+            if (completer.getCompleterLeader() == 1) {
+                entity.setLeaderCode(completer.getCompleterNo());
+                entity.setLeaderName(completer.getCompleterName());
+            }
+        });
+
+        this.updateById(entity);
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        ownerService.replaceOwners(entity.getCode(), request.getOwners());
         return Boolean.TRUE;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean remove(List<Long> ids) {
+        return this.removeBatchByIds(ids);
+    }
+
+    @SneakyThrows
     @Override
     public PlantVarietyResponse getDetail(Long id) {
         PlantVarietyEntity entity = this.getById(id);
         if (entity == null) {
-            return null;
+            throw new BizException("数据不存在");
         }
-        PlantVarietyResponse res = new PlantVarietyResponse();
-        res.setMain(BeanUtil.copyProperties(entity, PlantVarietyVO.class));
-        res.setOwners(
-                ownerService.lambdaQuery()
-                        .eq(PlantVarietyOwnerEntity::getPlantVarietyId, entity.getId())
-                        .list()
-                        .stream()
-                        .map(o -> BeanUtil.copyProperties(o, PlantVarietyOwnerVO.class))
-                        .collect(Collectors.toList())
-        );
-
-        res.setBreeders(
-                breederService.lambdaQuery()
-                        .eq(PlantVarietyBreederEntity::getPlantVarietyId, entity.getId())
-                        .list()
-                        .stream()
-                        .map(b -> BeanUtil.copyProperties(b, PlantVarietyBreederVO.class))
-                        .collect(Collectors.toList())
-        );
-        return res;
+        PlantVarietyResponse response = BeanUtil.copyProperties(entity, PlantVarietyResponse.class);
+        response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
+        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
+        response.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
+        return response;
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean removeVarieties(List<Long> ids) {
-        this.removeBatchByIds(ids);
-        ownerService.removeByPlantVarietyIds(ids);
-        breederService.removeByPlantVarietyIds(ids);
-        return Boolean.TRUE;
-    }
+    public IPage<PlantVarietyResponse> pageResult(Page<PlantVarietyEntity> page, PlantVarietyPageRequest request) {
+        LambdaQueryWrapper<PlantVarietyEntity> wrapper = Wrappers.lambdaQuery();
 
+        if (CollUtil.isNotEmpty(request.getIds())) {
+            wrapper.in(PlantVarietyEntity::getId, request.getIds());
+        } else {
+            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), PlantVarietyEntity::getName, request.getKeyword())
+                    .or().like(StrUtil.isNotBlank(request.getKeyword()), PlantVarietyEntity::getRightNo, request.getKeyword());
+            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PlantVarietyEntity::getDeptId, request.getDeptId());
+            wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), PlantVarietyEntity::getFlowStatus, request.getFlowStatus());
+            wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), PlantVarietyEntity::getCurrentNodeName, request.getCurrentNodeName());
+            wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), PlantVarietyEntity::getCreateTime, request.getBeginTime());
+            wrapper.le(StrUtil.isNotBlank(request.getEndTime()), PlantVarietyEntity::getCreateTime, request.getEndTime());
+        }
+
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            page.setSize(request.getEndNo() - request.getStartNo() + 1);
+            page.setCurrent(1);
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
+            page.setSize(request.getIds().size());
+            page.setCurrent(1);
+        }
+
+        IPage<PlantVarietyEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        return resPage.convert(entity -> {
+            PlantVarietyResponse response = BeanUtil.copyProperties(entity, PlantVarietyResponse.class);
+            response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
+            return response;
+        });
+    }
 }

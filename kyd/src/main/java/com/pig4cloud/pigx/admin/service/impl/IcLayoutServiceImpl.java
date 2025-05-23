@@ -2,138 +2,158 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
-import com.pig4cloud.pigx.admin.entity.IcLayoutOwnerEntity;
-import com.pig4cloud.pigx.admin.entity.IcLayoutCreatorInEntity;
-import com.pig4cloud.pigx.admin.mapper.IcLayoutMapper;
-import com.pig4cloud.pigx.admin.service.IcLayoutOwnerService;
-import com.pig4cloud.pigx.admin.service.IcLayoutCreatorInService;
-import com.pig4cloud.pigx.admin.service.IcLayoutService;
+import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.*;
+import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
+import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.mapper.IcLayoutMapper;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEntity> implements IcLayoutService {
 
-    private final IcLayoutOwnerService ownerService;
-    private final IcLayoutCreatorInService creatorInService;
+    private final FileService fileService;
+    private final CompleterService completerService;
+    private final OwnerService ownerService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean createLayout(IcLayoutCreateRequest request) {
-        IcLayoutEntity entity = BeanUtil.copyProperties(request.getMain(), IcLayoutEntity.class);
-        this.save(entity);
-        this.replaceOwners(entity.getId(), request.getOwners());
-        this.replaceCreators(entity.getId(), request.getCreators());
-        return Boolean.TRUE;
-    }
+    public Boolean create(IcLayoutCreateRequest request) {
+        IcLayoutEntity entity = BeanUtil.copyProperties(request, IcLayoutEntity.class);
+        entity.setCode(ParamResolver.getStr(IcLayoutResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean updateLayout(IcLayoutUpdateRequest request) {
-        IcLayoutEntity entity = BeanUtil.copyProperties(request.getMain(), IcLayoutEntity.class);
-        this.updateById(entity);
-        this.replaceOwners(entity.getId(), request.getOwners());
-        this.replaceCreators(entity.getId(), request.getCreators());
-        return Boolean.TRUE;
-    }
-
-    @Override
-    public IPage<IcLayoutResponse> pageResult(Page reqPage, IcLayoutPageRequest request) {
-        LambdaQueryWrapper<IcLayoutEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
-                w.like(IcLayoutEntity::getRegNo, request.getKeyword())
-                        .or().like(IcLayoutEntity::getName, request.getKeyword()));
-        wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), IcLayoutEntity::getDeptId, request.getDeptId());
-        wrapper.ge(StrUtil.isNotBlank(request.getPublishBeginTime()), IcLayoutEntity::getPublishDate, request.getPublishBeginTime());
-        wrapper.le(StrUtil.isNotBlank(request.getPublishEndTime()), IcLayoutEntity::getPublishDate, request.getPublishEndTime());
-
-        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
-            reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
-            reqPage.setCurrent(1);
-        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
-            reqPage.setSize(request.getIds().size());
-            reqPage.setCurrent(1);
+        if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
+            entity.setCertFileUrl(StrUtil.join(";", request.getCertFileUrl()));
+            List<FileCreateRequest> fileList = Lists.newArrayList();
+            request.getCertFileUrl().forEach(fileName -> {
+                FileCreateRequest file = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        IcLayoutResponse.BIZ_CODE,
+                        entity.getName(),
+                        FileBizTypeEnum.IC_LAYOUT.getValue()
+                );
+                fileList.add(file);
+            });
+            fileService.batchCreate(fileList);
         }
 
-        Page<IcLayoutEntity> page = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
+        request.getCompleters().forEach(completer -> {
+            if (completer.getCompleterLeader() == 1) {
+                entity.setLeaderCode(completer.getCompleterNo());
+                entity.setLeaderName(completer.getCompleterName());
+            }
+        });
 
-        return page.convert(entity -> {
-            IcLayoutResponse res = new IcLayoutResponse();
-            res.setMain(BeanUtil.copyProperties(entity, IcLayoutMainVO.class));
-            res.setOwners(ownerService.lambdaQuery().eq(IcLayoutOwnerEntity::getIcLayoutId, entity.getId()).list()
-                    .stream().map(o -> BeanUtil.copyProperties(o, IcLayoutOwnerVO.class)).collect(Collectors.toList()));
-            res.setCreators(creatorInService.lambdaQuery().eq(IcLayoutCreatorInEntity::getIcLayoutId, entity.getId()).list()
-                    .stream().map(c -> BeanUtil.copyProperties(c, IcLayoutCreatorInVO.class)).collect(Collectors.toList()));
-            return res;
+        this.save(entity);
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        return Boolean.TRUE;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean update(IcLayoutUpdateRequest request) {
+        IcLayoutEntity entity = BeanUtil.copyProperties(request, IcLayoutEntity.class);
+
+        if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
+            entity.setCertFileUrl(StrUtil.join(";", request.getCertFileUrl()));
+            List<FileCreateRequest> fileList = Lists.newArrayList();
+            request.getCertFileUrl().forEach(fileName -> {
+                FileCreateRequest file = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        IcLayoutResponse.BIZ_CODE,
+                        entity.getName(),
+                        FileBizTypeEnum.IC_LAYOUT.getValue()
+                );
+                fileList.add(file);
+            });
+            fileService.batchCreate(fileList);
+        }
+
+        request.getCompleters().forEach(completer -> {
+            if (completer.getCompleterLeader() == 1) {
+                entity.setLeaderCode(completer.getCompleterNo());
+                entity.setLeaderName(completer.getCompleterName());
+            }
+        });
+
+        this.updateById(entity);
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public IPage<IcLayoutResponse> pageResult(Page<IcLayoutEntity> page, IcLayoutPageRequest request) {
+        LambdaQueryWrapper<IcLayoutEntity> wrapper = Wrappers.lambdaQuery();
+
+        if (CollUtil.isNotEmpty(request.getIds())) {
+            wrapper.in(IcLayoutEntity::getId, request.getIds());
+        } else {
+            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), IcLayoutEntity::getName, request.getKeyword())
+                    .or().like(StrUtil.isNotBlank(request.getKeyword()), IcLayoutEntity::getRegNo, request.getKeyword());
+            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), IcLayoutEntity::getDeptId, request.getDeptId());
+            wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), IcLayoutEntity::getFlowStatus, request.getFlowStatus());
+            wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), IcLayoutEntity::getCurrentNodeName, request.getCurrentNodeName());
+            wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), IcLayoutEntity::getCreateTime, request.getBeginTime());
+            wrapper.le(StrUtil.isNotBlank(request.getEndTime()), IcLayoutEntity::getCreateTime, request.getEndTime());
+        }
+
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            page.setSize(request.getEndNo() - request.getStartNo() + 1);
+            page.setCurrent(1);
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
+            page.setSize(request.getIds().size());
+            page.setCurrent(1);
+        }
+
+        IPage<IcLayoutEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        return resPage.convert(entity -> {
+            IcLayoutResponse response = BeanUtil.copyProperties(entity, IcLayoutResponse.class);
+            response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
+            return response;
         });
     }
 
-
+    @SneakyThrows
     @Override
     public IcLayoutResponse getDetail(Long id) {
         IcLayoutEntity entity = this.getById(id);
-        IcLayoutResponse res = new IcLayoutResponse();
-        res.setMain(BeanUtil.copyProperties(entity, IcLayoutMainVO.class));
-        res.setOwners(ownerService.lambdaQuery().eq(IcLayoutOwnerEntity::getIcLayoutId, id).list()
-                .stream().map(o -> BeanUtil.copyProperties(o, IcLayoutOwnerVO.class)).collect(Collectors.toList()));
-        res.setCreators(creatorInService.lambdaQuery().eq(IcLayoutCreatorInEntity::getIcLayoutId, id).list()
-                .stream().map(c -> BeanUtil.copyProperties(c, IcLayoutCreatorInVO.class)).collect(Collectors.toList()));
-        return res;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean removeLayouts(List<Long> ids) {
-        this.removeBatchByIds(ids);
-        ownerService.removeByIcLayoutIds(ids);
-        creatorInService.removeByIcLayoutIds(ids);
-        return Boolean.TRUE;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean replaceOwners(Long icLayoutId, List<IcLayoutOwnerVO> owners) {
-        ownerService.removeByIcLayoutIds(List.of(icLayoutId));
-        if (CollUtil.isNotEmpty(owners)) {
-            List<IcLayoutOwnerEntity> entities = owners.stream()
-                    .map(o -> {
-                        IcLayoutOwnerEntity entity = BeanUtil.copyProperties(o, IcLayoutOwnerEntity.class);
-                        entity.setIcLayoutId(icLayoutId);
-                        return entity;
-                    }).collect(Collectors.toList());
-            ownerService.saveBatch(entities);
+        if (entity == null) {
+            throw new BizException("数据不存在");
         }
-        return Boolean.TRUE;
+        IcLayoutResponse response = BeanUtil.copyProperties(entity, IcLayoutResponse.class);
+        response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
+        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
+        response.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
+        return response;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean replaceCreators(Long icLayoutId, List<IcLayoutCreatorInVO> creators) {
-        creatorInService.removeByIcLayoutIds(List.of(icLayoutId));
-        if (CollUtil.isNotEmpty(creators)) {
-            List<IcLayoutCreatorInEntity> entities = creators.stream()
-                    .map(c -> {
-                        IcLayoutCreatorInEntity entity = BeanUtil.copyProperties(c, IcLayoutCreatorInEntity.class);
-                        entity.setIcLayoutId(icLayoutId);
-                        return entity;
-                    }).collect(Collectors.toList());
-            creatorInService.saveBatch(entities);
-        }
-        return Boolean.TRUE;
+    public Boolean remove(List<Long> ids) {
+        return this.removeBatchByIds(ids);
     }
-
 }

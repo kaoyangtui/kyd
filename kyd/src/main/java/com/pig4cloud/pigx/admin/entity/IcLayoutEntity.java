@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * 集成电路布图登记信息
  *
  * @author pigx
- * @date 2025-05-15 12:12:40
+ * @date 2025-05-23 20:24:32
  */
 @Data
 @TenantTable
@@ -97,10 +97,28 @@ public class IcLayoutEntity extends Model<IcLayoutEntity> {
     private String creatorOutName;
 
 	/**
+	* 负责人编码
+	*/
+    @Schema(description="负责人编码")
+    private String leaderCode;
+
+	/**
+	* 负责人姓名
+	*/
+    @Schema(description="负责人姓名")
+    private String leaderName;
+
+	/**
 	* 所属院系
 	*/
     @Schema(description="所属院系")
     private String deptId;
+
+	/**
+	* 组织名称
+	*/
+    @Schema(description="组织名称")
+    private String deptName;
 
 	/**
 	* 创建人

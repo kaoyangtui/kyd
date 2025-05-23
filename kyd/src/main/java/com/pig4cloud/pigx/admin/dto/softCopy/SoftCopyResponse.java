@@ -1,8 +1,8 @@
 package com.pig4cloud.pigx.admin.dto.softCopy;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.pig4cloud.pigx.admin.entity.SoftCopyCompleterEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyOwnerEntity;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -146,10 +146,10 @@ public class SoftCopyResponse {
     @Schema(description="创建时间")
     private LocalDateTime createTime;
 
-    @Schema(description = "完成人列表")
-    private List<SoftCopyCompleterEntity> completers;
+    @Schema(description = "完成人信息列表")
+    private List<CompleterEntity> completers;
 
-    @Schema(description = "著作权人列表")
-    private List<SoftCopyOwnerEntity> owners;
+    @Schema(description = "著作权人信息列表")
+    private List<OwnerEntity> owners;
 
 }

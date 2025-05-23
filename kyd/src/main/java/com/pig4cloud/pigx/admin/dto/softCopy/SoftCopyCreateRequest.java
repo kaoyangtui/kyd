@@ -1,5 +1,7 @@
 package com.pig4cloud.pigx.admin.dto.softCopy;
 
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -42,8 +44,8 @@ public class SoftCopyCreateRequest {
     private List<String> attachmentUrls;
 
     @Schema(description = "完成人信息列表")
-    private List<SoftCopyCompleterRequest> completers;
+    private List<CompleterEntity> completers;
 
     @Schema(description = "著作权人信息列表")
-    private List<SoftCopyOwnerRequest> owners;
+    private List<OwnerEntity> owners;
 }

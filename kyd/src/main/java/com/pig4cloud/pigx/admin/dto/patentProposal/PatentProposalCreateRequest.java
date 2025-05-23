@@ -1,5 +1,7 @@
 package com.pig4cloud.pigx.admin.dto.patentProposal;
 
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -42,10 +44,10 @@ public class PatentProposalCreateRequest {
     private String projectName;
 
     @Schema(description = "申请人信息")
-    private List<PatentProposalOwnerVO> proposalOwnerList;
+    private List<OwnerEntity> owners;
 
     @Schema(description = "发明人信息（校内）")
-    private List<PatentProposalCompleterVO> patentProposalCompleterList;
+    private List<CompleterEntity> completers;
 
     @Schema(description = "发明人（校外）")
     private String inventorsOuter;

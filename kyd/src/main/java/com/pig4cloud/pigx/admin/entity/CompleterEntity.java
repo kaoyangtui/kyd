@@ -6,20 +6,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.pig4cloud.pigx.common.core.util.TenantTable;
-import java.time.LocalDateTime;
 
 /**
- * 专利提案—发明人
+ * 完成人
  *
  * @author pigx
- * @date 2025-05-23 11:34:04
+ * @date 2025-05-23 14:31:27
  */
 @Data
 @TenantTable
-@TableName("t_patent_proposal_completer")
+@TableName("t_completer")
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "专利提案—发明人")
-public class PatentProposalCompleterEntity extends Model<PatentProposalCompleterEntity> {
+@Schema(description = "完成人")
+public class CompleterEntity extends Model<CompleterEntity> {
 
 
 	/**
@@ -30,10 +29,10 @@ public class PatentProposalCompleterEntity extends Model<PatentProposalCompleter
     private Long id;
 
 	/**
-	* 专利提案ID
+	* 主表code
 	*/
-    @Schema(description="专利提案ID")
-    private Long patentProposalId;
+    @Schema(description="主表code")
+    private String code;
 
 	/**
 	* 学工号
@@ -82,20 +81,6 @@ public class PatentProposalCompleterEntity extends Model<PatentProposalCompleter
 	*/
     @Schema(description="是否负责人 0否1是")
     private Integer completerLeader;
-
-	/**
-	* 更新人
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新人")
-    private String updateBy;
-
-	/**
-	* 更新时间
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新时间")
-    private LocalDateTime updateTime;
 
 	/**
 	* 删除标识

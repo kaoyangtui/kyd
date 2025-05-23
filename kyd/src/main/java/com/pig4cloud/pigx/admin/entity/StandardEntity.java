@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * 标准信息
  *
  * @author pigx
- * @date 2025-05-15 19:18:30
+ * @date 2025-05-23 20:51:24
  */
 @Data
 @TenantTable
@@ -103,10 +103,28 @@ public class StandardEntity extends Model<StandardEntity> {
     private String fileUrl;
 
 	/**
+	* 负责人编码
+	*/
+    @Schema(description="负责人编码")
+    private String leaderCode;
+
+	/**
+	* 负责人姓名
+	*/
+    @Schema(description="负责人姓名")
+    private String leaderName;
+
+	/**
 	* 所属院系
 	*/
     @Schema(description="所属院系")
     private String deptId;
+
+	/**
+	* 组织名称
+	*/
+    @Schema(description="组织名称")
+    private String deptName;
 
 	/**
 	* 创建人

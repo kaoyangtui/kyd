@@ -5,15 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/**
- * 标准信息导出包装请求
- *
- * @author zhaoliang
- */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Schema(description = "标准信息导出包装请求")
+@Schema(description = "标准导出封装请求")
 public class StandardExportWrapperRequest extends ExportWrapperRequest<StandardPageRequest> {
-
-
 }

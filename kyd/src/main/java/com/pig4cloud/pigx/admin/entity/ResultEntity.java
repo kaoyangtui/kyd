@@ -177,12 +177,14 @@ public class ResultEntity extends Model<ResultEntity> {
     /**
      * 所属组织ID
      */
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description="所属组织ID")
     private Long deptId;
 
     /**
      * 组织名称
      */
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description="组织名称")
     private String deptName;
 

@@ -11,14 +11,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.api.entity.SysDept;
 import com.pig4cloud.pigx.admin.api.entity.SysFile;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegOwnerRequest;
-import com.pig4cloud.pigx.admin.entity.ResultCompleterEntity;
-import com.pig4cloud.pigx.admin.entity.ResultEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyCompleterEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyRegOwnerEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
 import com.pig4cloud.pigx.admin.service.*;
@@ -27,7 +22,6 @@ import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
-import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +44,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
 
     private final FileService fileService;
     private final SysFileService sysFileService;
-    private final ResultCompleterService resultCompleterService;
+    private final CompleterService completerService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -99,8 +93,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
 
-        List<ResultCompleterEntity> completerEntities = BeanUtil.copyToList(request.getCompleters(), ResultCompleterEntity.class);
-        resultCompleterService.replaceCompleters(entity.getId(), completerEntities);
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
         return response;
     }
 
@@ -149,8 +142,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             }
         });
         updateById(entity);
-        List<ResultCompleterEntity> completerEntities = BeanUtil.copyToList(request.getCompleters(), ResultCompleterEntity.class);
-        resultCompleterService.replaceCompleters(entity.getId(), completerEntities);
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
         return Boolean.TRUE;
     }
 
@@ -203,8 +195,6 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
                 .set(null != request.getTransWay() && !request.getTransWay().isEmpty(),
                         ResultEntity::getTransWay, StrUtil.join(";", request.getTransWay()))
                 .set(null != request.getTransPrice(), ResultEntity::getTransPrice, request.getTransPrice())
-
-
         );
     }
 
@@ -219,7 +209,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-        response.setCompleters(resultCompleterService.lambdaQuery().eq(ResultCompleterEntity::getResultId, id).list());
+        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
         return response;
     }
 
