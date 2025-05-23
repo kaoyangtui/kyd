@@ -13,7 +13,6 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.researchTeam.*;
 import com.pig4cloud.pigx.admin.entity.ResearchTeamEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
-import com.pig4cloud.pigx.admin.service.ResearchTeamMemberService;
 import com.pig4cloud.pigx.admin.service.ResearchTeamService;
 import com.pig4cloud.pigx.admin.mapper.ResearchTeamMapper;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
@@ -33,7 +32,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, ResearchTeamEntity> implements ResearchTeamService {
 
-    private final ResearchTeamMemberService researchTeamMemberService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -41,7 +39,7 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
         ResearchTeamEntity entity = BeanUtil.copyProperties(request, ResearchTeamEntity.class);
         this.save(entity);
 
-        researchTeamMemberService.replaceMembers(entity.getId(), request.getMemberList());
+        //researchTeamMemberService.replaceMembers(entity.getId(), request.getMemberList());
 
         return buildResponse(entity);
     }
@@ -58,7 +56,7 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
         BeanUtil.copyProperties(request, entity, CopyOptions.create().ignoreNullValue());
         this.updateById(entity);
 
-        researchTeamMemberService.replaceMembers(entity.getId(), request.getMemberList());
+        //researchTeamMemberService.replaceMembers(entity.getId(), request.getMemberList());
 
         return Boolean.TRUE;
     }
@@ -109,7 +107,7 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
         }
 
         this.removeBatchByIds(ids);
-        researchTeamMemberService.removeByTeamIds(ids);
+        //researchTeamMemberService.removeByTeamIds(ids);
 
         return Boolean.TRUE;
     }
