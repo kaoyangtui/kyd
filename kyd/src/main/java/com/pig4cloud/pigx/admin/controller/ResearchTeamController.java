@@ -36,21 +36,21 @@ public class ResearchTeamController {
 
     @PostMapping("/create")
     @Operation(summary = "新增科研团队")
-    @PreAuthorize("@pms.hasPermission('researchTeam_add')")
+    //@PreAuthorize("@pms.hasPermission('researchTeam_add')")
     public R<ResearchTeamResponse> create(@RequestBody ResearchTeamCreateRequest request) {
         return R.ok(researchTeamService.createTeam(request));
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新科研团队")
-    @PreAuthorize("@pms.hasPermission('researchTeam_edit')")
+    //@PreAuthorize("@pms.hasPermission('researchTeam_edit')")
     public R<Boolean> update(@RequestBody ResearchTeamUpdateRequest request) {
         return R.ok(researchTeamService.updateTeam(request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "科研团队详情")
-    @PreAuthorize("@pms.hasPermission('researchTeam_view')")
+    //@PreAuthorize("@pms.hasPermission('researchTeam_view')")
     public R<ResearchTeamResponse> detail(@RequestBody IdRequest request) {
         return R.ok(researchTeamService.getDetail(request.getId()));
     }
@@ -58,21 +58,21 @@ public class ResearchTeamController {
     @PostMapping("/remove")
     @SysLog("删除科研团队")
     @Operation(summary = "删除科研团队")
-    @PreAuthorize("@pms.hasPermission('researchTeam_del')")
+    //@PreAuthorize("@pms.hasPermission('researchTeam_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(researchTeamService.removeTeam(request));
     }
 
     @PostMapping("/shelf")
     @Operation(summary = "科研团队上下架")
-    @PreAuthorize("@pms.hasPermission('researchTeam_edit')")
+    //@PreAuthorize("@pms.hasPermission('researchTeam_edit')")
     public R<Boolean> shelf(@RequestBody ResearchTeamShelfRequest request) {
         return R.ok(researchTeamService.updateShelfStatus(request));
     }
 
     @PostMapping("/page")
     @Operation(summary = "分页查询科研团队")
-    @PreAuthorize("@pms.hasPermission('researchTeam_view')")
+    //@PreAuthorize("@pms.hasPermission('researchTeam_view')")
     public R<IPage<ResearchTeamResponse>> page(@ParameterObject Page page, @ParameterObject ResearchTeamPageRequest request) {
         return R.ok(researchTeamService.pageResult(page, request));
     }
@@ -90,7 +90,7 @@ public class ResearchTeamController {
     @PostMapping("/export")
     @ResponseExcel(name = "科研团队导出", sheets = {@Sheet(sheetName = "科研团队列表")})
     @Operation(summary = "导出科研团队")
-    @PreAuthorize("@pms.hasPermission('researchTeam_export')")
+    //@PreAuthorize("@pms.hasPermission('researchTeam_export')")
     public List<Map<String, Object>> export(@RequestBody ResearchTeamExportWrapperRequest request) {
         IPage<ResearchTeamResponse> pageData = researchTeamService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), ResearchTeamResponse.class);

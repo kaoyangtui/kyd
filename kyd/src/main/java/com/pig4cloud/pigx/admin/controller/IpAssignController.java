@@ -35,42 +35,42 @@ public class IpAssignController {
 
     @PostMapping("/create")
     @Operation(summary = "新增赋权")
-    @PreAuthorize("@pms.hasPermission('ip_assign_add')")
+    //@PreAuthorize("@pms.hasPermission('ip_assign_add')")
     public R<Boolean> create(@RequestBody IpAssignCreateRequest request) {
         return R.ok(ipAssignService.create(request));
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新赋权")
-    @PreAuthorize("@pms.hasPermission('ip_assign_edit')")
+    //@PreAuthorize("@pms.hasPermission('ip_assign_edit')")
     public R<Boolean> update(@RequestBody IpAssignUpdateRequest request) {
         return R.ok(ipAssignService.update(request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "查看详情")
-    @PreAuthorize("@pms.hasPermission('ip_assign_view')")
+    //@PreAuthorize("@pms.hasPermission('ip_assign_view')")
     public R<IpAssignResponse> detail(@RequestBody IdRequest request) {
         return R.ok(ipAssignService.getDetail(request.getId()));
     }
 
     @PostMapping("/remove")
     @Operation(summary = "批量删除")
-    @PreAuthorize("@pms.hasPermission('ip_assign_del')")
+    //@PreAuthorize("@pms.hasPermission('ip_assign_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(ipAssignService.removeByIds(request.getIds()));
     }
 
     @GetMapping("/page")
     @Operation(summary = "分页查询赋权记录")
-    @PreAuthorize("@pms.hasPermission('ip_assign_view')")
+    //@PreAuthorize("@pms.hasPermission('ip_assign_view')")
     public R<IPage<IpAssignResponse>> page(@ParameterObject Page page, @ParameterObject IpAssignPageRequest request) {
         return R.ok(ipAssignService.pageResult(page, request));
     }
 
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
-    @PreAuthorize("@pms.hasPermission('ip_assign_export')")
+    //@PreAuthorize("@pms.hasPermission('ip_assign_export')")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
                 IpAssignResponse.BIZ_CODE,
@@ -82,7 +82,7 @@ public class IpAssignController {
     @PostMapping("/export")
     @ResponseExcel(name = "知识产权赋权导出", sheets = {@Sheet(sheetName = "赋权列表")})
     @Operation(summary = "导出赋权记录")
-    @PreAuthorize("@pms.hasPermission('ip_assign_export')")
+    //@PreAuthorize("@pms.hasPermission('ip_assign_export')")
     public List<Map<String, Object>> export(@RequestBody IpAssignExportWrapperRequest request) {
         IPage<IpAssignResponse> pageData = ipAssignService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(

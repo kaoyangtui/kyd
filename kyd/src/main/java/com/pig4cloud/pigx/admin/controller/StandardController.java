@@ -36,14 +36,14 @@ public class StandardController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    @PreAuthorize("@pms.hasPermission('standard_view')")
+    //@PreAuthorize("@pms.hasPermission('standard_view')")
     public R<IPage<StandardResponse>> page(@ParameterObject Page page, @ParameterObject StandardPageRequest request) {
         return R.ok(standardService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "详情")
-    @PreAuthorize("@pms.hasPermission('standard_view')")
+    //@PreAuthorize("@pms.hasPermission('standard_view')")
     public R<StandardResponse> detail(@RequestBody IdRequest request) {
         return R.ok(standardService.getDetail(request.getId()));
     }
@@ -51,7 +51,7 @@ public class StandardController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增标准信息")
-    @PreAuthorize("@pms.hasPermission('standard_add')")
+    //@PreAuthorize("@pms.hasPermission('standard_add')")
     public R<Boolean> create(@RequestBody StandardCreateRequest request) {
         return R.ok(standardService.create(request));
     }
@@ -59,7 +59,7 @@ public class StandardController {
     @PostMapping("/update")
     @Operation(summary = "修改")
     @SysLog("修改标准信息")
-    @PreAuthorize("@pms.hasPermission('standard_edit')")
+    //@PreAuthorize("@pms.hasPermission('standard_edit')")
     public R<Boolean> update(@RequestBody StandardUpdateRequest request) {
         return R.ok(standardService.update(request));
     }
@@ -67,14 +67,14 @@ public class StandardController {
     @PostMapping("/remove")
     @Operation(summary = "删除")
     @SysLog("删除标准信息")
-    @PreAuthorize("@pms.hasPermission('standard_del')")
+    //@PreAuthorize("@pms.hasPermission('standard_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(standardService.removeByIds(request.getIds()));
     }
 
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
-    @PreAuthorize("@pms.hasPermission('standard_export')")
+    //@PreAuthorize("@pms.hasPermission('standard_export')")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
                 StandardResponse.BIZ_CODE,
@@ -86,7 +86,7 @@ public class StandardController {
     @PostMapping("/export")
     @ResponseExcel(name = "标准信息导出", sheets = {@Sheet(sheetName = "标准信息列表")})
     @Operation(summary = "导出")
-    @PreAuthorize("@pms.hasPermission('standard_export')")
+    //@PreAuthorize("@pms.hasPermission('standard_export')")
     public List<Map<String, Object>> export(@RequestBody StandardExportWrapperRequest request) {
         IPage<StandardResponse> pageData = standardService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), StandardResponse.class);

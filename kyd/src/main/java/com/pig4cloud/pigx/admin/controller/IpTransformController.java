@@ -35,42 +35,42 @@ public class IpTransformController {
 
     @PostMapping("/create")
     @Operation(summary = "新增转化")
-    @PreAuthorize("@pms.hasPermission('ip_transform_add')")
+    //@PreAuthorize("@pms.hasPermission('ip_transform_add')")
     public R<Boolean> create(@RequestBody IpTransformCreateRequest request) {
         return R.ok(ipTransformService.create(request));
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新转化")
-    @PreAuthorize("@pms.hasPermission('ip_transform_edit')")
+    //@PreAuthorize("@pms.hasPermission('ip_transform_edit')")
     public R<Boolean> update(@RequestBody IpTransformUpdateRequest request) {
         return R.ok(ipTransformService.update(request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "查看详情")
-    @PreAuthorize("@pms.hasPermission('ip_transform_view')")
+    //@PreAuthorize("@pms.hasPermission('ip_transform_view')")
     public R<IpTransformResponse> detail(@RequestBody IdRequest request) {
         return R.ok(ipTransformService.getDetail(request.getId()));
     }
 
     @PostMapping("/remove")
     @Operation(summary = "批量删除")
-    @PreAuthorize("@pms.hasPermission('ip_transform_del')")
+    //@PreAuthorize("@pms.hasPermission('ip_transform_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(ipTransformService.removeByIds(request.getIds()));
     }
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    @PreAuthorize("@pms.hasPermission('ip_transform_view')")
+    //@PreAuthorize("@pms.hasPermission('ip_transform_view')")
     public R<IPage<IpTransformResponse>> page(@ParameterObject Page page, @ParameterObject IpTransformPageRequest request) {
         return R.ok(ipTransformService.pageResult(page, request));
     }
 
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
-    @PreAuthorize("@pms.hasPermission('ip_transform_export')")
+    //@PreAuthorize("@pms.hasPermission('ip_transform_export')")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse response = ExportFieldHelper.buildExportFieldList(
                 IpTransformResponse.BIZ_CODE,
@@ -82,7 +82,7 @@ public class IpTransformController {
     @PostMapping("/export")
     @ResponseExcel(name = "知识产权转化导出", sheets = {@Sheet(sheetName = "转化列表")})
     @Operation(summary = "导出记录")
-    @PreAuthorize("@pms.hasPermission('ip_transform_export')")
+    //@PreAuthorize("@pms.hasPermission('ip_transform_export')")
     public List<Map<String, Object>> export(@RequestBody IpTransformExportWrapperRequest request) {
         IPage<IpTransformResponse> pageData = ipTransformService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(

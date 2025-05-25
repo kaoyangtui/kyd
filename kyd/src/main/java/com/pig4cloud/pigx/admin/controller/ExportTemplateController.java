@@ -37,7 +37,6 @@ public class ExportTemplateController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    @PreAuthorize("@pms.hasPermission('export_template_view')")
     public R<IPage<ExportTemplateResponse>> page(@ParameterObject Page page, @ParameterObject ExportTemplatePageRequest request) {
         return R.ok(exportTemplateService.pageTemplate(page, request));
     }

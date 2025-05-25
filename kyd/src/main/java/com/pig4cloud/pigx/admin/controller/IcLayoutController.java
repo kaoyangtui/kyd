@@ -37,7 +37,7 @@ public class IcLayoutController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增集成电路布图登记")
-    @PreAuthorize("@pms.hasPermission('ic_layout_add')")
+    //@PreAuthorize("@pms.hasPermission('ic_layout_add')")
     public R<Boolean> create(@RequestBody IcLayoutCreateRequest request) {
         return R.ok(icLayoutService.create(request));
     }
@@ -45,7 +45,7 @@ public class IcLayoutController {
     @PostMapping("/update")
     @Operation(summary = "修改")
     @SysLog("修改集成电路布图登记")
-    @PreAuthorize("@pms.hasPermission('ic_layout_edit')")
+    //@PreAuthorize("@pms.hasPermission('ic_layout_edit')")
     public R<Boolean> update(@RequestBody IcLayoutUpdateRequest request) {
         return R.ok(icLayoutService.update(request));
     }
@@ -53,28 +53,28 @@ public class IcLayoutController {
     @PostMapping("/remove")
     @Operation(summary = "删除")
     @SysLog("删除集成电路布图登记")
-    @PreAuthorize("@pms.hasPermission('ic_layout_del')")
+    //@PreAuthorize("@pms.hasPermission('ic_layout_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(icLayoutService.remove(request.getIds()));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "详情")
-    @PreAuthorize("@pms.hasPermission('ic_layout_view')")
+    //@PreAuthorize("@pms.hasPermission('ic_layout_view')")
     public R<IcLayoutResponse> detail(@RequestBody IdRequest request) {
         return R.ok(icLayoutService.getDetail(request.getId()));
     }
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    @PreAuthorize("@pms.hasPermission('ic_layout_view')")
+    //@PreAuthorize("@pms.hasPermission('ic_layout_view')")
     public R<IPage<IcLayoutResponse>> page(@ParameterObject Page page, @ParameterObject IcLayoutPageRequest request) {
         return R.ok(icLayoutService.pageResult(page, request));
     }
 
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
-    @PreAuthorize("@pms.hasPermission('ic_layout_export')")
+    //@PreAuthorize("@pms.hasPermission('ic_layout_export')")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
                 IcLayoutResponse.BIZ_CODE,
@@ -86,7 +86,7 @@ public class IcLayoutController {
     @PostMapping("/export")
     @ResponseExcel(name = "集成电路布图登记导出", sheets = {@Sheet(sheetName = "集成电路布图登记")})
     @Operation(summary = "导出")
-    @PreAuthorize("@pms.hasPermission('ic_layout_export')")
+    //@PreAuthorize("@pms.hasPermission('ic_layout_export')")
     public List<Map<String, Object>> export(@RequestBody IcLayoutExportWrapperRequest request) {
         IPage<IcLayoutResponse> pageData = icLayoutService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), IcLayoutResponse.class);

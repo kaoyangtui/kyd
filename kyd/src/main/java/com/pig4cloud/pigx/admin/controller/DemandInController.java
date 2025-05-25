@@ -35,42 +35,42 @@ public class DemandInController {
 
     @PostMapping("/create")
     @Operation(summary = "新增校内需求")
-    @PreAuthorize("@pms.hasPermission('demand_in_add')")
+    //@PreAuthorize("@pms.hasPermission('demand_in_add')")
     public R<Boolean> create(@RequestBody DemandInCreateRequest request) {
         return R.ok(demandInService.create(request));
     }
 
     @PostMapping("/update")
     @Operation(summary = "修改校内需求")
-    @PreAuthorize("@pms.hasPermission('demand_in_edit')")
+    //@PreAuthorize("@pms.hasPermission('demand_in_edit')")
     public R<Boolean> update(@RequestBody DemandInUpdateRequest request) {
         return R.ok(demandInService.update(request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "查看详情")
-    @PreAuthorize("@pms.hasPermission('demand_in_view')")
+    //@PreAuthorize("@pms.hasPermission('demand_in_view')")
     public R<DemandInResponse> detail(@RequestBody IdRequest request) {
         return R.ok(demandInService.getDetail(request.getId()));
     }
 
     @PostMapping("/remove")
     @Operation(summary = "批量删除")
-    @PreAuthorize("@pms.hasPermission('demand_in_del')")
+    //@PreAuthorize("@pms.hasPermission('demand_in_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(demandInService.removeByIds(request.getIds()));
     }
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    @PreAuthorize("@pms.hasPermission('demand_in_view')")
+    //@PreAuthorize("@pms.hasPermission('demand_in_view')")
     public R<IPage<DemandInResponse>> page(@ParameterObject Page page, @ParameterObject DemandInPageRequest request) {
         return R.ok(demandInService.pageResult(page, request));
     }
 
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
-    @PreAuthorize("@pms.hasPermission('demand_in_export')")
+    //@PreAuthorize("@pms.hasPermission('demand_in_export')")
     public R<ExportFieldListResponse> exportFields() {
         return R.ok(ExportFieldHelper.buildExportFieldList(
                 DemandInResponse.BIZ_CODE,
@@ -81,7 +81,7 @@ public class DemandInController {
     @PostMapping("/export")
     @ResponseExcel(name = "校内需求导出", sheets = {@Sheet(sheetName = "需求列表")})
     @Operation(summary = "导出需求记录")
-    @PreAuthorize("@pms.hasPermission('demand_in_export')")
+    //@PreAuthorize("@pms.hasPermission('demand_in_export')")
     public List<Map<String, Object>> export(@RequestBody DemandInExportWrapperRequest request) {
         IPage<DemandInResponse> pageData = demandInService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(
@@ -93,7 +93,7 @@ public class DemandInController {
 
     @PostMapping("/shelf")
     @Operation(summary = "上下架")
-    @PreAuthorize("@pms.hasPermission('demand_in_edit')")
+    //@PreAuthorize("@pms.hasPermission('demand_in_edit')")
     public R<Boolean> updateShelfStatus(@RequestBody ShelfStatusRequest request) {
         return R.ok(demandInService.updateShelfStatus(request.getId(), request.getShelfStatus()));
     }

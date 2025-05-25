@@ -37,7 +37,7 @@ public class SoftCopyRegController {
     @PostMapping("/create")
     @Operation(summary = "新增软著登记")
     @SysLog("新增软著登记")
-    @PreAuthorize("@pms.hasPermission('soft_copy_reg_add')")
+    //@PreAuthorize("@pms.hasPermission('soft_copy_reg_add')")
     public R<Boolean> create(@RequestBody SoftCopyRegCreateRequest request) {
         return R.ok(softCopyRegService.create(request));
     }
@@ -45,21 +45,21 @@ public class SoftCopyRegController {
     @PostMapping("/update")
     @Operation(summary = "修改软著登记")
     @SysLog("修改软著登记")
-    @PreAuthorize("@pms.hasPermission('soft_copy_reg_edit')")
+    //@PreAuthorize("@pms.hasPermission('soft_copy_reg_edit')")
     public R<Boolean> update(@RequestBody SoftCopyRegUpdateRequest request) {
         return R.ok(softCopyRegService.update(request));
     }
 
     @GetMapping("/page")
     @Operation(summary = "分页查询软著登记")
-    @PreAuthorize("@pms.hasPermission('soft_copy_reg_view')")
+    //@PreAuthorize("@pms.hasPermission('soft_copy_reg_view')")
     public R<IPage<SoftCopyRegResponse>> page(@ParameterObject Page<?> page, @ParameterObject SoftCopyRegPageRequest request) {
         return R.ok(softCopyRegService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "查询软著登记详情")
-    @PreAuthorize("@pms.hasPermission('soft_copy_reg_view')")
+    //@PreAuthorize("@pms.hasPermission('soft_copy_reg_view')")
     public R<SoftCopyRegResponse> detail(@RequestBody IdRequest request) {
         return R.ok(softCopyRegService.getDetail(request.getId()));
     }
@@ -67,14 +67,14 @@ public class SoftCopyRegController {
     @PostMapping("/remove")
     @Operation(summary = "删除软著登记")
     @SysLog("删除软著登记")
-    @PreAuthorize("@pms.hasPermission('soft_copy_reg_del')")
+    //@PreAuthorize("@pms.hasPermission('soft_copy_reg_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(softCopyRegService.remove(request.getIds()));
     }
 
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
-    @PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
+    //@PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
                 SoftCopyRegResponse.BIZ_CODE,
@@ -86,7 +86,7 @@ public class SoftCopyRegController {
     @PostMapping("/export")
     @ResponseExcel(name = "软著登记导出", sheets = {@Sheet(sheetName = "软著登记列表")})
     @Operation(summary = "导出软著登记")
-    @PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
+    //@PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
     public List<Map<String, Object>> export(@RequestBody SoftCopyRegExportWrapperRequest request) {
         IPage<SoftCopyRegResponse> pageData = softCopyRegService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), SoftCopyRegResponse.class);

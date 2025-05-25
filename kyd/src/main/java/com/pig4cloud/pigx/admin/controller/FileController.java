@@ -33,28 +33,28 @@ public class FileController {
 
     @PostMapping("/create")
     @Operation(summary = "新增文档")
-    @PreAuthorize("@pms.hasPermission('file_add')")
+    //@PreAuthorize("@pms.hasPermission('file_add')")
     public R<Boolean> create(@RequestBody FileCreateRequest request) {
         return R.ok(fileService.create(request));
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新文档")
-    @PreAuthorize("@pms.hasPermission('file_edit')")
+    //@PreAuthorize("@pms.hasPermission('file_edit')")
     public R<Boolean> update(@RequestBody FileUpdateRequest request) {
         return R.ok(fileService.update(request));
     }
 
     @GetMapping("/page")
     @Operation(summary = "分页查询文档")
-    @PreAuthorize("@pms.hasPermission('file_view')")
+    //@PreAuthorize("@pms.hasPermission('file_view')")
     public R<IPage<FileResponse>> page(@ParameterObject Page page, @ParameterObject FilePageRequest request) {
         return R.ok(fileService.pageResult(page, request));
     }
 
     @PostMapping("/remove")
     @Operation(summary = "批量删除文档")
-    @PreAuthorize("@pms.hasPermission('file_del')")
+    //@PreAuthorize("@pms.hasPermission('file_del')")
     public R<Boolean> remove(@RequestBody List<Long> ids) {
         return R.ok(fileService.removeByIds(ids));
     }
@@ -72,7 +72,7 @@ public class FileController {
     @PostMapping("/export")
     @ResponseExcel(name = "文档导出", sheets = {@Sheet(sheetName = "文档列表")})
     @Operation(summary = "导出文档")
-    @PreAuthorize("@pms.hasPermission('file_export')")
+    //@PreAuthorize("@pms.hasPermission('file_export')")
     public List<Map<String, Object>> export(@RequestBody FileExportWrapperRequest request) {
         IPage<FileResponse> pageData = fileService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), FileResponse.class);

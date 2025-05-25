@@ -37,35 +37,35 @@ public class DemandController {
 
     @PostMapping("/create")
     @Operation(summary = "新增企业需求")
-    @PreAuthorize("@pms.hasPermission('demand_add')")
+    //@PreAuthorize("@pms.hasPermission('demand_add')")
     public R<Boolean> create(@RequestBody DemandCreateRequest request) {
         return R.ok(demandService.create(request));
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新企业需求")
-    @PreAuthorize("@pms.hasPermission('demand_edit')")
+    //@PreAuthorize("@pms.hasPermission('demand_edit')")
     public R<Boolean> update(@RequestBody DemandUpdateRequest request) {
         return R.ok(demandService.update(request));
     }
 
     @GetMapping("/page")
     @Operation(summary = "分页查询企业需求")
-    @PreAuthorize("@pms.hasPermission('demand_view')")
+    //@PreAuthorize("@pms.hasPermission('demand_view')")
     public R<IPage<DemandResponse>> page(@ParameterObject Page page, @ParameterObject DemandPageRequest request) {
         return R.ok(demandService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "企业需求详情")
-    @PreAuthorize("@pms.hasPermission('demand_view')")
+    //@PreAuthorize("@pms.hasPermission('demand_view')")
     public R<DemandResponse> detail(@RequestBody IdRequest request) {
         return R.ok(demandService.getDetail(request.getId()));
     }
 
     @PostMapping("/remove")
     @Operation(summary = "批量删除企业需求")
-    @PreAuthorize("@pms.hasPermission('demand_del')")
+    //@PreAuthorize("@pms.hasPermission('demand_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(demandService.removeByIds(request.getIds()));
     }
@@ -82,7 +82,7 @@ public class DemandController {
     @PostMapping("/export")
     @ResponseExcel(name = "企业需求导出", sheets = {@Sheet(sheetName = "需求列表")})
     @Operation(summary = "导出企业需求")
-    @PreAuthorize("@pms.hasPermission('demand_export')")
+    //@PreAuthorize("@pms.hasPermission('demand_export')")
     public List<Map<String, Object>> export(@RequestBody DemandExportWrapperRequest request) {
         IPage<DemandResponse> pageData = demandService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), DemandResponse.class);

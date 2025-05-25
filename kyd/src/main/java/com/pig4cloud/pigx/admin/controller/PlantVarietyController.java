@@ -37,7 +37,7 @@ public class PlantVarietyController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增植物新品种权")
-    @PreAuthorize("@pms.hasPermission('plant_variety_add')")
+    //@PreAuthorize("@pms.hasPermission('plant_variety_add')")
     public R<Boolean> create(@RequestBody PlantVarietyCreateRequest request) {
         return R.ok(plantVarietyService.create(request));
     }
@@ -45,21 +45,21 @@ public class PlantVarietyController {
     @PostMapping("/update")
     @Operation(summary = "更新")
     @SysLog("更新植物新品种权")
-    @PreAuthorize("@pms.hasPermission('plant_variety_edit')")
+    //@PreAuthorize("@pms.hasPermission('plant_variety_edit')")
     public R<Boolean> update(@RequestBody PlantVarietyUpdateRequest request) {
         return R.ok(plantVarietyService.update(request));
     }
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    @PreAuthorize("@pms.hasPermission('plant_variety_view')")
+    //@PreAuthorize("@pms.hasPermission('plant_variety_view')")
     public R<IPage<PlantVarietyResponse>> page(@ParameterObject Page page, @ParameterObject PlantVarietyPageRequest request) {
         return R.ok(plantVarietyService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "详情")
-    @PreAuthorize("@pms.hasPermission('plant_variety_view')")
+    //@PreAuthorize("@pms.hasPermission('plant_variety_view')")
     public R<PlantVarietyResponse> detail(@RequestBody IdRequest request) {
         return R.ok(plantVarietyService.getDetail(request.getId()));
     }
@@ -67,7 +67,7 @@ public class PlantVarietyController {
     @PostMapping("/remove")
     @Operation(summary = "删除")
     @SysLog("删除植物新品种权")
-    @PreAuthorize("@pms.hasPermission('plant_variety_del')")
+    //@PreAuthorize("@pms.hasPermission('plant_variety_del')")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
         return R.ok(plantVarietyService.remove(request.getIds()));
     }
@@ -85,7 +85,7 @@ public class PlantVarietyController {
     @PostMapping("/export")
     @ResponseExcel(name = "植物新品种权登记导出", sheets = {@Sheet(sheetName = "植物新品种权列表")})
     @Operation(summary = "导出")
-    @PreAuthorize("@pms.hasPermission('plant_variety_export')")
+    //@PreAuthorize("@pms.hasPermission('plant_variety_export')")
     public List<Map<String, Object>> export(@RequestBody PlantVarietyExportWrapperRequest request) {
         IPage<PlantVarietyResponse> pageData = plantVarietyService.pageResult(new Page<>(), request.getQuery());
         return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), PlantVarietyResponse.class);
