@@ -3,14 +3,12 @@ package com.pig4cloud.pigx.admin.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.service.SoftCopyService;
+import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
-import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.dto.*;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.softCopy.*;
 import com.pig4cloud.pigx.common.core.util.R;
-import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
-import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,11 +16,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.List;
-import java.util.Map;
+
+import java.io.IOException;
 
 /**
  * @author zhaoliang
@@ -86,11 +88,35 @@ public class SoftCopyController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "软著提案导出", sheets = {@Sheet(sheetName = "软著提案列表")})
     @Operation(summary = "导出")
-    //@PreAuthorize("@pms.hasPermission('soft_copy_export')")
-    public List<Map<String, Object>> export(@RequestBody SoftCopyExportWrapperRequest request) {
-        IPage<SoftCopyResponse> pageData = softCopyService.pageResult(new Page<>(), request.getQuery());
-        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), SoftCopyResponse.class);
+    public void export(@RequestBody SoftCopyExportWrapperRequest request) throws IOException {
+        // 1. 拿到 ServletRequestAttributes
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (attrs == null) {
+            throw new IllegalStateException("当前不是 HTTP 请求上下文，无法导出 Excel");
+        }
+
+        // 2. 再拿到 Jakarta HttpServletResponse
+        HttpServletResponse response = attrs.getResponse();
+        if (response == null) {
+            throw new IllegalStateException("无法获取 HttpServletResponse");
+        }
+
+        // 3. 查询数据
+        IPage<SoftCopyResponse> pageData = softCopyService.pageResult(
+                new Page<>(), request.getQuery()
+        );
+
+        // 4. 调用通用导出工具
+        ExcelExportUtil.exportByBean(
+                response,
+                "软著提案导出",                        // 文件名（不带 .xlsx）
+                "软著提案列表",                      // Sheet 名称
+                pageData.getRecords(),              // DTO 列表
+                request.getExport().getFieldKeys(), // 要导出的字段 keys
+                SoftCopyResponse.class              // DTO 类型
+        );
     }
+
 }
