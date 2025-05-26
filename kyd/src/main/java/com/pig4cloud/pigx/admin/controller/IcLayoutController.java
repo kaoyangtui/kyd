@@ -6,7 +6,9 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.*;
+import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
 import com.pig4cloud.pigx.admin.service.IcLayoutService;
+import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.common.core.util.R;
@@ -16,12 +18,16 @@ import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -87,8 +93,38 @@ public class IcLayoutController {
     @ResponseExcel(name = "集成电路布图登记导出", sheets = {@Sheet(sheetName = "集成电路布图登记")})
     @Operation(summary = "导出")
     //@PreAuthorize("@pms.hasPermission('ic_layout_export')")
-    public List<Map<String, Object>> export(@RequestBody IcLayoutExportWrapperRequest request) {
-        IPage<IcLayoutResponse> pageData = icLayoutService.pageResult(new Page<>(), request.getQuery());
-        return ExportFilterUtil.filterFields(pageData.getRecords(), request.getExport().getFieldKeys(), IcLayoutResponse.class);
+    public void export(@RequestBody IcLayoutExportWrapperRequest request) throws IOException {
+        // 1. 拿到 ServletRequestAttributes
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (attrs == null) {
+            throw new IllegalStateException("当前不是 HTTP 请求上下文，无法导出 Excel");
+        }
+
+        // 2. 再拿到 Jakarta HttpServletResponse
+        HttpServletResponse response = attrs.getResponse();
+        if (response == null) {
+            throw new IllegalStateException("无法获取 HttpServletResponse");
+        }
+
+        // 3. 查询数据
+        IPage<IcLayoutResponse> pageData = icLayoutService.pageResult(
+                new Page<>(), request.getQuery()
+        );
+
+        // 4. 调用通用导出工具
+        ExcelExportUtil.exportByBean(
+                response,
+                // 文件名（不带 .xlsx）
+                "集成电路布图登记导出",
+                // Sheet 名称
+                "集成电路布图登记",
+                // DTO 列表
+                pageData.getRecords(),
+                // 要导出的字段 keys
+                request.getExport().getFieldKeys(),
+                // DTO 类型
+                IcLayoutResponse.class
+        );
     }
 }

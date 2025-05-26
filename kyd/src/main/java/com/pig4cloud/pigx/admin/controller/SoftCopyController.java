@@ -111,11 +111,16 @@ public class SoftCopyController {
         // 4. 调用通用导出工具
         ExcelExportUtil.exportByBean(
                 response,
-                "软著提案导出",                        // 文件名（不带 .xlsx）
-                "软著提案列表",                      // Sheet 名称
-                pageData.getRecords(),              // DTO 列表
-                request.getExport().getFieldKeys(), // 要导出的字段 keys
-                SoftCopyResponse.class              // DTO 类型
+                // 文件名（不带 .xlsx）
+                "软著提案导出",
+                // Sheet 名称
+                "软著提案列表",
+                // DTO 列表
+                pageData.getRecords(),
+                // 要导出的字段 keys
+                request.getExport().getFieldKeys(),
+                // DTO 类型
+                SoftCopyResponse.class
         );
     }
 

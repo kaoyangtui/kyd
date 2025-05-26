@@ -2,7 +2,9 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.service.IpTransformService;
+import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
@@ -15,12 +17,16 @@ import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -83,11 +89,37 @@ public class IpTransformController {
     @ResponseExcel(name = "知识产权转化导出", sheets = {@Sheet(sheetName = "转化列表")})
     @Operation(summary = "导出记录")
     //@PreAuthorize("@pms.hasPermission('ip_transform_export')")
-    public List<Map<String, Object>> export(@RequestBody IpTransformExportWrapperRequest request) {
-        IPage<IpTransformResponse> pageData = ipTransformService.pageResult(new Page<>(), request.getQuery());
-        return ExportFilterUtil.filterFields(
+    public void export(@RequestBody IpTransformExportWrapperRequest request) throws IOException {
+        // 1. 拿到 ServletRequestAttributes
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (attrs == null) {
+            throw new IllegalStateException("当前不是 HTTP 请求上下文，无法导出 Excel");
+        }
+
+        // 2. 再拿到 Jakarta HttpServletResponse
+        HttpServletResponse response = attrs.getResponse();
+        if (response == null) {
+            throw new IllegalStateException("无法获取 HttpServletResponse");
+        }
+
+        // 3. 查询数据
+        IPage<IpTransformResponse> pageData = ipTransformService.pageResult(
+                new Page<>(), request.getQuery()
+        );
+
+        // 4. 调用通用导出工具
+        ExcelExportUtil.exportByBean(
+                response,
+                // 文件名（不带 .xlsx）
+                "知识产权转化导出",
+                // Sheet 名称
+                "知识产权转化",
+                // DTO 列表
                 pageData.getRecords(),
+                // 要导出的字段 keys
                 request.getExport().getFieldKeys(),
+                // DTO 类型
                 IpTransformResponse.class
         );
     }

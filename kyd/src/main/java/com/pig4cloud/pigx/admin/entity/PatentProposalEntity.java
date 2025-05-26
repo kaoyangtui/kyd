@@ -120,18 +120,6 @@ public class PatentProposalEntity extends Model<PatentProposalEntity> {
     private String projectName;
 
     /**
-     * 申请人信息，多个机构用分号隔开，每个结构为“名称-类型”格式
-     */
-    @Schema(description="申请人信息，多个机构用分号隔开，每个结构为“名称-类型”格式")
-    private String applicantOrgs;
-
-    /**
-     * 发明人信息（校内），格式为结构化文本或分号分隔结构字段
-     */
-    @Schema(description="发明人信息（校内），格式为结构化文本或分号分隔结构字段")
-    private String inventorsInner;
-
-    /**
      * 发明人（校外），最多10个，分号隔开
      */
     @Schema(description="发明人（校外），最多10个，分号隔开")
