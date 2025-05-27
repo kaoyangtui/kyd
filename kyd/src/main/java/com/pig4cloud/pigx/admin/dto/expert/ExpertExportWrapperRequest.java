@@ -1,4 +1,4 @@
-package com.pig4cloud.pigx.admin.dto.researchTeam;
+package com.pig4cloud.pigx.admin.dto.expert;
 
 import com.pig4cloud.pigx.admin.dto.ExportWrapperRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "科研团队导出封装请求")
-public class ResearchTeamExportWrapperRequest extends ExportWrapperRequest<ResearchTeamPageRequest> {
+@Schema(description = "专家导出封装请求")
+public class ExpertExportWrapperRequest extends ExportWrapperRequest<ExpertPageRequest> {
+
 }

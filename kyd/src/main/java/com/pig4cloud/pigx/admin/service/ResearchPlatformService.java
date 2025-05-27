@@ -2,43 +2,24 @@ package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.*;
+import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchPlatformEntity;
 
 import java.util.List;
 
-/**
- * @author zhaoliang
- */
-public interface ResearchPlatformService {
+public interface ResearchPlatformService extends IService<ResearchPlatformEntity> {
 
-    /**
-     * 分页查询科研平台
-     */
-    IPage<ResearchPlatformResponse> pageResult(Page page, ResearchPlatformPageRequest request);
+    Boolean create(ResearchPlatformCreateRequest request);
 
-    /**
-     * 获取平台详情
-     */
+    Boolean update(ResearchPlatformUpdateRequest request);
+
+    Boolean remove(List<Long> ids);
+
     ResearchPlatformResponse getDetail(Long id);
 
-    /**
-     * 创建科研平台
-     */
-    Boolean createPlatform(ResearchPlatformCreateRequest request);
+    Boolean shelfByIds(List<Long> ids, Integer shelfStatus);
 
-    /**
-     * 更新科研平台
-     */
-    Boolean updatePlatform(ResearchPlatformUpdateRequest request);
-
-    /**
-     * 删除科研平台
-     */
-    Boolean removePlatforms(List<Long> ids);
-
-    /**
-     * 变更上下架状态
-     */
-    Boolean changeShelfStatus(ResearchPlatformShelfRequest request);
-
+    IPage<ResearchPlatformResponse> pageResult(Page page, ResearchPlatformPageRequest request);
 }

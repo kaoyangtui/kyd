@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
-import com.pig4cloud.pigx.admin.dto.researchTeam.*;
-import com.pig4cloud.pigx.admin.service.ResearchTeamService;
+import com.pig4cloud.pigx.admin.dto.expert.*;
+import com.pig4cloud.pigx.admin.service.ExpertService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.common.core.util.R;
@@ -14,7 +14,6 @@ import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -22,72 +21,76 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * 专家信息管理
+ * @author zhaoliang
+ */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/researchTeam")
-@Tag(name = "科研团队管理", description = "科研团队管理")
+@RequestMapping("/expert")
+@Tag(name = "专家管理", description = "专家信息管理")
 @SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
-public class ResearchTeamController {
+public class ExpertController {
 
-    private final ResearchTeamService researchTeamService;
+    private final ExpertService expertService;
 
-    @GetMapping("/page")
+    @PostMapping("/page")
     @Operation(summary = "分页查询")
-    public R<IPage<ResearchTeamResponse>> page(@ParameterObject Page<ResearchTeamResponse> page,
-                                               @ParameterObject ResearchTeamPageRequest request) {
-        return R.ok(researchTeamService.pageResult(page, request));
+    public R<IPage<ExpertResponse>> page(@ParameterObject Page<ExpertResponse> page,
+                                         @RequestBody ExpertPageRequest request) {
+        return R.ok(expertService.pageResult(page, request));
     }
 
     @PostMapping("/detail")
     @Operation(summary = "详情")
-    public R<ResearchTeamResponse> detail(@RequestBody IdRequest request) {
-        return R.ok(researchTeamService.getDetail(request.getId()));
+    public R<ExpertResponse> detail(@RequestBody IdRequest request) {
+        return R.ok(expertService.getDetail(request.getId()));
     }
 
     @PostMapping("/create")
     @Operation(summary = "新增")
-    @SysLog("新增科研团队")
-    public R<Boolean> create(@RequestBody ResearchTeamCreateRequest request) {
-        return R.ok(researchTeamService.create(request));
+    @SysLog("新增专家信息")
+    public R<Boolean> create(@RequestBody ExpertCreateRequest request) {
+        return R.ok(expertService.create(request));
     }
 
     @PostMapping("/update")
     @Operation(summary = "修改")
-    @SysLog("修改科研团队")
-    public R<Boolean> update(@RequestBody ResearchTeamUpdateRequest request) {
-        return R.ok(researchTeamService.update(request));
+    @SysLog("修改专家信息")
+    public R<Boolean> update(@RequestBody ExpertUpdateRequest request) {
+        return R.ok(expertService.update(request));
     }
 
     @PostMapping("/remove")
-    @Operation(summary = "删除")
-    @SysLog("删除科研团队")
+    @Operation(summary = "批量删除")
+    @SysLog("批量删除专家")
     public R<Boolean> remove(@RequestBody IdListRequest request) {
-        return R.ok(researchTeamService.remove(request.getIds()));
+        return R.ok(expertService.remove(request.getIds()));
     }
 
     @PostMapping("/shelf")
-    @Operation(summary = "上下架")
-    @SysLog("科研团队上下架")
-    public R<Boolean> shelf(@RequestBody ResearchTeamShelfRequest request) {
-        return R.ok(researchTeamService.shelfByIds(request.getIds(), request.getShelfStatus()));
+    @Operation(summary = "批量上下架")
+    @SysLog("专家上下架")
+    public R<Boolean> shelf(@RequestBody ExpertShelfRequest request) {
+        return R.ok(expertService.shelfByIds(request.getIds(), request.getShelfStatus()));
     }
 
     @PostMapping("/export/fields")
     @Operation(summary = "获取导出字段列表")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
-                ResearchTeamResponse.BIZ_CODE,
-                ResearchTeamResponse.class
+                ExpertResponse.BIZ_CODE, ExpertResponse.class
         );
         return R.ok(fields);
     }
 
     @PostMapping("/export")
     @Operation(summary = "导出")
-    public void export(@RequestBody ResearchTeamExportWrapperRequest request) throws IOException {
+    public void export(@RequestBody ExpertExportWrapperRequest request) throws IOException {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attrs == null) {
             throw new IllegalStateException("当前不是 HTTP 请求上下文，无法导出 Excel");
@@ -97,14 +100,15 @@ public class ResearchTeamController {
             throw new IllegalStateException("无法获取 HttpServletResponse");
         }
 
-        IPage<ResearchTeamResponse> pageData = researchTeamService.pageResult(new Page<>(), request.getQuery());
+        IPage<ExpertResponse> pageData = expertService.pageResult(new Page<>(), request.getQuery());
+
         ExcelExportUtil.exportByBean(
                 response,
-                "科研团队导出",
-                "科研团队列表",
+                "专家信息导出",
+                "专家信息列表",
                 pageData.getRecords(),
                 request.getExport().getFieldKeys(),
-                ResearchTeamResponse.class
+                ExpertResponse.class
         );
     }
 }

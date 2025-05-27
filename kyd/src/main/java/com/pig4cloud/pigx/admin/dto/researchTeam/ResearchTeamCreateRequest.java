@@ -1,11 +1,13 @@
 package com.pig4cloud.pigx.admin.dto.researchTeam;
 
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
 import java.util.List;
 
 @Data
-@Schema(description = "新增科研团队请求")
+@Schema(description = "科研团队新增请求")
 public class ResearchTeamCreateRequest {
 
     @Schema(description = "科研团队名称")
@@ -14,8 +16,8 @@ public class ResearchTeamCreateRequest {
     @Schema(description = "团队负责人")
     private String leader;
 
-    @Schema(description = "研究方向，多个用;分隔")
-    private String researchTags;
+    @Schema(description = "团队研究方向（多选用;分隔，DTO用List）")
+    private List<String> researchTags;
 
     @Schema(description = "团队介绍")
     private String intro;
@@ -27,5 +29,5 @@ public class ResearchTeamCreateRequest {
     private String contactPhone;
 
     @Schema(description = "团队成员列表")
-    private List<ResearchTeamMemberVO> memberList;
+    private List<CompleterEntity> completers;
 }

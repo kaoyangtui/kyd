@@ -14,11 +14,11 @@ public class ResearchPlatformResponse {
     @Schema(description = "主键ID")
     private Long id;
 
-    @Schema(description = "平台名称")
+    @Schema(description = "科研平台名称")
     private String name;
 
-    @Schema(description = "研究方向标签列表")
-    private List<String> directions;
+    @Schema(description = "平台研究方向；多个用;分隔")
+    private List<String> direction;
 
     @Schema(description = "平台介绍")
     private String intro;
@@ -29,9 +29,24 @@ public class ResearchPlatformResponse {
     @Schema(description = "联系人手机")
     private String contactPhone;
 
-    @Schema(description = "平台负责人（格式：姓名(工号)）")
+    @Schema(description = "平台负责人")
     private String principal;
 
     @Schema(description = "上下架状态（0下架 1上架）")
     private Integer shelfStatus;
+
+    @Schema(description = "创建时间")
+    private String createTime;
+
+    @Schema(description = "更新时间")
+    private String updateTime;
+
+    @Schema(description = "创建人")
+    private String createBy;
+
+    @Schema(description = "更新人")
+    private String updateBy;
+
+    @Schema(description = "所属院系")
+    private String deptId;
 }

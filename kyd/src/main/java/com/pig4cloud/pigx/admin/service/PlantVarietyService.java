@@ -2,7 +2,9 @@ package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.dto.plantVariety.*;
+import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.entity.PlantVarietyEntity;
 
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.List;
  *
  * @author zhaoliang
  */
-public interface PlantVarietyService {
+public interface PlantVarietyService extends IService<PlantVarietyEntity> {
 
     /**
      * 创建植物新品种权登记
