@@ -158,6 +158,8 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         } else {
             wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getName, request.getKeyword())
                     .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getCode, request.getKeyword());
+            wrapper.eq(StrUtil.isNotBlank(request.getLeaderCode()), ResultEntity::getLeaderCode, request.getLeaderCode());
+            wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), ResultEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getSubject()), ResultEntity::getSubject, request.getSubject());
             wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), ResultEntity::getDeptId, request.getCreateByDept());
             wrapper.eq(ObjectUtil.isNotNull(request.getShelfStatus()), ResultEntity::getShelfStatus, request.getShelfStatus());

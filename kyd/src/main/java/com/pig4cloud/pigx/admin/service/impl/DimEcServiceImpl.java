@@ -24,7 +24,7 @@ public class DimEcServiceImpl extends ServiceImpl<DimEcMapper, DimEcEntity> impl
 
     @Override
     public List<Tree<String>> tree() {
-        List<DimEcEntity> list = this.list();
+        List<DimEcEntity> list = this.lambdaQuery().in(DimEcEntity::getLevel, 1, 2, 3).list();
 
         // 转为 TreeNode 列表
         List<TreeNode<String>> nodeList = list.stream().map(e -> {

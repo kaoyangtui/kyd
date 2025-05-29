@@ -19,6 +19,12 @@ public class ResultPageRequest extends BasePageQuery {
     @Schema(description = "关键字（支持名称、编码模糊查询）")
     private String keyword;
 
+    @Schema(description="负责人用户名")
+    private String leaderCode;
+
+    @Schema(description="提交人用户名")
+    private String createBy;
+
     @Schema(description = "所属学科")
     private String subject;
 
