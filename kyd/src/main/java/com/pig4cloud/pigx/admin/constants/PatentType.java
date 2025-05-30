@@ -4,6 +4,7 @@ import lombok.Getter;
 
 /**
  * 专利类型枚举
+ *
  * @author zhaoliang
  */
 @Getter

@@ -35,7 +35,7 @@ public class ResearchTeamController {
     private final ResearchTeamService researchTeamService;
 
     @GetMapping("/page")
-    @Operation(summary = "分页查询")
+    @Operation(summary = "科研团队-分页查询")
     public R<IPage<ResearchTeamResponse>> page(@ParameterObject Page<ResearchTeamResponse> page,
                                                @ParameterObject ResearchTeamPageRequest request) {
         return R.ok(researchTeamService.pageResult(page, request));

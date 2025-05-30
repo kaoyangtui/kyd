@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.NoticeMapper">
 
-  <resultMap id="noticeMap" type="com.pig4cloud.pigx.admin.entity.NoticeEntity">
+    <resultMap id="noticeMap" type="com.pig4cloud.pigx.admin.entity.NoticeEntity">
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="content" column="content"/>
@@ -15,5 +15,5 @@
         <result property="updateTime" column="update_time"/>
         <result property="delFlag" column="del_flag"/>
         <result property="tenantId" column="tenant_id"/>
-  </resultMap>
+    </resultMap>
 </mapper>

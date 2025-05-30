@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.AssetPolicyMapper">
 
-  <resultMap id="assetPolicyMap" type="com.pig4cloud.pigx.admin.entity.AssetPolicyEntity">
+    <resultMap id="assetPolicyMap" type="com.pig4cloud.pigx.admin.entity.AssetPolicyEntity">
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="source" column="source"/>
@@ -16,5 +16,5 @@
         <result property="updateTime" column="update_time"/>
         <result property="delFlag" column="del_flag"/>
         <result property="tenantId" column="tenant_id"/>
-  </resultMap>
+    </resultMap>
 </mapper>

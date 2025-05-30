@@ -40,7 +40,7 @@ public class SoftCopyCreateRequest {
     @Schema(description = "负责人承诺")
     private Integer pledge;
 
-    @Schema(description="附件路径;分号分隔")
+    @Schema(description = "附件路径;分号分隔")
     private List<String> attachmentUrls;
 
     @Schema(description = "完成人信息列表")

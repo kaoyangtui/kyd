@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Data
 @Schema(description = "新增科研成果请求")
-public class ResultCreateRequest{
+public class ResultCreateRequest {
 
     @Schema(description = "成果名称")
     private String name;

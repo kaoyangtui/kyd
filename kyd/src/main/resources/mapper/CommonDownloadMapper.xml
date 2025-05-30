@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.CommonDownloadMapper">
 
-  <resultMap id="commonDownloadMap" type="com.pig4cloud.pigx.admin.entity.CommonDownloadEntity">
+    <resultMap id="commonDownloadMap" type="com.pig4cloud.pigx.admin.entity.CommonDownloadEntity">
         <id property="id" column="id"/>
         <result property="fileName" column="file_name"/>
         <result property="filePath" column="file_path"/>
@@ -16,5 +16,5 @@
         <result property="updateTime" column="update_time"/>
         <result property="delFlag" column="del_flag"/>
         <result property="tenantId" column="tenant_id"/>
-  </resultMap>
+    </resultMap>
 </mapper>

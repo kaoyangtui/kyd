@@ -18,35 +18,35 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "学科维度表")
 public class DimMajorEntity extends Model<DimMajorEntity> {
 
- 
-	/**
-	* id
-	*/
+
+    /**
+     * id
+     */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="id")
+    @Schema(description = "id")
     private Integer id;
- 
-	/**
-	* parentId
-	*/
-    @Schema(description="parentId")
+
+    /**
+     * parentId
+     */
+    @Schema(description = "parentId")
     private Integer parentId;
- 
-	/**
-	* code
-	*/
-    @Schema(description="code")
+
+    /**
+     * code
+     */
+    @Schema(description = "code")
     private String code;
- 
-	/**
-	* name
-	*/
-    @Schema(description="name")
+
+    /**
+     * name
+     */
+    @Schema(description = "name")
     private String name;
- 
-	/**
-	* level
-	*/
-    @Schema(description="level")
+
+    /**
+     * level
+     */
+    @Schema(description = "level")
     private Integer level;
 }

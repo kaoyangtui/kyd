@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper">
 
-  <resultMap id="researchProjectMap" type="com.pig4cloud.pigx.admin.entity.ResearchProjectEntity">
+    <resultMap id="researchProjectMap" type="com.pig4cloud.pigx.admin.entity.ResearchProjectEntity">
         <id property="id" column="id"/>
         <result property="projectName" column="project_name"/>
         <result property="projectType" column="project_type"/>
@@ -16,5 +16,5 @@
         <result property="updateTime" column="update_time"/>
         <result property="delFlag" column="del_flag"/>
         <result property="tenantId" column="tenant_id"/>
-  </resultMap>
+    </resultMap>
 </mapper>

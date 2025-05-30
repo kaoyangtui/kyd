@@ -28,7 +28,7 @@ public class ExportFieldHelper {
     /**
      * 构建导出字段列表响应，支持传入嵌套结构的主表 VO。
      *
-     * @param bizCode 业务编码
+     * @param bizCode  业务编码
      * @param dtoClass 导出字段实际定义的主表 VO class（如 IpAssignMainVO.class）
      * @return 导出字段列表响应结构
      */

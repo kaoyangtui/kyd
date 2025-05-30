@@ -3,11 +3,11 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.DimMajorMapper">
 
-  <resultMap id="dimMajorMap" type="com.pig4cloud.pigx.admin.entity.DimMajorEntity">
+    <resultMap id="dimMajorMap" type="com.pig4cloud.pigx.admin.entity.DimMajorEntity">
         <id property="id" column="id"/>
         <result property="parentId" column="parent_id"/>
         <result property="code" column="code"/>
         <result property="name" column="name"/>
         <result property="level" column="level"/>
-  </resultMap>
+    </resultMap>
 </mapper>

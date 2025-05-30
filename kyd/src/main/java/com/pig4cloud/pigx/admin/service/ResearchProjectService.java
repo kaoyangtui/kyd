@@ -23,4 +23,6 @@ public interface ResearchProjectService extends IService<ResearchProjectEntity> 
 
     List<String> projectTypeOptions(ProjectTypeSearchRequest request);
 
+    List<String> projectNameOptions(ProjectNameSearchRequest request);
+
 }

@@ -3,10 +3,10 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.DimRegionMapper">
 
-  <resultMap id="dimRegionMap" type="com.pig4cloud.pigx.admin.entity.DimRegionEntity">
+    <resultMap id="dimRegionMap" type="com.pig4cloud.pigx.admin.entity.DimRegionEntity">
         <id property="id" column="id"/>
         <result property="parentId" column="parent_id"/>
         <result property="cname" column="cname"/>
         <result property="ctype" column="ctype"/>
-  </resultMap>
+    </resultMap>
 </mapper>

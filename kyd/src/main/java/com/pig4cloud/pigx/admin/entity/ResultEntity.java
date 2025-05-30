@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.pig4cloud.pigx.common.core.util.TenantTable;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -27,193 +28,193 @@ public class ResultEntity extends Model<ResultEntity> {
      * 主键
      */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="主键")
+    @Schema(description = "主键")
     private Long id;
 
     /**
      * 成果编码，CG开头+雪花算法ID
      */
-    @Schema(description="成果编码，CG开头+雪花算法ID")
+    @Schema(description = "成果编码，CG开头+雪花算法ID")
     private String code;
 
     /**
      * 流程实例 ID
      */
-    @Schema(description="流程实例 ID")
+    @Schema(description = "流程实例 ID")
     private String flowInstId;
 
     /**
      * 流程KEY
      */
-    @Schema(description="流程KEY")
+    @Schema(description = "流程KEY")
     private String flowKey;
 
     /**
      * 流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回
      */
-    @Schema(description="流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回")
+    @Schema(description = "流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回")
     private Integer flowStatus;
 
     /**
      * 当前流程节点名称
      */
-    @Schema(description="当前流程节点名称")
+    @Schema(description = "当前流程节点名称")
     private String currentNodeName;
 
     /**
      * 成果名称
      */
-    @Schema(description="成果名称")
+    @Schema(description = "成果名称")
     private String name;
 
     /**
      * 所属学科
      */
-    @Schema(description="所属学科")
+    @Schema(description = "所属学科")
     private String subject;
 
     /**
      * 领域技术
      */
-    @Schema(description="领域技术")
+    @Schema(description = "领域技术")
     private String techArea;
 
     /**
      * 研究方向
      */
-    @Schema(description="研究方向")
+    @Schema(description = "研究方向")
     private String direction;
 
     /**
      * 是否依托项目，0否1是
      */
-    @Schema(description="是否依托项目，0否1是")
+    @Schema(description = "是否依托项目，0否1是")
     private Integer fromProj;
 
     /**
      * 项目类型
      */
-    @Schema(description="项目类型")
+    @Schema(description = "项目类型")
     private String projType;
 
     /**
      * 项目名称
      */
-    @Schema(description="项目名称")
+    @Schema(description = "项目名称")
     private String projName;
 
     /**
      * 成果简介
      */
-    @Schema(description="成果简介")
+    @Schema(description = "成果简介")
     private String intro;
 
     /**
      * 技术成熟度
      */
-    @Schema(description="技术成熟度")
+    @Schema(description = "技术成熟度")
     private String maturity;
 
     /**
      * 是否有实物，0否1是
      */
-    @Schema(description="是否有实物，0否1是")
+    @Schema(description = "是否有实物，0否1是")
     private Integer hasObj;
 
     /**
      * 合作方式
      */
-    @Schema(description="合作方式")
+    @Schema(description = "合作方式")
     private String transWay;
 
     /**
      * 拟交易价格
      */
-    @Schema(description="拟交易价格")
+    @Schema(description = "拟交易价格")
     private BigDecimal transPrice;
 
     /**
      * 评价或获奖情况
      */
-    @Schema(description="评价或获奖情况")
+    @Schema(description = "评价或获奖情况")
     private String award;
 
     /**
      * 成果图片URL
      */
-    @Schema(description="成果图片URL")
+    @Schema(description = "成果图片URL")
     private String imgUrl;
 
     /**
      * 附件URL，多个用;分隔
      */
-    @Schema(description="附件URL，多个用;分隔")
+    @Schema(description = "附件URL，多个用;分隔")
     private String fileUrl;
 
     /**
      * 上下架状态，0下架1上架
      */
-    @Schema(description="上下架状态，0下架1上架")
+    @Schema(description = "上下架状态，0下架1上架")
     private Integer shelfStatus;
 
     /**
      * 标签
      */
-    @Schema(description="标签")
+    @Schema(description = "标签")
     private String tags;
 
     /**
      * 负责人编码
      */
-    @Schema(description="负责人编码")
+    @Schema(description = "负责人编码")
     private String leaderCode;
 
     /**
      * 负责人姓名
      */
-    @Schema(description="负责人姓名")
+    @Schema(description = "负责人姓名")
     private String leaderName;
 
     /**
      * 所属组织ID
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description="所属组织ID")
+    @Schema(description = "所属组织ID")
     private Long deptId;
 
     /**
      * 组织名称
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description="组织名称")
+    @Schema(description = "组织名称")
     private String deptName;
 
     /**
      * 创建/提交人
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建/提交人")
+    @Schema(description = "创建/提交人")
     private String createBy;
 
     /**
      * 创建/提交时间
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建/提交时间")
+    @Schema(description = "创建/提交时间")
     private LocalDateTime createTime;
 
     /**
      * 更新人
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新人")
+    @Schema(description = "更新人")
     private String updateBy;
 
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新时间")
+    @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
     /**
@@ -221,12 +222,12 @@ public class ResultEntity extends Model<ResultEntity> {
      */
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description="删除标识")
+    @Schema(description = "删除标识")
     private String delFlag;
 
     /**
      * 租户
      */
-    @Schema(description="租户")
+    @Schema(description = "租户")
     private Long tenantId;
 }

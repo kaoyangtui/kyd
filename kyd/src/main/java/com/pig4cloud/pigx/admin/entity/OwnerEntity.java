@@ -21,42 +21,42 @@ import com.pig4cloud.pigx.common.core.util.TenantTable;
 public class OwnerEntity extends Model<OwnerEntity> {
 
 
-	/**
-	* 主键
-	*/
+    /**
+     * 主键
+     */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="主键")
+    @Schema(description = "主键")
     private Long id;
 
-	/**
-	* 主表 code
-	*/
-    @Schema(description="主表 code")
+    /**
+     * 主表 code
+     */
+    @Schema(description = "主表 code")
     private String code;
 
-	/**
-	* 申请人名称
-	*/
-    @Schema(description="申请人名称")
+    /**
+     * 申请人名称
+     */
+    @Schema(description = "申请人名称")
     private String ownerName;
 
-	/**
-	* 申请人类型 0其他1第一
-	*/
-    @Schema(description="申请人类型 0其他1第一")
+    /**
+     * 申请人类型 0其他1第一
+     */
+    @Schema(description = "申请人类型 0其他1第一")
     private Integer ownerType;
 
-	/**
-	* 删除标识
-	*/
+    /**
+     * 删除标识
+     */
     @TableLogic
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="删除标识")
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "删除标识")
     private String delFlag;
 
-	/**
-	* 租户
-	*/
-    @Schema(description="租户")
+    /**
+     * 租户
+     */
+    @Schema(description = "租户")
     private Long tenantId;
 }

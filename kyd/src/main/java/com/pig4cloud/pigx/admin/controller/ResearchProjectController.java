@@ -99,10 +99,4 @@ public class ResearchProjectController {
         );
     }
 
-    @PostMapping("/type/options")
-    @Operation(summary = "项目类型下拉模糊搜索")
-    public R<List<String>> projectTypeOptions(@RequestBody ProjectTypeSearchRequest request) {
-        return R.ok(researchProjectService.projectTypeOptions(request));
-    }
-
 }

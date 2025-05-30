@@ -11,6 +11,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "软著导出请求包装")
-public class SoftCopyExportWrapperRequest  extends ExportWrapperRequest<SoftCopyPageRequest> {
+public class SoftCopyExportWrapperRequest extends ExportWrapperRequest<SoftCopyPageRequest> {
 
 }

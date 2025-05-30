@@ -1,0 +1,98 @@
+package com.pig4cloud.pigx.admin.service.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.dto.eventMeeting.*;
+import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
+import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.mapper.EventMeetingMapper;
+import com.pig4cloud.pigx.admin.service.EventMeetingService;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, EventMeetingEntity> implements EventMeetingService {
+
+    @Override
+    public IPage<EventMeetingResponse> pageResult(Page page, EventMeetingPageRequest request) {
+        LambdaQueryWrapper<EventMeetingEntity> wrapper = new LambdaQueryWrapper<>();
+
+        if (CollUtil.isNotEmpty(request.getIds())) {
+            wrapper.in(EventMeetingEntity::getId, request.getIds());
+        } else {
+            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), EventMeetingEntity::getName, request.getKeyword());
+            wrapper.eq(StrUtil.isNotBlank(request.getOrganizer()), EventMeetingEntity::getOrganizer, request.getOrganizer());
+            wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), EventMeetingEntity::getCreateBy, request.getCreateBy());
+            wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), EventMeetingEntity::getEventTime, request.getBeginTime());
+            wrapper.le(StrUtil.isNotBlank(request.getEndTime()), EventMeetingEntity::getEventTime, request.getEndTime());
+        }
+
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            page.setSize(request.getEndNo() - request.getStartNo() + 1);
+            page.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            page.setSize(request.getIds().size());
+            page.setCurrent(1);
+        }
+
+        IPage<EventMeetingEntity> entityPage = this.page(page, wrapper);
+        return entityPage.convert(entity -> {
+            EventMeetingResponse response = BeanUtil.copyProperties(entity, EventMeetingResponse.class);
+            response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
+                    ? StrUtil.split(entity.getFileUrl(), ";")
+                    : null);
+            return response;
+        });
+    }
+
+    @SneakyThrows
+    @Override
+    public EventMeetingResponse getDetail(Long id) {
+        EventMeetingEntity entity = this.getById(id);
+        if (entity == null) {
+            throw new BizException("数据不存在");
+        }
+        EventMeetingResponse response = BeanUtil.copyProperties(entity, EventMeetingResponse.class);
+        response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
+                ? StrUtil.split(entity.getFileUrl(), ";")
+                : null);
+        return response;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean createMeeting(EventMeetingCreateRequest request) {
+        EventMeetingEntity entity = BeanUtil.copyProperties(request, EventMeetingEntity.class);
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
+        return this.save(entity);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateMeeting(EventMeetingUpdateRequest request) {
+        EventMeetingEntity entity = BeanUtil.copyProperties(request, EventMeetingEntity.class);
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
+        return this.updateById(entity);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeMeetings(List<Long> ids) {
+        return this.removeBatchByIds(ids);
+    }
+}

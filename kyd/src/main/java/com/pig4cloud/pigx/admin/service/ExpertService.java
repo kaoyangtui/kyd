@@ -33,7 +33,8 @@ public interface ExpertService extends IService<ExpertEntity> {
 
     /**
      * 批量上下架
-     * @param ids 专家id列表
+     *
+     * @param ids         专家id列表
      * @param shelfStatus 上下架状态（0下架 1上架）
      */
     Boolean shelfByIds(List<Long> ids, Integer shelfStatus);

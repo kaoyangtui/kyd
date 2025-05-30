@@ -18,35 +18,35 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "国民经济表")
 public class DimEcEntity extends Model<DimEcEntity> {
 
- 
-	/**
-	* id
-	*/
+
+    /**
+     * id
+     */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="id")
+    @Schema(description = "id")
     private Integer id;
- 
-	/**
-	* code
-	*/
-    @Schema(description="code")
+
+    /**
+     * code
+     */
+    @Schema(description = "code")
     private String code;
- 
-	/**
-	* name
-	*/
-    @Schema(description="name")
+
+    /**
+     * name
+     */
+    @Schema(description = "name")
     private String name;
- 
-	/**
-	* level
-	*/
-    @Schema(description="level")
+
+    /**
+     * level
+     */
+    @Schema(description = "level")
     private Integer level;
- 
-	/**
-	* pCode
-	*/
-    @Schema(description="pCode")
+
+    /**
+     * pCode
+     */
+    @Schema(description = "pCode")
     private String pCode;
 }

@@ -5,10 +5,9 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yulichang.toolkit.StrUtils;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
-import com.pig4cloud.pigx.admin.service.DimEcService;
-import com.pig4cloud.pigx.admin.service.DimMajorService;
-import com.pig4cloud.pigx.admin.service.DimRegionService;
-import com.pig4cloud.pigx.admin.service.SysUserService;
+import com.pig4cloud.pigx.admin.dto.researchProject.ProjectNameSearchRequest;
+import com.pig4cloud.pigx.admin.dto.researchProject.ProjectTypeSearchRequest;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.core.util.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +29,7 @@ public class DimController {
     private final DimRegionService dimRegionService;
     private final SysUserService sysUserService;
     private final DimMajorService dimMajorService;
+    private final ResearchProjectService researchProjectService;
 
     @Operation(summary = "所属领域")
     @PostMapping("/ec/tree")
@@ -50,7 +50,7 @@ public class DimController {
     }
 
     @Operation(summary = "获取用户列表")
-    @GetMapping("/getUserList")
+    @GetMapping("/user")
     public R<List<SysUser>> getUserListByUserNameOrCode(String key) {
         // Check if the key is empty or null
         if (StrUtils.isBlank(key)) {
@@ -66,4 +66,15 @@ public class DimController {
         return R.ok(userList);
     }
 
+    @PostMapping("/project/type")
+    @Operation(summary = "项目类型下拉模糊搜索")
+    public R<List<String>> projectTypeOptions(@RequestBody ProjectTypeSearchRequest request) {
+        return R.ok(researchProjectService.projectTypeOptions(request));
+    }
+
+    @PostMapping("/project/name")
+    @Operation(summary = "项目名称下拉模糊搜索")
+    public R<List<String>> projectNameOptions(@RequestBody ProjectNameSearchRequest request) {
+        return R.ok(researchProjectService.projectNameOptions(request));
+    }
 }

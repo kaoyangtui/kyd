@@ -106,4 +106,21 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
                 .toList();
     }
 
+    @Override
+    public List<String> projectNameOptions(ProjectNameSearchRequest request) {
+        LambdaQueryWrapper<ResearchProjectEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.select(ResearchProjectEntity::getProjectName)
+                .like(StrUtil.isNotBlank(request.getKeyword()), ResearchProjectEntity::getProjectName, request.getKeyword())
+                .groupBy(ResearchProjectEntity::getProjectName);
+
+        Page<ResearchProjectEntity> page = new Page<>(request.getPageNum(), request.getPageSize());
+        Page<ResearchProjectEntity> resultPage = this.page(page, wrapper);
+
+        return resultPage.getRecords().stream()
+                .map(ResearchProjectEntity::getProjectName)
+                .distinct()
+                .toList();
+    }
+
+
 }

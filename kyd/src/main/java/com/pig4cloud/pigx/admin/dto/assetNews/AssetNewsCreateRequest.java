@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.dto.assetNews;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
 import java.util.List;
 
 @Data

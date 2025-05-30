@@ -18,29 +18,29 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "区域表")
 public class DimRegionEntity extends Model<DimRegionEntity> {
 
- 
-	/**
-	* id
-	*/
+
+    /**
+     * id
+     */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="id")
+    @Schema(description = "id")
     private Integer id;
- 
-	/**
-	* parentId
-	*/
-    @Schema(description="parentId")
+
+    /**
+     * parentId
+     */
+    @Schema(description = "parentId")
     private Integer parentId;
- 
-	/**
-	* cname
-	*/
-    @Schema(description="cname")
+
+    /**
+     * cname
+     */
+    @Schema(description = "cname")
     private String cname;
- 
-	/**
-	* ctype
-	*/
-    @Schema(description="ctype")
+
+    /**
+     * ctype
+     */
+    @Schema(description = "ctype")
     private Integer ctype;
 }

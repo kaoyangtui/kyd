@@ -79,10 +79,18 @@ public class ResearchPlatformEntity extends Model<ResearchPlatformEntity> {
     private Integer shelfStatus;
 
     /**
-     * 所属院系
+     * 所属组织ID
      */
-    @Schema(description = "所属院系")
-    private String deptId;
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "所属组织ID")
+    private Long deptId;
+
+    /**
+     * 组织名称
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "组织名称")
+    private String deptName;
 
     /**
      * 创建人

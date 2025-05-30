@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.pig4cloud.pigx.common.core.util.TenantTable;
+
 import java.time.LocalDateTime;
 
 /**
@@ -22,76 +23,84 @@ import java.time.LocalDateTime;
 public class NoticeEntity extends Model<NoticeEntity> {
 
 
-	/**
-	* 主键
-	*/
+    /**
+     * 主键
+     */
     @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description="主键")
+    @Schema(description = "主键")
     private Long id;
 
-	/**
-	* 标题
-	*/
-    @Schema(description="标题")
+    /**
+     * 标题
+     */
+    @Schema(description = "标题")
     private String title;
 
-	/**
-	* 内容
-	*/
-    @Schema(description="内容")
+    /**
+     * 内容
+     */
+    @Schema(description = "内容")
     private String content;
 
-	/**
-	* 附件路径，多个用;分隔
-	*/
-    @Schema(description="附件路径，多个用;分隔")
+    /**
+     * 附件路径，多个用;分隔
+     */
+    @Schema(description = "附件路径，多个用;分隔")
     private String fileUrl;
 
-	/**
-	* 所属院系
-	*/
-    @Schema(description="所属院系")
-    private String deptId;
+    /**
+     * 所属组织ID
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "所属组织ID")
+    private Long deptId;
 
-	/**
-	* 创建/提交人
-	*/
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建/提交人")
+    /**
+     * 组织名称
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "组织名称")
+    private String deptName;
+
+    /**
+     * 创建/提交人
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建/提交人")
     private String createBy;
 
-	/**
-	* 创建/提交时间
-	*/
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="创建/提交时间")
+    /**
+     * 创建/提交时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建/提交时间")
     private LocalDateTime createTime;
 
-	/**
-	* 更新人
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新人")
+    /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新人")
     private String updateBy;
 
-	/**
-	* 更新时间
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新时间")
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
-	/**
-	* 删除标识
-	*/
+    /**
+     * 删除标识
+     */
     @TableLogic
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="删除标识")
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "删除标识")
     private String delFlag;
 
-	/**
-	* 租户
-	*/
-    @Schema(description="租户")
+    /**
+     * 租户
+     */
+    @Schema(description = "租户")
     private Long tenantId;
 }

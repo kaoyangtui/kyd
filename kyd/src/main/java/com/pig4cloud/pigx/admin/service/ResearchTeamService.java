@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * 科研团队服务接口
+ *
  * @author zhaoliang
  */
 public interface ResearchTeamService extends IService<ResearchTeamEntity> {
