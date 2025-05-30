@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yulichang.toolkit.StrUtils;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.service.DimEcService;
+import com.pig4cloud.pigx.admin.service.DimMajorService;
 import com.pig4cloud.pigx.admin.service.DimRegionService;
 import com.pig4cloud.pigx.admin.service.SysUserService;
 import com.pig4cloud.pigx.common.core.util.R;
@@ -28,6 +29,7 @@ public class DimController {
     private final DimEcService dimEcService;
     private final DimRegionService dimRegionService;
     private final SysUserService sysUserService;
+    private final DimMajorService dimMajorService;
 
     @Operation(summary = "所属领域")
     @PostMapping("/ec/tree")
@@ -39,6 +41,12 @@ public class DimController {
     @PostMapping("/region/tree")
     public R<List<Tree<Integer>>> regionTree() {
         return R.ok(dimRegionService.tree());
+    }
+
+    @Operation(summary = "学科")
+    @PostMapping("/major/tree")
+    public R<List<Tree<Integer>>> majorTree() {
+        return R.ok(dimMajorService.tree());
     }
 
     /**
