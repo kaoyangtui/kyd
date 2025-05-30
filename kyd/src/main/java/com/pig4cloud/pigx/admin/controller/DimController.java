@@ -49,12 +49,7 @@ public class DimController {
         return R.ok(dimMajorService.tree());
     }
 
-    /**
-     * 获取用户列表
-     *
-     * @param key 用户名或工号
-     * @return 用户列表
-     */
+    @Operation(summary = "获取用户列表")
     @GetMapping("/getUserList")
     public R<List<SysUser>> getUserListByUserNameOrCode(String key) {
         // Check if the key is empty or null
