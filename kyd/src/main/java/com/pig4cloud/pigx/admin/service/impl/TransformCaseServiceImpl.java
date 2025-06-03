@@ -65,13 +65,20 @@ public class TransformCaseServiceImpl extends ServiceImpl<TransformCaseMapper, T
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        return BeanUtil.copyProperties(entity, TransformCaseResponse.class);
+        TransformCaseResponse response = BeanUtil.copyProperties(entity, TransformCaseResponse.class);
+        response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
+                ? StrUtil.split(entity.getFileUrl(), ";")
+                : null);
+        return response;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createCase(TransformCaseCreateRequest request) {
         TransformCaseEntity entity = BeanUtil.copyProperties(request, TransformCaseEntity.class);
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
         return this.save(entity);
     }
 
@@ -79,6 +86,9 @@ public class TransformCaseServiceImpl extends ServiceImpl<TransformCaseMapper, T
     @Transactional(rollbackFor = Exception.class)
     public boolean updateCase(TransformCaseUpdateRequest request) {
         TransformCaseEntity entity = BeanUtil.copyProperties(request, TransformCaseEntity.class);
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
         return this.updateById(entity);
     }
 

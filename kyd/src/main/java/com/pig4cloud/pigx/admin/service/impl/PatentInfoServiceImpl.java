@@ -1,5 +1,7 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -8,6 +10,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.CnirpDisplayColsConstants;
 import com.pig4cloud.pigx.admin.constants.CnirpExpConstants;
+import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
+import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
@@ -16,6 +20,7 @@ import com.pig4cloud.pigx.admin.model.response.PatentSearchListRes;
 import com.pig4cloud.pigx.admin.service.CniprService;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
+import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +41,20 @@ import java.util.Map;
 public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentInfoEntity> implements PatentInfoService {
 
     private final CniprService cniprService;
+
+    @Override
+    public IPage<PatentSearchResponse> searchPatent(Page page, PatentSearchRequest request) {
+        int offset = ((int) page.getCurrent() - 1) * (int) page.getSize();
+        List<PatentSearchResponse> records = baseMapper.searchPatent(
+                request.getKeyword(),
+                offset,
+                (int) page.getSize()
+        );
+        int total = baseMapper.countSearch(request.getKeyword());
+        page.setRecords(records);
+        page.setTotal(total);
+        return page;
+    }
 
     @Override
     public IPage<PatentSearchListRes> searchList(PatentSearchListReq req) {
@@ -153,7 +172,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             PatentSearchListRes res = new PatentSearchListRes();
             res.setPatentName(patentInfo.getTitle());
             res.setPatentType(patentInfo.getPatenteType());
-            res.setLegalStatus(patentInfo.getLegalStatus());
+            //res.setLegalStatus(patentInfo.getLegalStatus());
             res.setApplicationNumber(patentInfo.getAppNumber());
             res.setApplicationDate(patentInfo.getAppDate());
             res.setPublicationNumber(patentInfo.getPubNumber());
@@ -161,7 +180,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             res.setGrantDate(patentInfo.getGrantDate());
             res.setIpc(patentInfo.getIpc());
             res.setNationalEconomy(patentInfo.getNec());
-            res.setCurrentApplicant(patentInfo.getApplicantInfo());
+            //res.setCurrentApplicant(patentInfo.getApplicantInfo());
             res.setCurrentOwner(patentInfo.getPatentee());
             res.setInventor(patentInfo.getInventorName());
             res.setAgency(patentInfo.getAgencyName());
@@ -170,6 +189,47 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         });
 
         return resPage;
+    }
+
+    @Override
+    public void create(PatentInfoEntity patentInfo) {
+        patentInfo.setId(null);
+        patentInfo.setAppNumber(CodeUtils.getFirstCode(patentInfo.getAppNumber()));
+        patentInfo.setPubNumber(CodeUtils.getFirstCode(patentInfo.getPubNumber()));
+        patentInfo.setApplicantName(CodeUtils.formatCodes(patentInfo.getApplicantName()));
+        patentInfo.setApplicantType(CodeUtils.formatCodes(patentInfo.getApplicantType()));
+        patentInfo.setInventorName(CodeUtils.formatCodes(patentInfo.getInventorName()));
+        patentInfo.setPatentee(CodeUtils.formatCodes(patentInfo.getPatentee()));
+        patentInfo.setNec(CodeUtils.formatCodes(patentInfo.getNec()));
+        patentInfo.setIpc(CodeUtils.formatCodes(patentInfo.getIpc()));
+        patentInfo.setIpcSection(CodeUtils.formatCodes(patentInfo.getIpcSection()));
+        patentInfo.setIpcClass(CodeUtils.formatCodes(patentInfo.getIpcClass()));
+        patentInfo.setIpcSubClass(CodeUtils.formatCodes(patentInfo.getIpcSubClass()));
+        patentInfo.setIpcGroup(CodeUtils.formatCodes(patentInfo.getIpcGroup()));
+        patentInfo.setIpcSubGroup(CodeUtils.formatCodes(patentInfo.getIpcSubGroup()));
+        patentInfo.setAgentName(CodeUtils.formatCodes(patentInfo.getAgentName()));
+        patentInfo.setPatentWords(CodeUtils.formatCodes(patentInfo.getPatentWords()));
+        patentInfo.setTitleKey(CodeUtils.formatCodes(patentInfo.getTitleKey()));
+        patentInfo.setClKey(CodeUtils.formatCodes(patentInfo.getClKey()));
+        patentInfo.setBgKey(CodeUtils.formatCodes(patentInfo.getBgKey()));
+        patentInfo.setHistoryPatentee(CodeUtils.formatCodes(patentInfo.getHistoryPatentee()));
+        patentInfo.setPatenteType(CodeUtils.formatCodes(patentInfo.getPatenteType()));
+        PatentInfoEntity oldPatentInfo = this.lambdaQuery()
+                .eq(PatentInfoEntity::getPid, patentInfo.getPid())
+                .one();
+        if (oldPatentInfo != null) {
+            // 全局忽略源对象中为 null 的属性，目标对象原值不动
+            BeanUtil.copyProperties(
+                    patentInfo,
+                    oldPatentInfo,
+                    CopyOptions.create().setIgnoreNullValue(true)
+            );
+            this.updateById(oldPatentInfo);
+            log.info("更新成功: {}", oldPatentInfo);
+        } else {
+            this.save(patentInfo);
+            log.info("保存成功: {}", patentInfo);
+        }
     }
 
 }

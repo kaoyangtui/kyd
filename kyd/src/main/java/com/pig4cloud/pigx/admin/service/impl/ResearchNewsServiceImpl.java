@@ -60,13 +60,21 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        return BeanUtil.copyProperties(entity, ResearchNewsResponse.class);
+        ResearchNewsResponse response = BeanUtil.copyProperties(entity, ResearchNewsResponse.class);
+
+        response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
+                ? StrUtil.split(entity.getFileUrl(), ";")
+                : null);
+        return response;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean createNews(ResearchNewsCreateRequest request) {
         ResearchNewsEntity entity = BeanUtil.copyProperties(request, ResearchNewsEntity.class);
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
         return this.save(entity);
     }
 
@@ -75,6 +83,9 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
     public Boolean updateNews(ResearchNewsUpdateRequest request) {
         ResearchNewsEntity entity = BeanUtil.copyProperties(request, ResearchNewsEntity.class);
         entity.setId(request.getId());
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
         return this.updateById(entity);
     }
 

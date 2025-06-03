@@ -1,12 +1,16 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
+import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.admin.model.request.PatentSearchListReq;
 import com.pig4cloud.pigx.admin.model.response.PatentSearchListRes;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.admin.service.PatentLogService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,8 +30,17 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
 public class PatentInfoController {
 
-    private final PatentLogService patentLogService;
     private final PatentInfoService patentInfoService;
+
+
+    @GetMapping("/search/keyword")
+    @Operation(summary = "分页查询专利")
+    //@PreAuthorize("@pms.hasPermission('patent_view')")
+    public R<IPage<PatentSearchResponse>> page(
+            @ParameterObject Page page,
+            @ParameterObject PatentSearchRequest request) {
+        return R.ok(patentInfoService.searchPatent(page, request));
+    }
 
     /**
      * 搜索列表
@@ -41,10 +54,5 @@ public class PatentInfoController {
         return R.ok(patentInfoService.searchList(req));
     }
 
-//    @GetMapping("/fetchAllPatents")
-//    public R fetchAllPatents() {
-//        kunyidaPatentService.fetchAllPatents();
-//        return R.ok();
-//    }
 
 }

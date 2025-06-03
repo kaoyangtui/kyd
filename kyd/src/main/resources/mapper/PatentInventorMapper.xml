@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pigx.admin.mapper.PatentInventorMapper">
+
+  <resultMap id="patentInventorMap" type="com.pig4cloud.pigx.admin.entity.PatentInventorEntity">
+        <id property="id" column="id"/>
+        <result property="pid" column="pid"/>
+        <result property="priority" column="priority"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="contactNumber" column="contact_number"/>
+        <result property="email" column="email"/>
+        <result property="isLeader" column="is_leader"/>
+        <result property="remark" column="remark"/>
+  </resultMap>
+</mapper>

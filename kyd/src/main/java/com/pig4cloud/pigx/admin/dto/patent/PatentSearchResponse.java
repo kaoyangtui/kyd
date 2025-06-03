@@ -1,28 +1,15 @@
-package com.pig4cloud.pigx.admin.entity;
+package com.pig4cloud.pigx.admin.dto.patent;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import com.pig4cloud.pigx.common.core.util.TenantTable;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * 专利信息表
- *
- * @author pigx
- * @date 2025-05-31 10:49:31
- */
 @Data
-@TenantTable
-@TableName("t_patent_info")
-@EqualsAndHashCode(callSuper = true)
-@Schema(description = "专利信息表")
-public class PatentInfoEntity extends Model<PatentInfoEntity> {
-
-
+@Schema(description = "专利检索响应")
+public class PatentSearchResponse {
     /**
      * id
      */
@@ -779,4 +766,16 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
      */
     @Schema(description = "获奖标识")
     private String awardFlag;
+
+    /**
+     * 拟合作方式
+     */
+    @Schema(description="拟合作方式")
+    private String cooperationMode;
+
+    /**
+     * 拟交易金额，-1为面议
+     */
+    @Schema(description="拟交易金额，-1为面议")
+    private BigDecimal cooperationAmount;
 }
