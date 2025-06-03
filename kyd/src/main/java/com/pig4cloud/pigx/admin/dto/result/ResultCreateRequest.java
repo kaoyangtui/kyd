@@ -20,8 +20,8 @@ public class ResultCreateRequest {
     @Schema(description = "所属学科")
     private String subject;
 
-    @Schema(description = "领域技术")
-    private String techArea;
+    @Schema(description = "技术领域")
+    private List<String> techArea;
 
     @Schema(description = "研究方向")
     private String direction;

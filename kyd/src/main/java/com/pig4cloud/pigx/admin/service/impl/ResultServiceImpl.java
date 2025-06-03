@@ -54,6 +54,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     public ResultResponse createResult(ResultCreateRequest request) {
         ResultEntity entity = BeanUtil.copyProperties(request, ResultEntity.class);
         entity.setCode(ParamResolver.getStr(ResultResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+        if (request.getTechArea() != null && !request.getTechArea().isEmpty()) {
+            String techArea = StrUtil.join(";", request.getTechArea());
+            entity.setTechArea(techArea);
+        }
         if (request.getTransWay() != null && !request.getTransWay().isEmpty()) {
             String transWayString = StrUtil.join(";", request.getTransWay());
             entity.setTransWay(transWayString);
@@ -108,6 +112,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             throw new BizException("成果不存在");
         }
         BeanUtil.copyProperties(request, entity, CopyOptions.create().ignoreNullValue());
+        if (request.getTechArea() != null && !request.getTechArea().isEmpty()) {
+            String techArea = StrUtil.join(";", request.getTechArea());
+            entity.setTechArea(techArea);
+        }
         if (request.getTransWay() != null && !request.getTransWay().isEmpty()) {
             String transWayString = StrUtil.join(";", request.getTransWay());
             entity.setTransWay(transWayString);
@@ -181,6 +189,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
 
         return resPage.convert(entity -> {
             ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
+            response.setTechArea(StrUtil.split(entity.getTechArea(), ";"));
             response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
             response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
             response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
@@ -211,6 +220,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             throw new BizException("数据不存在");
         }
         ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
+        response.setTechArea(StrUtil.split(entity.getTechArea(), ";"));
         response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));

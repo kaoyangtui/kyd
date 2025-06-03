@@ -75,5 +75,18 @@ public class DemandResponse {
     @Schema(description = "企业需求附件")
     private List<String> attachFileUrl;
 
+    /**
+     * 上下架状态，0下架1上架
+     */
+    @Schema(description="上下架状态，0下架1上架")
+    private Integer shelfStatus;
+
+    /**
+     * 上下架时间
+     */
+    @Schema(description="上下架时间")
+    private LocalDateTime shelfTime;
+
+
     public static final String BIZ_CODE = "DEMAND";
 }

@@ -182,6 +182,19 @@ public class DemandEntity extends Model<DemandEntity> {
     private String attachFileUrl;
 
     /**
+     * 上下架状态，0下架1上架
+     */
+    @Schema(description="上下架状态，0下架1上架")
+    private Integer shelfStatus;
+
+    /**
+     * 上下架时间
+     */
+    @Schema(description="上下架时间")
+    private LocalDateTime shelfTime;
+
+
+    /**
      * 所属院系
      */
     @Schema(description = "所属院系")

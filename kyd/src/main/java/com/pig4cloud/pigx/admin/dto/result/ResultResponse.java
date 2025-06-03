@@ -71,8 +71,8 @@ public class ResultResponse {
     /**
      * 领域技术
      */
-    @Schema(description = "领域技术")
-    private String techArea;
+    @Schema(description = "技术领域")
+    private List<String> techArea;
 
     /**
      * 研究方向

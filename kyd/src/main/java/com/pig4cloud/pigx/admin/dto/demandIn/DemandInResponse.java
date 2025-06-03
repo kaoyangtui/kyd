@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -31,8 +32,17 @@ public class DemandInResponse {
     @Schema(description = "需求类型")
     private String type;
 
-    @Schema(description = "上下架状态（0 下架，1 上架）")
+    /**
+     * 上下架状态，0下架1上架
+     */
+    @Schema(description="上下架状态，0下架1上架")
     private Integer shelfStatus;
+
+    /**
+     * 上下架时间
+     */
+    @Schema(description="上下架时间")
+    private LocalDateTime shelfTime;
 
     @Schema(description = "所属领域")
     private String field;
