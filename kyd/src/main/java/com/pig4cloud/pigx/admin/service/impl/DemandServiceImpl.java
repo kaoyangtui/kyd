@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
+import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.DemandMapper;
 import com.pig4cloud.pigx.admin.service.DemandService;
@@ -72,7 +73,8 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(DemandEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), DemandEntity::getName, request.getKeyword());
+            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), DemandEntity::getName, request.getKeyword())
+                    .or().like(StrUtil.isNotBlank(request.getKeyword()), DemandEntity::getTags, request.getKeyword());
             wrapper.eq(StrUtil.isNotBlank(request.getType()), DemandEntity::getType, request.getType());
             wrapper.eq(StrUtil.isNotBlank(request.getField()), DemandEntity::getField, request.getField());
             wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), DemandEntity::getDeptId, request.getCreateByDept());
@@ -80,6 +82,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), DemandEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), DemandEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), DemandEntity::getCreateTime, request.getEndTime());
+            wrapper.eq(null != request.getShelfStatus(), DemandEntity::getShelfStatus, request.getShelfStatus());
         }
 
         if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {

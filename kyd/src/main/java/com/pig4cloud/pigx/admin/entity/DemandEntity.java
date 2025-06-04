@@ -86,10 +86,16 @@ public class DemandEntity extends Model<DemandEntity> {
     private String field;
 
     /**
-     * 需求有效期
+     * 有效期开始时间
      */
-    @Schema(description = "需求有效期")
-    private LocalDate validUntil;
+    @Schema(description = "有效期开始时间")
+    private LocalDate validStart;
+
+    /**
+     * 有效期结束时间
+     */
+    @Schema(description = "有效期结束时间")
+    private LocalDate validEnd;
 
     /**
      * 预算金额（万元）
@@ -184,15 +190,14 @@ public class DemandEntity extends Model<DemandEntity> {
     /**
      * 上下架状态，0下架1上架
      */
-    @Schema(description="上下架状态，0下架1上架")
+    @Schema(description = "上下架状态，0下架1上架")
     private Integer shelfStatus;
 
     /**
      * 上下架时间
      */
-    @Schema(description="上下架时间")
+    @Schema(description = "上下架时间")
     private LocalDateTime shelfTime;
-
 
     /**
      * 所属院系

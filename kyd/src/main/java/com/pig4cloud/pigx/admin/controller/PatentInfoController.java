@@ -33,16 +33,6 @@ public class PatentInfoController {
 
     private final PatentInfoService patentInfoService;
 
-
-    @GetMapping("/search/keyword")
-    @Operation(summary = "分页查询专利")
-    //@PreAuthorize("@pms.hasPermission('patent_view')")
-    public R<IPage<PatentSearchResponse>> page(
-            @ParameterObject PageRequest pageRequest,
-            @ParameterObject PatentSearchRequest request) {
-        return R.ok(patentInfoService.searchPatent(PageUtil.toPage(pageRequest), request));
-    }
-
     /**
      * 搜索列表
      *

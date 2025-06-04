@@ -4,16 +4,25 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
+import com.pig4cloud.pigx.admin.dto.demand.DemandPageRequest;
+import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
+import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
+import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
 import com.pig4cloud.pigx.admin.dto.pc.NewsResponse;
 import com.pig4cloud.pigx.admin.dto.pc.PortalStatisticResponse;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsResponse;
+import com.pig4cloud.pigx.admin.dto.result.ResultPageRequest;
+import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCasePageRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,7 +46,48 @@ public class PcController {
     private final ResearchNewsService researchNewsService;
     private final TransformCaseService transformCaseService;
     private final EventMeetingService eventMeetingService;
+    private final PatentInfoService patentInfoService;
+    private final ResultService resultService;
+    private final DemandService demandService;
 
+
+    @GetMapping("/result/page")
+    @Operation(summary = "科研成果查询")
+    public R<IPage<ResultResponse>> page(@ParameterObject PageRequest pageRequest,
+                                         @ParameterObject ResultPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("shelf_time");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
+        request.setShelfStatus(1);
+        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+
+    @GetMapping("/patent/search/keyword")
+    @Operation(summary = "专利查询")
+    public R<IPage<PatentSearchResponse>> page(
+            @ParameterObject PageRequest pageRequest,
+            @ParameterObject PatentSearchRequest request) {
+        return R.ok(patentInfoService.searchPatent(PageUtil.toPage(pageRequest), request));
+    }
+
+    @GetMapping("/demand/page")
+    @Operation(summary = "企业技术需求查询")
+    public R<IPage<DemandResponse>> page(@ParameterObject PageRequest pageRequest,
+                                         @ParameterObject DemandPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("shelf_time");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
+        request.setShelfStatus(1);
+        request.setCategory(1);
+        return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
 
     @GetMapping("/portal/statistic")
     @Operation(summary = "获取门户统计数量")

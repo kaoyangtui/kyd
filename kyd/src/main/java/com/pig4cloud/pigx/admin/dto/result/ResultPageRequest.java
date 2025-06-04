@@ -45,4 +45,7 @@ public class ResultPageRequest extends BasePageQuery {
 
     @Schema(description = "创建时间止（yyyy-MM-dd）")
     private String endTime;
+
+    @Schema(description = "技术成熟度")
+    private String maturity;
 }

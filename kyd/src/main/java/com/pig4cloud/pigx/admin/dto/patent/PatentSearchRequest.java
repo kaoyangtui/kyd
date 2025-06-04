@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.dto.patent;
 
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -24,5 +23,4 @@ public class PatentSearchRequest {
 
     @Schema(description = "拟合作方式")
     private String cooperationMode;
-
 }

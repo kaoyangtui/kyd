@@ -25,10 +25,10 @@ public class ResultShelfRequest {
     @Schema(description = "标签")
     private List<String> tags;
 
-    @Schema(description = "转化方式")
+    @Schema(description = "合作方式")
     private List<String> transWay;
 
-    @Schema(description = "转化价格(万元)")
+    @Schema(description = "拟交易价格(万元)")
     private BigDecimal transPrice;
 
 

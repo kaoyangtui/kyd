@@ -32,6 +32,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -165,7 +166,8 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             wrapper.in(ResultEntity::getId, request.getIds());
         } else {
             wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getName, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getCode, request.getKeyword());
+                    .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getCode, request.getKeyword())
+                    .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getTags, request.getKeyword());
             wrapper.eq(StrUtil.isNotBlank(request.getLeaderCode()), ResultEntity::getLeaderCode, request.getLeaderCode());
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), ResultEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getSubject()), ResultEntity::getSubject, request.getSubject());
@@ -203,6 +205,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         return this.update(Wrappers.<ResultEntity>lambdaUpdate()
                 .eq(ResultEntity::getId, request.getId())
                 .set(ResultEntity::getShelfStatus, request.getShelfStatus())
+                .set(ResultEntity::getShelfTime, LocalDateTime.now())
                 .set(null != request.getTechArea(), ResultEntity::getTechArea, request.getTechArea())
                 .set(null != request.getTags() && !request.getTags().isEmpty(),
                         ResultEntity::getTags, StrUtil.join(";", request.getTags()))

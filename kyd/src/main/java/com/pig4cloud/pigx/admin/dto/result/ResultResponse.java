@@ -153,6 +153,18 @@ public class ResultResponse {
     private Integer shelfStatus;
 
     /**
+     * 上下架时间
+     */
+    @Schema(description="上下架时间")
+    private LocalDateTime shelfTime;
+
+    /**
+     * 标签
+     */
+    @Schema(description = "标签")
+    private String tags;
+
+    /**
      * 负责人编码
      */
     @Schema(description = "负责人编码")

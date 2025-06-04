@@ -158,6 +158,12 @@ public class ResultEntity extends Model<ResultEntity> {
     private Integer shelfStatus;
 
     /**
+     * 上下架时间
+     */
+    @Schema(description="上下架时间")
+    private LocalDateTime shelfTime;
+
+    /**
      * 标签
      */
     @Schema(description = "标签")

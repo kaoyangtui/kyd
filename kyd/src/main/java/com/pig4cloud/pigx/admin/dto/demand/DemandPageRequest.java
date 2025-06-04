@@ -39,4 +39,7 @@ public class DemandPageRequest extends BasePageQuery {
 
     @Schema(description = "提交结束时间")
     private String endTime;
+
+    @Schema(description = "上下架状态，0下架1上架")
+    private Integer shelfStatus;
 }

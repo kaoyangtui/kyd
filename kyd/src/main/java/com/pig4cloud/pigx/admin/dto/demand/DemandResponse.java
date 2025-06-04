@@ -27,8 +27,11 @@ public class DemandResponse {
     @Schema(description = "所属领域")
     private String field;
 
-    @Schema(description = "需求有效期")
-    private LocalDate validUntil;
+    @Schema(description = "有效期开始时间")
+    private LocalDate validStart;
+
+    @Schema(description = "有效期结束时间")
+    private LocalDate validEnd;
 
     @Schema(description = "预算金额（万元）")
     private BigDecimal budget;
@@ -75,15 +78,9 @@ public class DemandResponse {
     @Schema(description = "企业需求附件")
     private List<String> attachFileUrl;
 
-    /**
-     * 上下架状态，0下架1上架
-     */
     @Schema(description="上下架状态，0下架1上架")
     private Integer shelfStatus;
 
-    /**
-     * 上下架时间
-     */
     @Schema(description="上下架时间")
     private LocalDateTime shelfTime;
 

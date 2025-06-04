@@ -17,9 +17,11 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
                 t1.*, t2.cooperation_mode, t2.cooperation_amount
             FROM
                 t_patent_info t1
-            INNER JOIN t_patent_shelf t2 ON t1.pid = t2.pid AND t2.shelf_status = 1
-            WHERE
-                MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key)
+            INNER JOIN t_patent_shelf t2 ON t1.pid = t2.pid 
+            WHERE t1.del_flag=0 
+                and t2.del_flag=0 
+                and t2.shelf_status = 1 
+                and MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key)
                 AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
             ${orderBy}
             LIMIT #{offset}, #{pageSize}
@@ -33,14 +35,16 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
 
 
     @Select("""
-            SELECT
-                COUNT(*) 
-            FROM
-                t_patent_info t1
-            INNER JOIN t_patent_shelf t2 on t1.pid=t2.pid and t2.shelf_status=1
-            WHERE
-                MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key)
-                AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
+               SELECT
+                   COUNT(*) 
+               FROM
+                   t_patent_info t1
+               INNER JOIN t_patent_shelf t2 on t1.pid=t2.pid and t2.shelf_status=1
+            WHERE t1.del_flag=0 
+                   and t2.del_flag=0 
+                   and t2.shelf_status = 1 
+                   and MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key)
+                   AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
             """)
     int countSearch(@Param("keyword") String keyword);
 }
