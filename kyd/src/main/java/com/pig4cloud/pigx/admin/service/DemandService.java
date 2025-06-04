@@ -19,4 +19,6 @@ public interface DemandService extends IService<DemandEntity> {
     Boolean removeByIds(List<Long> ids);
 
     IPage<DemandResponse> pageResult(Page page, DemandPageRequest request);
+
+    Boolean updateShelfStatus(DemandShelfRequest request);
 }

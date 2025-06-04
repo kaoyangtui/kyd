@@ -33,6 +33,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author zhaoliang
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/demand")
@@ -63,6 +66,13 @@ public class DemandController {
     public R<IPage<DemandResponse>> page(@ParameterObject PageRequest pageRequest,
                                          @ParameterObject DemandPageRequest request) {
         return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+    @PostMapping("/shelf")
+    @Operation(summary = "上下架企业需求")
+    //@PreAuthorize("@pms.hasPermission('demand_edit')")
+    public R<Boolean> shelf(@RequestBody DemandShelfRequest request) {
+        return R.ok(demandService.updateShelfStatus(request));
     }
 
     @PostMapping("/detail")

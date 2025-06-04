@@ -6,6 +6,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
@@ -20,6 +21,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -100,5 +102,14 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
             response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
             return response;
         });
+    }
+
+    @Override
+    public Boolean updateShelfStatus(DemandShelfRequest request) {
+        return this.update(Wrappers.<DemandEntity>lambdaUpdate()
+                .eq(DemandEntity::getId, request.getId())
+                .set(DemandEntity::getShelfStatus, request.getShelfStatus())
+                .set(DemandEntity::getShelfTime, LocalDateTime.now())
+        );
     }
 }
