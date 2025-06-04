@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
@@ -9,6 +10,7 @@ import com.pig4cloud.pigx.admin.dto.researchProject.*;
 import com.pig4cloud.pigx.admin.service.ResearchProjectService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,8 +38,9 @@ public class ResearchProjectController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    public R<IPage<ResearchProjectResponse>> page(@ParameterObject Page<?> page, @ParameterObject ResearchProjectPageRequest request) {
-        return R.ok(researchProjectService.pageResult(page, request));
+    public R<IPage<ResearchProjectResponse>> page(@ParameterObject PageRequest pageRequest,
+                                                  @ParameterObject ResearchProjectPageRequest request) {
+        return R.ok(researchProjectService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
 

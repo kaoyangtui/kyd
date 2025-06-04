@@ -9,6 +9,7 @@ import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.dto.*;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.result.*;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
@@ -62,8 +63,9 @@ public class ResultController {
     @GetMapping("/page")
     @Operation(summary = "分页查询科研成果")
     //@PreAuthorize("@pms.hasPermission('result_view')")
-    public R<IPage<ResultResponse>> page(@ParameterObject Page page, @ParameterObject ResultPageRequest request) {
-        return R.ok(resultService.pageResult(page, request));
+    public R<IPage<ResultResponse>> page(@ParameterObject PageRequest pageRequest,
+                                         @ParameterObject ResultPageRequest request) {
+        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/shelf")

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.*;
@@ -11,6 +12,7 @@ import com.pig4cloud.pigx.admin.service.SoftCopyRegService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -59,8 +61,9 @@ public class SoftCopyRegController {
     @GetMapping("/page")
     @Operation(summary = "分页查询软著登记")
     //@PreAuthorize("@pms.hasPermission('soft_copy_reg_view')")
-    public R<IPage<SoftCopyRegResponse>> page(@ParameterObject Page<?> page, @ParameterObject SoftCopyRegPageRequest request) {
-        return R.ok(softCopyRegService.pageResult(page, request));
+    public R<IPage<SoftCopyRegResponse>> page(@ParameterObject PageRequest pageRequest,
+                                              @ParameterObject SoftCopyRegPageRequest request) {
+        return R.ok(softCopyRegService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/detail")

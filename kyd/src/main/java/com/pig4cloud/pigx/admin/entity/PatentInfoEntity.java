@@ -43,6 +43,12 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String title;
 
     /**
+     * 摘要附图URL
+     */
+    @Schema(description="摘要附图URL")
+    private String draws;
+
+    /**
      * 摘要
      */
     @Schema(description = "摘要")

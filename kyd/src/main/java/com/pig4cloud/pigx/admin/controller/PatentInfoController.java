@@ -2,13 +2,14 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.admin.model.request.PatentSearchListReq;
 import com.pig4cloud.pigx.admin.model.response.PatentSearchListRes;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
-import com.pig4cloud.pigx.admin.service.PatentLogService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -37,9 +38,9 @@ public class PatentInfoController {
     @Operation(summary = "分页查询专利")
     //@PreAuthorize("@pms.hasPermission('patent_view')")
     public R<IPage<PatentSearchResponse>> page(
-            @ParameterObject Page page,
+            @ParameterObject PageRequest pageRequest,
             @ParameterObject PatentSearchRequest request) {
-        return R.ok(patentInfoService.searchPatent(page, request));
+        return R.ok(patentInfoService.searchPatent(PageUtil.toPage(pageRequest), request));
     }
 
     /**

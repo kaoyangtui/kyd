@@ -14,21 +14,23 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
 
     @Select("""
             SELECT
-                t1.*,t2.cooperation_mode,t2.cooperation_amount
+                t1.*, t2.cooperation_mode, t2.cooperation_amount
             FROM
                 t_patent_info t1
-            INNER JOIN t_patent_shelf t2 on t1.pid=t2.pid and t2.shelf_status=1
+            INNER JOIN t_patent_shelf t2 ON t1.pid = t2.pid AND t2.shelf_status = 1
             WHERE
                 MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key)
                 AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
-            ORDER BY t2.shelf_time desc
+            ${orderBy}
             LIMIT #{offset}, #{pageSize}
             """)
     List<PatentSearchResponse> searchPatent(
             @Param("keyword") String keyword,
             @Param("offset") int offset,
-            @Param("pageSize") int pageSize
+            @Param("pageSize") int pageSize,
+            @Param("orderBy") String orderBy
     );
+
 
     @Select("""
             SELECT

@@ -8,6 +8,7 @@ import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.dto.*;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.softCopy.*;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,8 +42,9 @@ public class SoftCopyController {
     @GetMapping("/page")
     @Operation(summary = "分页查询")
     //@PreAuthorize("@pms.hasPermission('soft_copy_view')")
-    public R<IPage<SoftCopyResponse>> page(@ParameterObject Page page, @ParameterObject SoftCopyPageRequest request) {
-        return R.ok(softCopyService.pageResult(page, request));
+    public R<IPage<SoftCopyResponse>> page(@ParameterObject PageRequest pageRequest,
+                                           @ParameterObject SoftCopyPageRequest request) {
+        return R.ok(softCopyService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/detail")

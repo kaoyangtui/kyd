@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.service.IpTransformService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
@@ -11,6 +12,7 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.*;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -70,8 +72,8 @@ public class IpTransformController {
     @GetMapping("/page")
     @Operation(summary = "分页查询")
     //@PreAuthorize("@pms.hasPermission('ip_transform_view')")
-    public R<IPage<IpTransformResponse>> page(@ParameterObject Page page, @ParameterObject IpTransformPageRequest request) {
-        return R.ok(ipTransformService.pageResult(page, request));
+    public R<IPage<IpTransformResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject IpTransformPageRequest request) {
+        return R.ok(ipTransformService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/export/fields")

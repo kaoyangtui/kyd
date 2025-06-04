@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.*;
 import com.pig4cloud.pigx.admin.service.EventMeetingService;
 import com.pig4cloud.pigx.admin.service.EventMeetingApplyService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,8 +40,8 @@ public class EventMeetingController {
     // 主表分页
     @GetMapping("/page")
     @Operation(summary = "活动会议分页查询")
-    public R<IPage<EventMeetingResponse>> page(@ParameterObject Page page, @ParameterObject EventMeetingPageRequest request) {
-        return R.ok(eventMeetingService.pageResult(page, request));
+    public R<IPage<EventMeetingResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject EventMeetingPageRequest request) {
+        return R.ok(eventMeetingService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     // 主表详情
@@ -115,8 +117,8 @@ public class EventMeetingController {
     // 报名分页列表
     @GetMapping("/apply/page")
     @Operation(summary = "活动报名信息分页查询")
-    public R<IPage<EventMeetingApplyResponse>> applyPage(@ParameterObject Page page, @ParameterObject EventMeetingApplyPageRequest request) {
-        return R.ok(eventMeetingApplyService.pageResult(page, request));
+    public R<IPage<EventMeetingApplyResponse>> applyPage(@ParameterObject PageRequest pageRequest,@ParameterObject EventMeetingApplyPageRequest request) {
+        return R.ok(eventMeetingApplyService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     // 报名信息详情

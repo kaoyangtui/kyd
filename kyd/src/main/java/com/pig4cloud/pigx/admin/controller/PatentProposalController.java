@@ -11,6 +11,7 @@ import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.dto.*;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.*;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -45,8 +46,8 @@ public class PatentProposalController {
     @GetMapping("/page")
     @Operation(summary = "分页查询专利提案")
     //@PreAuthorize("@pms.hasPermission('patent_proposal_view')")
-    public R<IPage<PatentProposalResponse>> page(@ParameterObject Page page, @ParameterObject PatentProposalPageRequest request) {
-        return R.ok(patentProposalService.pageResult(page, request));
+    public R<IPage<PatentProposalResponse>> page(@ParameterObject PageRequest pageRequest,@ParameterObject PatentProposalPageRequest request) {
+        return R.ok(patentProposalService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/detail")

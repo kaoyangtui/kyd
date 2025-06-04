@@ -2,10 +2,12 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.CnirpDisplayColsConstants;
@@ -26,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -45,16 +48,35 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
     @Override
     public IPage<PatentSearchResponse> searchPatent(Page page, PatentSearchRequest request) {
         int offset = ((int) page.getCurrent() - 1) * (int) page.getSize();
+        // 默认排序
+        String orderBy = "ORDER BY t2.shelf_time DESC";
+        if (CollUtil.isNotEmpty(page.orders())) {
+            List<String> items = new ArrayList<>();
+            for (Object orderObj : page.orders()) {
+                OrderItem order = (OrderItem) orderObj;
+                String column = order.getColumn();
+                if (StrUtil.isNotBlank(column)) {
+                    // 只拼 t1. 前缀，且参数只传实际字段名（如 grant_date）
+                    items.add("t1." + column + (order.isAsc() ? " ASC" : " DESC"));
+                }
+            }
+            if (!items.isEmpty()) {
+                orderBy = "ORDER BY " + String.join(", ", items);
+            }
+        }
+
         List<PatentSearchResponse> records = baseMapper.searchPatent(
                 request.getKeyword(),
                 offset,
-                (int) page.getSize()
+                (int) page.getSize(),
+                orderBy
         );
         int total = baseMapper.countSearch(request.getKeyword());
         page.setRecords(records);
         page.setTotal(total);
         return page;
     }
+
 
     @Override
     public IPage<PatentSearchListRes> searchList(PatentSearchListReq req) {

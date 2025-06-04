@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.plantVariety.*;
@@ -11,6 +12,7 @@ import com.pig4cloud.pigx.admin.service.PlantVarietyService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -59,8 +61,8 @@ public class PlantVarietyController {
     @GetMapping("/page")
     @Operation(summary = "分页查询")
     //@PreAuthorize("@pms.hasPermission('plant_variety_view')")
-    public R<IPage<PlantVarietyResponse>> page(@ParameterObject Page page, @ParameterObject PlantVarietyPageRequest request) {
-        return R.ok(plantVarietyService.pageResult(page, request));
+    public R<IPage<PlantVarietyResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject PlantVarietyPageRequest request) {
+        return R.ok(plantVarietyService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/detail")

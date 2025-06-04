@@ -7,6 +7,7 @@ import com.pig4cloud.pigx.admin.dto.exportExecute.ExportTemplateCreateRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportTemplatePageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportTemplateResponse;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportTemplateUpdateRequest;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import com.pig4cloud.pigx.admin.service.ExportTemplateService;
@@ -37,8 +38,9 @@ public class ExportTemplateController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    public R<IPage<ExportTemplateResponse>> page(@ParameterObject Page page, @ParameterObject ExportTemplatePageRequest request) {
-        return R.ok(exportTemplateService.pageTemplate(page, request));
+    public R<IPage<ExportTemplateResponse>> page(@ParameterObject PageRequest pageRequest,
+                                                 @ParameterObject ExportTemplatePageRequest request) {
+        return R.ok(exportTemplateService.pageTemplate(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/detail")

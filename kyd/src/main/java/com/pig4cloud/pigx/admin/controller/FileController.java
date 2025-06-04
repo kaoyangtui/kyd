@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
@@ -9,6 +10,7 @@ import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.file.*;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -54,8 +56,8 @@ public class FileController {
     @GetMapping("/page")
     @Operation(summary = "分页查询文档")
     //@PreAuthorize("@pms.hasPermission('file_view')")
-    public R<IPage<FileResponse>> page(@ParameterObject Page page, @ParameterObject FilePageRequest request) {
-        return R.ok(fileService.pageResult(page, request));
+    public R<IPage<FileResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject FilePageRequest request) {
+        return R.ok(fileService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/remove")

@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.service.DemandInService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
@@ -11,6 +12,7 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.*;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
@@ -70,8 +72,9 @@ public class DemandInController {
     @GetMapping("/page")
     @Operation(summary = "分页查询")
     //@PreAuthorize("@pms.hasPermission('demand_in_view')")
-    public R<IPage<DemandInResponse>> page(@ParameterObject Page page, @ParameterObject DemandInPageRequest request) {
-        return R.ok(demandInService.pageResult(page, request));
+    public R<IPage<DemandInResponse>> page(@ParameterObject PageRequest pageRequest,
+                                           @ParameterObject DemandInPageRequest request) {
+        return R.ok(demandInService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/export/fields")

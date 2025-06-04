@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.ExportWrapperRequest;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.notice.*;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.service.NoticeService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,8 +39,9 @@ public class NoticeController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    public R<IPage<NoticeResponse>> page(@ParameterObject Page<?> page, @ParameterObject NoticePageRequest request) {
-        return R.ok(noticeService.pageResult(page, request));
+    public R<IPage<NoticeResponse>> page(@ParameterObject PageRequest pageRequest,
+                                         @ParameterObject NoticePageRequest request) {
+        return R.ok(noticeService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/detail")
