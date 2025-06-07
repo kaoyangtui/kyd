@@ -45,7 +45,7 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     /**
      * 摘要附图URL
      */
-    @Schema(description="摘要附图URL")
+    @Schema(description = "摘要附图URL")
     private String draws;
 
     /**
@@ -785,4 +785,10 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
      */
     @Schema(description = "获奖标识")
     private String awardFlag;
+
+    /**
+     * 申请号合并标识
+     */
+    @Schema(description = "申请号合并标识")
+    private String mergeFlag;
 }

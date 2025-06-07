@@ -252,6 +252,13 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             this.save(patentInfo);
             log.info("保存成功: {}", patentInfo);
         }
+        //处理专利申请号合并
+        this.lambdaUpdate()
+                .eq(PatentInfoEntity::getAppNumber, patentInfo.getAppNumber())
+                .eq(PatentInfoEntity::getMergeFlag, 1)
+                .ne(PatentInfoEntity::getPid, patentInfo.getPid())
+                .set(PatentInfoEntity::getMergeFlag, 0)
+                .update();
     }
 
 }
