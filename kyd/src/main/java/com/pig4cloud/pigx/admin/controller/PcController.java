@@ -22,6 +22,8 @@ import com.pig4cloud.pigx.admin.dto.pc.PortalStatisticResponse;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsResponse;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformResponse;
+import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamPageRequest;
+import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamResponse;
 import com.pig4cloud.pigx.admin.dto.result.ResultPageRequest;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
@@ -54,6 +56,7 @@ public class PcController {
     private final DemandInService demandInService;
     private final ExpertService expertService;
     private final ResearchPlatformService researchPlatformService;
+    private final ResearchTeamService researchTeamService;
 
 
     @GetMapping("/portal/statistic")
@@ -189,6 +192,20 @@ public class PcController {
         pageRequest.setOrders(orders);
         request.setShelfStatus(1);
         return R.ok(researchPlatformService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+    @GetMapping("/researchTeam")
+    @Operation(summary = "科研团队")
+    public R<IPage<ResearchTeamResponse>> researchTeam(@ParameterObject PageRequest pageRequest,
+                                                       @ParameterObject ResearchTeamPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("shelf_time");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
+        request.setShelfStatus(1);
+        return R.ok(researchTeamService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
 }
