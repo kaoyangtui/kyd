@@ -2,10 +2,10 @@ package com.pig4cloud.pigx.admin.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.pig4cloud.pigx.common.core.util.TenantTable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.pig4cloud.pigx.common.core.util.TenantTable;
 
 import java.time.LocalDateTime;
 
@@ -105,10 +105,28 @@ public class ExpertEntity extends Model<ExpertEntity> {
     private String deptName;
 
     /**
-     * 上下架状态（0下架 1上架）
+     * 上下架状态，0下架1上架
      */
-    @Schema(description = "上下架状态（0下架 1上架）")
+    @Schema(description = "上下架状态，0下架1上架")
     private Integer shelfStatus;
+
+    /**
+     * 上下架时间
+     */
+    @Schema(description = "上下架时间")
+    private LocalDateTime shelfTime;
+
+    /**
+     * 专利数量
+     */
+    @Schema(description = "专利数量")
+    private Long patentCnt;
+
+    /**
+     * 成果数量
+     */
+    @Schema(description = "成果数量")
+    private Long resultCnt;
 
     /**
      * 创建人

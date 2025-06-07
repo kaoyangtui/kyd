@@ -125,7 +125,7 @@ public class ResultResponse {
     /**
      * 转化价格(万元)
      */
-    @Schema(description = "转化价格(万元)")
+    @Schema(description = "转化价格(万元),-1为面议")
     private BigDecimal transPrice;
 
     /**
@@ -155,7 +155,7 @@ public class ResultResponse {
     /**
      * 上下架时间
      */
-    @Schema(description="上下架时间")
+    @Schema(description = "上下架时间")
     private LocalDateTime shelfTime;
 
     /**

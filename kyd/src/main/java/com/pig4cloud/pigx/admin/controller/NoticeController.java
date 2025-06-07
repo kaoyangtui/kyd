@@ -6,8 +6,11 @@ import com.pig4cloud.pigx.admin.dto.ExportWrapperRequest;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
-import com.pig4cloud.pigx.admin.dto.notice.*;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.dto.notice.NoticeCreateRequest;
+import com.pig4cloud.pigx.admin.dto.notice.NoticePageRequest;
+import com.pig4cloud.pigx.admin.dto.notice.NoticeResponse;
+import com.pig4cloud.pigx.admin.dto.notice.NoticeUpdateRequest;
 import com.pig4cloud.pigx.admin.service.NoticeService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
@@ -17,16 +20,15 @@ import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

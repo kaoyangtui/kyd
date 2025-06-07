@@ -7,7 +7,6 @@ import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadCreateRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadPageRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadResponse;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.entity.CommonDownloadEntity;
 
 import java.util.List;

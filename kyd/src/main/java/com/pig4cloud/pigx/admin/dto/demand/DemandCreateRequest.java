@@ -33,7 +33,7 @@ public class DemandCreateRequest {
     @Schema(description = "预算金额（万元）")
     private BigDecimal budget;
 
-    @Schema(description = "需求摘要")
+    @Schema(description = "需求描述")
     private String description;
 
     @Schema(description = "需求标签；多个用分号分隔")

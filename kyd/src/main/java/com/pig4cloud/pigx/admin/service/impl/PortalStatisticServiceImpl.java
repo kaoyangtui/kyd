@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.pig4cloud.pigx.admin.dto.pc.PortalStatisticResponse;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
@@ -9,7 +10,6 @@ import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import cn.hutool.core.util.ObjectUtil;
 
 @Service
 @RequiredArgsConstructor

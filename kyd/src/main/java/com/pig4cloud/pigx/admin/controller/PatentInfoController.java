@@ -1,22 +1,19 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.pig4cloud.pigx.admin.dto.PageRequest;
-import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
-import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
-import com.pig4cloud.pigx.admin.utils.PageUtil;
-import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.admin.model.request.PatentSearchListReq;
 import com.pig4cloud.pigx.admin.model.response.PatentSearchListRes;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.http.HttpHeaders;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.pig4cloud.pigx.common.core.util.R;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 专利信息表

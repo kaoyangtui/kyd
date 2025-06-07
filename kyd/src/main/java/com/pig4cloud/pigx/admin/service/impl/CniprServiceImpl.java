@@ -24,10 +24,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zhaoliang
@@ -37,12 +37,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CniprServiceImpl implements CniprService {
 
+    private static final String TASK_KEY = "cnipr_all_patents";
+    private static final int PAGE_SIZE = 10;
     private final StringRedisTemplate stringRedisTemplate;
     private final CnirpConfig cnirpConfig;
     private final PatentLogService patentLogService;
     private final PatentFetchCheckpointService patentFetchCheckpointService;
-    private static final String TASK_KEY = "cnipr_all_patents";
-    private static final int PAGE_SIZE = 10;
 
     @Transactional(rollbackFor = Exception.class)
     @Override

@@ -2,10 +2,10 @@ package com.pig4cloud.pigx.admin.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.pig4cloud.pigx.common.core.util.TenantTable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.pig4cloud.pigx.common.core.util.TenantTable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -76,13 +76,13 @@ public class DemandInEntity extends Model<DemandInEntity> {
     /**
      * 上下架状态，0下架1上架
      */
-    @Schema(description="上下架状态，0下架1上架")
+    @Schema(description = "上下架状态，0下架1上架")
     private Integer shelfStatus;
 
     /**
      * 上下架时间
      */
-    @Schema(description="上下架时间")
+    @Schema(description = "上下架时间")
     private LocalDateTime shelfTime;
 
     /**

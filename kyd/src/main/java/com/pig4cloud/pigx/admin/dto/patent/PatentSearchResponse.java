@@ -1,11 +1,11 @@
 package com.pig4cloud.pigx.admin.dto.patent;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "专利检索响应")
@@ -32,7 +32,7 @@ public class PatentSearchResponse {
     /**
      * 摘要附图URL
      */
-    @Schema(description="摘要附图URL")
+    @Schema(description = "摘要附图URL")
     private String draws;
 
     /**
@@ -140,12 +140,12 @@ public class PatentSearchResponse {
     /**
      * 拟合作方式
      */
-    @Schema(description="拟合作方式")
+    @Schema(description = "拟合作方式")
     private String cooperationMode;
 
     /**
      * 拟交易金额，-1为面议
      */
-    @Schema(description="拟交易金额，-1为面议")
+    @Schema(description = "拟交易金额，-1为面议")
     private BigDecimal cooperationAmount;
 }

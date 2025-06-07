@@ -3,11 +3,11 @@ package com.pig4cloud.pigx.admin.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 
 import java.util.List;
 

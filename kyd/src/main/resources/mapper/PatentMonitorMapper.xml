@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.PatentMonitorMapper">
 
-  <resultMap id="patentMonitorMap" type="com.pig4cloud.pigx.admin.entity.PatentMonitorEntity">
+    <resultMap id="patentMonitorMap" type="com.pig4cloud.pigx.admin.entity.PatentMonitorEntity">
         <id property="id" column="id"/>
         <result property="eventTime" column="event_time"/>
         <result property="eventContent" column="event_content"/>
@@ -19,5 +19,5 @@
         <result property="updateTime" column="update_time"/>
         <result property="delFlag" column="del_flag"/>
         <result property="tenantId" column="tenant_id"/>
-  </resultMap>
+    </resultMap>
 </mapper>

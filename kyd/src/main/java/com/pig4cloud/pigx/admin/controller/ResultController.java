@@ -2,34 +2,31 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
-import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
-import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
-import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
-import com.pig4cloud.pigx.admin.dto.*;
+import com.pig4cloud.pigx.admin.dto.IdListRequest;
+import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.result.*;
+import com.pig4cloud.pigx.admin.service.ResultService;
+import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
+import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
+import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
-import com.pig4cloud.pigx.admin.service.ResultService;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.security.access.prepost.PreAuthorize;
-import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.http.HttpHeaders;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 科研成果表

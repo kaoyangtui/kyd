@@ -3,14 +3,14 @@ package com.pig4cloud.pigx.admin.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.net.HttpHeaders;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
+import com.pig4cloud.pigx.admin.dto.IdListRequest;
+import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.*;
 import com.pig4cloud.pigx.admin.service.PatentProposalService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
-import com.pig4cloud.pigx.admin.utils.ExportFilterUtil;
-import com.pig4cloud.pigx.admin.dto.*;
-import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
-import com.pig4cloud.pigx.admin.dto.patentProposal.*;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
@@ -22,14 +22,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author zhaoliang
@@ -46,7 +43,7 @@ public class PatentProposalController {
     @GetMapping("/page")
     @Operation(summary = "分页查询专利提案")
     //@PreAuthorize("@pms.hasPermission('patent_proposal_view')")
-    public R<IPage<PatentProposalResponse>> page(@ParameterObject PageRequest pageRequest,@ParameterObject PatentProposalPageRequest request) {
+    public R<IPage<PatentProposalResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject PatentProposalPageRequest request) {
         return R.ok(patentProposalService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 

@@ -5,6 +5,7 @@ import com.pig4cloud.pigx.admin.entity.PatentShelfEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentShelfMapper;
 import com.pig4cloud.pigx.admin.service.PatentShelfService;
 import org.springframework.stereotype.Service;
+
 /**
  * 专利上下架
  *

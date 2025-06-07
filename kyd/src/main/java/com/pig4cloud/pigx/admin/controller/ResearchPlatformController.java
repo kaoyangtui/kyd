@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.*;
 import com.pig4cloud.pigx.admin.service.ResearchPlatformService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +25,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,10 +68,11 @@ public class ResearchPlatformController {
         return R.ok(researchPlatformService.shelfByIds(request.getIds(), request.getShelfStatus()));
     }
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询")
-    public R<IPage<ResearchPlatformResponse>> page(@RequestBody ResearchPlatformPageRequest request) {
-        return R.ok(researchPlatformService.pageResult(new Page<>(), request));
+    public R<IPage<ResearchPlatformResponse>> page(@ParameterObject PageRequest pageRequest,
+                                                   @ParameterObject ResearchPlatformPageRequest request) {
+        return R.ok(researchPlatformService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/export/fields")

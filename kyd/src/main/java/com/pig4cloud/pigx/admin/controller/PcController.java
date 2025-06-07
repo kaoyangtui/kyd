@@ -7,19 +7,23 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
+import com.pig4cloud.pigx.admin.dto.demand.DemandCreateRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandPageRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
-import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
+import com.pig4cloud.pigx.admin.dto.expert.ExpertPageRequest;
+import com.pig4cloud.pigx.admin.dto.expert.ExpertResponse;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
 import com.pig4cloud.pigx.admin.dto.pc.NewsResponse;
 import com.pig4cloud.pigx.admin.dto.pc.PortalStatisticResponse;
-import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsResponse;
+import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformPageRequest;
+import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformResponse;
 import com.pig4cloud.pigx.admin.dto.result.ResultPageRequest;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
-import com.pig4cloud.pigx.admin.dto.transformCase.TransformCasePageRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
@@ -28,9 +32,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,56 +51,21 @@ public class PcController {
     private final PatentInfoService patentInfoService;
     private final ResultService resultService;
     private final DemandService demandService;
+    private final DemandInService demandInService;
+    private final ExpertService expertService;
+    private final ResearchPlatformService researchPlatformService;
 
-
-    @GetMapping("/result/page")
-    @Operation(summary = "科研成果查询")
-    public R<IPage<ResultResponse>> page(@ParameterObject PageRequest pageRequest,
-                                         @ParameterObject ResultPageRequest request) {
-        List<OrderItem> orders = CollUtil.newArrayList();
-        OrderItem orderItem = new OrderItem();
-        orderItem.setColumn("shelf_time");
-        orderItem.setAsc(false);
-        orders.add(orderItem);
-        pageRequest.setOrders(orders);
-        request.setShelfStatus(1);
-        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
-    }
-
-
-    @GetMapping("/patent/search/keyword")
-    @Operation(summary = "专利查询")
-    public R<IPage<PatentSearchResponse>> page(
-            @ParameterObject PageRequest pageRequest,
-            @ParameterObject PatentSearchRequest request) {
-        return R.ok(patentInfoService.searchPatent(PageUtil.toPage(pageRequest), request));
-    }
-
-    @GetMapping("/demand/page")
-    @Operation(summary = "企业技术需求查询")
-    public R<IPage<DemandResponse>> page(@ParameterObject PageRequest pageRequest,
-                                         @ParameterObject DemandPageRequest request) {
-        List<OrderItem> orders = CollUtil.newArrayList();
-        OrderItem orderItem = new OrderItem();
-        orderItem.setColumn("shelf_time");
-        orderItem.setAsc(false);
-        orders.add(orderItem);
-        pageRequest.setOrders(orders);
-        request.setShelfStatus(1);
-        request.setCategory(1);
-        return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request));
-    }
 
     @GetMapping("/portal/statistic")
     @Operation(summary = "获取门户统计数量")
-    public R<PortalStatisticResponse> getPortalStatistic() {
+    public R<PortalStatisticResponse> portalStatistic() {
         return R.ok(portalStatisticService.getPortalStatistic());
     }
 
 
     @GetMapping("/news")
     @Operation(summary = "资讯动态")
-    public R<List<NewsResponse>> newsPage() {
+    public R<List<NewsResponse>> news() {
         IPage<ResearchNewsResponse> newsResponsePage = researchNewsService.pageResult(new Page(1, 10), null);
         IPage<TransformCaseResponse> transformCaseResponsePage = transformCaseService.pageResult(new Page(1, 10), null);
         IPage<EventMeetingResponse> eventMeetingResponsePage = eventMeetingService.pageResult(new Page(1, 10), null);
@@ -135,4 +102,93 @@ public class PcController {
 
         return R.ok(result);
     }
+
+    @GetMapping("/result")
+    @Operation(summary = "科研成果查询")
+    public R<IPage<ResultResponse>> result(@ParameterObject PageRequest pageRequest,
+                                           @ParameterObject ResultPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("shelf_time");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
+        request.setShelfStatus(1);
+        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+
+    @GetMapping("/patent/keyword")
+    @Operation(summary = "专利查询")
+    public R<IPage<PatentSearchResponse>> patentKeyword(
+            @ParameterObject PageRequest pageRequest,
+            @ParameterObject PatentSearchRequest request) {
+        return R.ok(patentInfoService.searchPatent(PageUtil.toPage(pageRequest), request));
+    }
+
+    @GetMapping("/demand")
+    @Operation(summary = "企业技术需求查询")
+    public R<IPage<DemandResponse>> demand(@ParameterObject PageRequest pageRequest,
+                                           @ParameterObject DemandPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("shelf_time");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
+        request.setShelfStatus(1);
+        request.setCategory(1);
+        return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+    @PostMapping("/demand/create")
+    @Operation(summary = "需求发布")
+    public R<Boolean> demandCreate(@RequestBody DemandCreateRequest request) {
+        request.setCategory(1);
+        return R.ok(demandService.create(request));
+    }
+
+
+    @GetMapping("/demandIn")
+    @Operation(summary = "校内科研需求")
+    public R<IPage<DemandInResponse>> demandIn(@ParameterObject PageRequest pageRequest,
+                                               @ParameterObject DemandInPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("shelf_time");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
+        request.setShelfStatus(1);
+        return R.ok(demandInService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+    @GetMapping("/expert")
+    @Operation(summary = "专家名片")
+    public R<IPage<ExpertResponse>> expert(@ParameterObject PageRequest pageRequest,
+                                           @ParameterObject ExpertPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("shelf_time");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
+        request.setShelfStatus(1);
+        return R.ok(expertService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+    @GetMapping("/researchPlatform")
+    @Operation(summary = "科研平台")
+    public R<IPage<ResearchPlatformResponse>> page(@ParameterObject PageRequest pageRequest,
+                                                   @ParameterObject ResearchPlatformPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("shelf_time");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
+        request.setShelfStatus(1);
+        return R.ok(researchPlatformService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
 }

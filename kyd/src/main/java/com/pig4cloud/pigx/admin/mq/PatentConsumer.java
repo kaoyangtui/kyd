@@ -1,8 +1,6 @@
 package com.pig4cloud.pigx.admin.mq;
 
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.pig4cloud.pigx.admin.constants.TopicConstants;
@@ -48,7 +46,7 @@ public class PatentConsumer implements RocketMQListener<String> {
             //主表信息保存
             patentInfoService.create(patentInfo);
             //合并表信息保存
-            patentMergeService.create(message);
+            //patentMergeService.create(message);
             //详情信息保存
             PatentDetailEntity patentDetail = JSONUtil.toBean(message, PatentDetailEntity.class);
             patentDetail.setId(null);

@@ -62,4 +62,10 @@ public class ExpertResponse {
 
     @Schema(description = "院系名称")
     private String deptName;
+
+    @Schema(description = "专利数量")
+    private Long patentCnt;
+
+    @Schema(description = "成果数量")
+    private Long resultCnt;
 }

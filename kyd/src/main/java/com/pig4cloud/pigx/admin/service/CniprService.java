@@ -2,7 +2,6 @@ package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author zhaoliang

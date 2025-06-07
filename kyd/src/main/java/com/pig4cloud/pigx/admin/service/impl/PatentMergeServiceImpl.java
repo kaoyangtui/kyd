@@ -1,10 +1,7 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentMergeEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentMergeMapper;
 import com.pig4cloud.pigx.admin.service.PatentMergeService;

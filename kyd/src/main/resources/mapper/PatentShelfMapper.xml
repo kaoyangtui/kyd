@@ -3,12 +3,12 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.PatentShelfMapper">
 
-  <resultMap id="patentShelfMap" type="com.pig4cloud.pigx.admin.entity.PatentShelfEntity">
+    <resultMap id="patentShelfMap" type="com.pig4cloud.pigx.admin.entity.PatentShelfEntity">
         <id property="id" column="id"/>
         <result property="pid" column="pid"/>
         <result property="shelfStatus" column="shelf_status"/>
         <result property="shelfTime" column="shelf_time"/>
         <result property="cooperationMode" column="cooperation_mode"/>
         <result property="cooperationAmount" column="cooperation_amount"/>
-  </resultMap>
+    </resultMap>
 </mapper>

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.PatentDetailMapper">
 
-  <resultMap id="patentDetailMap" type="com.pig4cloud.pigx.admin.entity.PatentDetailEntity">
+    <resultMap id="patentDetailMap" type="com.pig4cloud.pigx.admin.entity.PatentDetailEntity">
         <id property="id" column="id"/>
         <result property="pid" column="pid"/>
         <result property="claimsPath" column="claims_path"/>
@@ -47,5 +47,5 @@
         <result property="updateTime" column="update_time"/>
         <result property="delFlag" column="del_flag"/>
         <result property="tenantId" column="tenant_id"/>
-  </resultMap>
+    </resultMap>
 </mapper>

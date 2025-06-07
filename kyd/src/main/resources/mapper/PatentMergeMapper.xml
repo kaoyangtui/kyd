@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.PatentMergeMapper">
 
-  <resultMap id="patentMergeMap" type="com.pig4cloud.pigx.admin.entity.PatentMergeEntity">
+    <resultMap id="patentMergeMap" type="com.pig4cloud.pigx.admin.entity.PatentMergeEntity">
         <id property="id" column="id"/>
         <result property="pid" column="pid"/>
         <result property="title" column="title"/>
@@ -129,5 +129,5 @@
         <result property="maintenancePeriodFlag" column="maintenance_period_flag"/>
         <result property="highFinancingQuotaFlag" column="high_financing_quota_flag"/>
         <result property="awardFlag" column="award_flag"/>
-  </resultMap>
+    </resultMap>
 </mapper>

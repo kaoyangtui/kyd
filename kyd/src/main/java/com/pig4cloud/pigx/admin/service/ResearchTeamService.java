@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
-import com.pig4cloud.pigx.admin.dto.researchTeam.*;
-import com.pig4cloud.pigx.admin.entity.DemandInEntity;
+import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamCreateRequest;
+import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamPageRequest;
+import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamResponse;
+import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.ResearchTeamEntity;
 
 import java.util.List;

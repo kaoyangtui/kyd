@@ -5,7 +5,6 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentMonitorEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentMonitorMapper;
 import com.pig4cloud.pigx.admin.service.PatentMonitorService;

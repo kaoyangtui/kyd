@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pig4cloud.pigx.admin.mapper.PatentInventorMapper">
 
-  <resultMap id="patentInventorMap" type="com.pig4cloud.pigx.admin.entity.PatentInventorEntity">
+    <resultMap id="patentInventorMap" type="com.pig4cloud.pigx.admin.entity.PatentInventorEntity">
         <id property="id" column="id"/>
         <result property="pid" column="pid"/>
         <result property="priority" column="priority"/>
@@ -15,5 +15,5 @@
         <result property="email" column="email"/>
         <result property="isLeader" column="is_leader"/>
         <result property="remark" column="remark"/>
-  </resultMap>
+    </resultMap>
 </mapper>

@@ -5,6 +5,7 @@ import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentDetailMapper;
 import com.pig4cloud.pigx.admin.service.PatentDetailService;
 import org.springframework.stereotype.Service;
+
 /**
  * 专利扩展信息表
  *
