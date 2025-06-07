@@ -19,6 +19,7 @@ import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
 import com.pig4cloud.pigx.admin.dto.pc.NewsResponse;
 import com.pig4cloud.pigx.admin.dto.pc.PortalStatisticResponse;
+import com.pig4cloud.pigx.admin.dto.pc.ViewCountIncreaseRequest;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsResponse;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformResponse;
@@ -46,7 +47,7 @@ import java.util.List;
 @Tag(description = "PC平台", name = "PC平台")
 @RequiredArgsConstructor
 public class PcController {
-    private final PortalStatisticService portalStatisticService;
+    private final PcService pcService;
     private final ResearchNewsService researchNewsService;
     private final TransformCaseService transformCaseService;
     private final EventMeetingService eventMeetingService;
@@ -62,7 +63,7 @@ public class PcController {
     @GetMapping("/portal/statistic")
     @Operation(summary = "获取门户统计数量")
     public R<PortalStatisticResponse> portalStatistic() {
-        return R.ok(portalStatisticService.getPortalStatistic());
+        return R.ok(pcService.getPortalStatistic());
     }
 
 
@@ -206,6 +207,12 @@ public class PcController {
         pageRequest.setOrders(orders);
         request.setShelfStatus(1);
         return R.ok(researchTeamService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+    @PostMapping("/increaseViewCount")
+    @Operation(summary = "增加浏览量")
+    public R<Boolean> increaseViewCount(@RequestBody ViewCountIncreaseRequest request) {
+        return R.ok(pcService.increaseViewCount(request.getBizCode(), request.getBizId()));
     }
 
 }

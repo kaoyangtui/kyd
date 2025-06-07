@@ -79,6 +79,12 @@ public class ResearchNewsEntity extends Model<ResearchNewsEntity> {
     private String createBy;
 
     /**
+     * 浏览量
+     */
+    @Schema(description = "浏览量")
+    private Long viewCount;
+
+    /**
      * 创建/提交时间
      */
     @TableField(fill = FieldFill.INSERT)

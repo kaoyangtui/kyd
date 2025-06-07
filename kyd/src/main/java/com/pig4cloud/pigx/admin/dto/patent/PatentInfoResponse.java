@@ -1,27 +1,22 @@
-package com.pig4cloud.pigx.admin.entity;
+package com.pig4cloud.pigx.admin.dto.patent;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.pig4cloud.pigx.common.core.util.TenantTable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
 /**
- * 专利信息表
+ * 专利信息
  *
  * @author pigx
  * @date 2025-05-31 10:49:31
  */
+@Schema(description = "专利信息")
 @Data
-@TenantTable
-@TableName("t_patent_info")
-@EqualsAndHashCode(callSuper = true)
-@Schema(description = "专利信息表")
-public class PatentInfoEntity extends Model<PatentInfoEntity> {
+public class PatentInfoResponse {
 
+    public static final String BIZ_CODE = "PATENT";
 
     /**
      * id

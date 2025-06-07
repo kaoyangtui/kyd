@@ -99,6 +99,12 @@ public class ResearchTeamEntity extends Model<ResearchTeamEntity> {
     private String createBy;
 
     /**
+     * 浏览量
+     */
+    @Schema(description = "浏览量")
+    private Long viewCount;
+
+    /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
