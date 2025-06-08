@@ -52,5 +52,8 @@ public class ResultPageRequest extends BasePageQuery {
     private String maturity;
 
     @Schema(description = "领域技术")
-    private List<String> techAreaList;
+    private List<String> techArea;
+
+    @Schema(description = "合作方式")
+    private List<String> transWay;
 }

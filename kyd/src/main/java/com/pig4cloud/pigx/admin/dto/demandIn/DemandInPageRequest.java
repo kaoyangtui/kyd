@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 分页查询请求
  */
@@ -16,8 +18,11 @@ public class DemandInPageRequest extends BasePageQuery {
     @Schema(description = "关键词（名称）")
     private String keyword;
 
-    @Schema(description = "所属领域")
-    private String field;
+    @Schema(description = "技术领域")
+    private List<String> field;
+
+    @Schema(description = "需求类型")
+    private String type;
 
     @Schema(description = "提交人所属院系")
     private String createByDept;

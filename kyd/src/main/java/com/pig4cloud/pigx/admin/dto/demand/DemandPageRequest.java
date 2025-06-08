@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * @author zhaoliang
  */
@@ -22,8 +24,8 @@ public class DemandPageRequest extends BasePageQuery {
     @Schema(description = "需求类型")
     private String type;
 
-    @Schema(description = "所属领域")
-    private String field;
+    @Schema(description = "技术领域")
+    private List<String> field;
 
     @Schema(description = "提交人所在院系")
     private String createByDept;

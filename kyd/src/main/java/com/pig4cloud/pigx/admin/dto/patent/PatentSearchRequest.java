@@ -18,9 +18,9 @@ public class PatentSearchRequest {
     @Schema(description = "专利类型")
     private String patType;
 
-    @Schema(description = "国民经济分类")
-    private List<String> nec;
+    @Schema(description = "技术领域")
+    private List<String> techArea;
 
-    @Schema(description = "拟合作方式")
+    @Schema(description = "合作方式")
     private String cooperationMode;
 }

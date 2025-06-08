@@ -44,10 +44,10 @@ public class ResultCreateRequest {
     @Schema(description = "是否有实物，0否1是")
     private Integer hasObj;
 
-    @Schema(description = "转化方式")
+    @Schema(description = "合作方式")
     private List<String> transWay;
 
-    @Schema(description = "转化价格(万元),-1为面议")
+    @Schema(description = "转化价格(万元)")
     private BigDecimal transPrice;
 
     @Schema(description = "成果评价或获奖情况")

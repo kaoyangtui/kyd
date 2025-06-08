@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PatentConsumer implements RocketMQListener<String> {
 
     private final PatentInfoService patentInfoService;
-    private final PatentMergeService patentMergeService;
     private final PatentDetailService patentDetailService;
     private final PatentInventorService patentInventorService;
     private final PatentMonitorService patentMonitorService;
@@ -45,8 +44,6 @@ public class PatentConsumer implements RocketMQListener<String> {
             PatentInfoEntity patentInfo = JSONUtil.toBean(message, PatentInfoEntity.class);
             //主表信息保存
             patentInfoService.create(patentInfo);
-            //合并表信息保存
-            //patentMergeService.create(message);
             //详情信息保存
             PatentDetailEntity patentDetail = JSONUtil.toBean(message, PatentDetailEntity.class);
             patentDetail.setId(null);

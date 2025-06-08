@@ -82,7 +82,10 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
                 );
             }
             wrapper.eq(StrUtil.isNotBlank(request.getType()), DemandEntity::getType, request.getType());
-            wrapper.eq(StrUtil.isNotBlank(request.getField()), DemandEntity::getField, request.getField());
+            //技术领域
+            if (CollUtil.isNotEmpty(request.getField())) {
+                wrapper.and(q -> request.getField().forEach(o -> q.or().like(DemandEntity::getField, o)));
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), DemandEntity::getDeptId, request.getCreateByDept());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), DemandEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), DemandEntity::getCurrentNodeName, request.getCurrentNodeName());

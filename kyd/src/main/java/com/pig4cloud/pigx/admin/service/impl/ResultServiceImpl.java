@@ -183,9 +183,15 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResultEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResultEntity::getCreateTime, request.getEndTime());
             //技术领域
-            if (CollUtil.isNotEmpty(request.getTechAreaList())) {
-                wrapper.and(q -> request.getTechAreaList().forEach(area -> q.or().like(ResultEntity::getTechArea, area)));
+            if (CollUtil.isNotEmpty(request.getTechArea())) {
+                wrapper.and(q -> request.getTechArea().forEach(o -> q.or().like(ResultEntity::getTechArea, o)));
             }
+            //合作方式
+            if (CollUtil.isNotEmpty(request.getTransWay())) {
+                wrapper.and(q -> request.getTransWay().forEach(o -> q.or().like(ResultEntity::getTransWay, o)));
+            }
+            //技术成熟度
+            wrapper.eq(StrUtil.isNotBlank(request.getMaturity()), ResultEntity::getMaturity, request.getMaturity());
         }
 
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {

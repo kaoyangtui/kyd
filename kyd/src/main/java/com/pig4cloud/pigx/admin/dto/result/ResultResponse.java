@@ -159,9 +159,9 @@ public class ResultResponse {
     private LocalDateTime shelfTime;
 
     /**
-     * 标签
+     * 关键词
      */
-    @Schema(description = "标签")
+    @Schema(description = "关键词")
     private String tags;
 
     /**
