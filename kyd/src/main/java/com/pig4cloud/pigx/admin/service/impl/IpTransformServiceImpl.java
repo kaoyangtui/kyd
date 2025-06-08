@@ -78,8 +78,13 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(IpTransformEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), IpTransformEntity::getName, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), IpTransformEntity::getCode, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(IpTransformEntity::getName, request.getKeyword())
+                                .or()
+                                .like(IpTransformEntity::getCode, request.getKeyword())
+                );
+            }
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), IpTransformEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), IpTransformEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), IpTransformEntity::getDeptId, request.getCreateByDept());

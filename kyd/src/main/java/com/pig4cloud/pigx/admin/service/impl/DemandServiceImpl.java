@@ -74,8 +74,13 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(DemandEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), DemandEntity::getName, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), DemandEntity::getTags, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(DemandEntity::getName, request.getKeyword())
+                                .or()
+                                .like(DemandEntity::getTags, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getType()), DemandEntity::getType, request.getType());
             wrapper.eq(StrUtil.isNotBlank(request.getField()), DemandEntity::getField, request.getField());
             wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), DemandEntity::getDeptId, request.getCreateByDept());

@@ -85,8 +85,13 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(ResearchPlatformEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResearchPlatformEntity::getName, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), ResearchPlatformEntity::getPrincipal, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(ResearchPlatformEntity::getName, request.getKeyword())
+                                .or()
+                                .like(ResearchPlatformEntity::getPrincipal, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), ResearchPlatformEntity::getDeptId, request.getDeptId());
             wrapper.eq(ObjectUtil.isNotNull(request.getShelfStatus()), ResearchPlatformEntity::getShelfStatus, request.getShelfStatus());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResearchPlatformEntity::getCreateTime, request.getBeginTime());

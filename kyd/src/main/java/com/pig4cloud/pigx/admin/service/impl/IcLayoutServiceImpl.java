@@ -119,8 +119,13 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(IcLayoutEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), IcLayoutEntity::getName, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), IcLayoutEntity::getRegNo, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(IcLayoutEntity::getName, request.getKeyword())
+                                .or()
+                                .like(IcLayoutEntity::getRegNo, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), IcLayoutEntity::getDeptId, request.getDeptId());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), IcLayoutEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), IcLayoutEntity::getCurrentNodeName, request.getCurrentNodeName());

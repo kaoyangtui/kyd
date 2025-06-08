@@ -34,8 +34,13 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(NoticeEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), NoticeEntity::getTitle, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), NoticeEntity::getContent, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(NoticeEntity::getTitle, request.getKeyword())
+                                .or()
+                                .like(NoticeEntity::getContent, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), NoticeEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), NoticeEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), NoticeEntity::getCreateTime, request.getEndTime());

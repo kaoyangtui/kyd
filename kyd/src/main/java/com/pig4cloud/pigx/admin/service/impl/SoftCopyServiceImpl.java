@@ -127,10 +127,13 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(SoftCopyEntity::getId, request.getIds());
         } else {
-            wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
-                    w.like(SoftCopyEntity::getCode, request.getKeyword())
-                            .or().like(SoftCopyEntity::getSoftName, request.getKeyword()));
-
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(SoftCopyEntity::getCode, request.getKeyword())
+                                .or()
+                                .like(SoftCopyEntity::getSoftName, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getTechField()), SoftCopyEntity::getTechField, request.getTechField());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), SoftCopyEntity::getDeptId, request.getDeptId());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), SoftCopyEntity::getFlowStatus, request.getFlowStatus());

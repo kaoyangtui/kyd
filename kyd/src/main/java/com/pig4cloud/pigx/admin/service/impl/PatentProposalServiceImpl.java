@@ -55,9 +55,13 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(PatentProposalEntity::getId, request.getIds());
         } else {
-            wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
-                    w.like(PatentProposalEntity::getCode, request.getKeyword())
-                            .or().like(PatentProposalEntity::getTitle, request.getKeyword()));
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(PatentProposalEntity::getCode, request.getKeyword())
+                                .or()
+                                .like(PatentProposalEntity::getTitle, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getType()), PatentProposalEntity::getType, request.getType());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PatentProposalEntity::getDeptId, request.getDeptId());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), PatentProposalEntity::getFlowStatus, request.getFlowStatus());

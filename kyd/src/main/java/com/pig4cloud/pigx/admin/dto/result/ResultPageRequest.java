@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 科研成果分页查询请求
  * 继承通用分页能力
@@ -48,4 +50,7 @@ public class ResultPageRequest extends BasePageQuery {
 
     @Schema(description = "技术成熟度")
     private String maturity;
+
+    @Schema(description = "领域技术")
+    private List<String> techAreaList;
 }

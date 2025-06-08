@@ -43,8 +43,13 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(ResearchTeamEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResearchTeamEntity::getName, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), ResearchTeamEntity::getLeader, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w -> w
+                        .like(ResearchTeamEntity::getName, request.getKeyword())
+                        .or()
+                        .like(ResearchTeamEntity::getLeader, request.getKeyword())
+                );
+            }
             wrapper.eq(ObjectUtil.isNotNull(request.getShelfStatus()), ResearchTeamEntity::getShelfStatus, request.getShelfStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), ResearchTeamEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResearchTeamEntity::getCreateTime, request.getBeginTime());

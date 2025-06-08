@@ -130,10 +130,13 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(SoftCopyRegEntity::getId, request.getIds());
         } else {
-            wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
-                    w.like(SoftCopyRegEntity::getName, request.getKeyword())
-                            .or().like(SoftCopyRegEntity::getRegNo, request.getKeyword()));
-
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(SoftCopyRegEntity::getName, request.getKeyword())
+                                .or()
+                                .like(SoftCopyRegEntity::getRegNo, request.getKeyword())
+                );
+            }
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), SoftCopyRegEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), SoftCopyRegEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.eq(ObjectUtil.isNotNull(request.getDeptId()), SoftCopyRegEntity::getDeptId, request.getDeptId());

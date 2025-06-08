@@ -47,9 +47,13 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(StandardEntity::getId, request.getIds());
         } else {
-            wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
-                    w.like(StandardEntity::getCode, request.getKeyword())
-                            .or().like(StandardEntity::getName, request.getKeyword()));
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(StandardEntity::getCode, request.getKeyword())
+                                .or()
+                                .like(StandardEntity::getName, request.getKeyword())
+                );
+            }
 
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), StandardEntity::getDeptId, request.getDeptId());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), StandardEntity::getFlowStatus, request.getFlowStatus());

@@ -166,9 +166,13 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(ResultEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getName, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getCode, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), ResultEntity::getTags, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(ResultEntity::getName, request.getKeyword())
+                                .or().like(ResultEntity::getCode, request.getKeyword())
+                                .or().like(ResultEntity::getTags, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getLeaderCode()), ResultEntity::getLeaderCode, request.getLeaderCode());
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), ResultEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getSubject()), ResultEntity::getSubject, request.getSubject());
@@ -178,6 +182,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), ResultEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResultEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResultEntity::getCreateTime, request.getEndTime());
+            //技术领域
+            if (CollUtil.isNotEmpty(request.getTechAreaList())) {
+                wrapper.and(q -> request.getTechAreaList().forEach(area -> q.or().like(ResultEntity::getTechArea, area)));
+            }
         }
 
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {

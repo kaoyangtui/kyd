@@ -16,6 +16,10 @@ public class PageRequest {
     private long current = 1;
     @Schema(description = "每页条数", example = "10")
     private long size = 10;
-    @Schema(description = "排序字段和顺序")
+    @Schema(description = """
+            排序:
+            按发布时间排序 column=shelf_time
+            按热度排序 column=view_count
+            """)
     private List<OrderItem> orders;
 }

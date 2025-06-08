@@ -34,8 +34,13 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(CommonDownloadEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), CommonDownloadEntity::getFileName, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), CommonDownloadEntity::getContent, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(CommonDownloadEntity::getFileName, request.getKeyword())
+                                .or()
+                                .like(CommonDownloadEntity::getContent, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), CommonDownloadEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), CommonDownloadEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), CommonDownloadEntity::getCreateTime, request.getEndTime());

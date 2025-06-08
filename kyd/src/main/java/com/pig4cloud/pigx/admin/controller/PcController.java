@@ -111,12 +111,14 @@ public class PcController {
     @Operation(summary = "科研成果查询")
     public R<IPage<ResultResponse>> result(@ParameterObject PageRequest pageRequest,
                                            @ParameterObject ResultPageRequest request) {
-        List<OrderItem> orders = CollUtil.newArrayList();
-        OrderItem orderItem = new OrderItem();
-        orderItem.setColumn("shelf_time");
-        orderItem.setAsc(false);
-        orders.add(orderItem);
-        pageRequest.setOrders(orders);
+        if (CollUtil.isEmpty(pageRequest.getOrders())) {
+            List<OrderItem> orders = CollUtil.newArrayList();
+            OrderItem orderItem = new OrderItem();
+            orderItem.setColumn("shelf_time");
+            orderItem.setAsc(false);
+            orders.add(orderItem);
+            pageRequest.setOrders(orders);
+        }
         request.setShelfStatus(1);
         return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
     }

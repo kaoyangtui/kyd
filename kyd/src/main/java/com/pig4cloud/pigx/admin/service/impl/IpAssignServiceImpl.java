@@ -76,8 +76,13 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(IpAssignEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), IpAssignEntity::getCode, request.getKeyword())
-                    .or().like(StrUtil.isNotBlank(request.getKeyword()), IpAssignEntity::getAssignToCode, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(IpAssignEntity::getCode, request.getKeyword())
+                                .or()
+                                .like(IpAssignEntity::getAssignToCode, request.getKeyword())
+                );
+            }
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), IpAssignEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), IpAssignEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), IpAssignEntity::getDeptId, request.getCreateByDept());
