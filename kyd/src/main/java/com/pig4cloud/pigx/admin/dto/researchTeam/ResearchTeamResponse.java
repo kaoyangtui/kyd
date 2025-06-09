@@ -21,9 +21,6 @@ public class ResearchTeamResponse {
     @Schema(description = "科研团队名称")
     private String name;
 
-    @Schema(description = "团队负责人")
-    private String leader;
-
     @Schema(description = "团队研究方向")
     private List<String> researchTags;
 
@@ -35,6 +32,18 @@ public class ResearchTeamResponse {
 
     @Schema(description = "联系人手机")
     private String contactPhone;
+
+    /**
+     * 负责人编码
+     */
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String leaderName;
 
     @Schema(description = "上下架状态（0下架 1上架）")
     private Integer shelfStatus;

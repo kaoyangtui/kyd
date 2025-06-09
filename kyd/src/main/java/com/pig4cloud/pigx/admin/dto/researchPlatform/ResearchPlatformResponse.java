@@ -29,8 +29,11 @@ public class ResearchPlatformResponse {
     @Schema(description = "联系人手机")
     private String contactPhone;
 
-    @Schema(description = "平台负责人")
-    private String principal;
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    @Schema(description = "负责人姓名")
+    private String leaderName;
 
     @Schema(description = "上下架状态（0下架 1上架）")
     private Integer shelfStatus;

@@ -29,10 +29,6 @@ public interface ExpertService extends IService<ExpertEntity> {
 
     Boolean remove(List<Long> ids);
 
-    List<ExpertResponse> exportList(ExpertPageRequest request);
-
-    ExportFieldListResponse exportFields();
-
     /**
      * 批量上下架
      *

@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +39,7 @@ public class ResearchPlatformController {
     @PostMapping("/create")
     @Operation(summary = "新增科研平台")
     @SysLog("新增科研平台")
-    public R<Boolean> create(@RequestBody ResearchPlatformCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid ResearchPlatformCreateRequest request) {
         return R.ok(researchPlatformService.create(request));
     }
 

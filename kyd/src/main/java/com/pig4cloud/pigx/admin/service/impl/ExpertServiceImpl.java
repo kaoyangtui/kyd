@@ -42,8 +42,16 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(ExpertEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ExpertEntity::getName, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(ExpertEntity::getName, request.getKeyword())
+                                .or()
+                                .like(ExpertEntity::getIntro, request.getKeyword())
+                );
+            }
+            wrapper.eq(StrUtil.isNotBlank(request.getName()), ExpertEntity::getName, request.getName());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), ExpertEntity::getDeptId, request.getDeptId());
+            wrapper.eq(null != request.getShelfStatus(), ExpertEntity::getShelfStatus, request.getShelfStatus());
         }
 
         // 范围/区间分页
@@ -90,28 +98,6 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
     @Transactional(rollbackFor = Exception.class)
     public Boolean remove(List<Long> ids) {
         return this.removeBatchByIds(ids);
-    }
-
-    @Override
-    public List<ExpertResponse> exportList(ExpertPageRequest request) {
-        LambdaQueryWrapper<ExpertEntity> wrapper = new LambdaQueryWrapper<>();
-        if (CollUtil.isNotEmpty(request.getIds())) {
-            wrapper.in(ExpertEntity::getId, request.getIds());
-        } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ExpertEntity::getName, request.getKeyword());
-            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), ExpertEntity::getDeptId, request.getDeptId());
-        }
-        List<ExpertEntity> list = this.list(wrapper);
-        return BeanUtil.copyToList(list, ExpertResponse.class);
-    }
-
-    @Override
-    public com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse exportFields() {
-        // 通过工具类生成字段列表（实际实现请按你们项目的 ExportFieldHelper 工具）
-        return com.pig4cloud.pigx.admin.utils.ExportFieldHelper.buildExportFieldList(
-                ExpertResponse.BIZ_CODE,
-                ExpertResponse.class
-        );
     }
 
     @SneakyThrows

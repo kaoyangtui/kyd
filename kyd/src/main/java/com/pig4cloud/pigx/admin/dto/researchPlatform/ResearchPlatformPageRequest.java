@@ -12,11 +12,11 @@ import java.util.List;
 @Schema(description = "科研平台分页查询请求")
 public class ResearchPlatformPageRequest extends BasePageQuery {
 
-    @Schema(description = "关键词（平台名称/负责人/研究方向等模糊匹配）")
+    @Schema(description = "关键词（名称/研究方向/介绍等模糊匹配）")
     private String keyword;
 
-    @Schema(description = "平台负责人")
-    private String principal;
+    @Schema(description = "负责人编码")
+    private String leaderCode;
 
     @Schema(description = "所属院系 ID")
     private String deptId;

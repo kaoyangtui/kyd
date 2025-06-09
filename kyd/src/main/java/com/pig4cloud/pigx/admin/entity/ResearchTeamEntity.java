@@ -42,12 +42,6 @@ public class ResearchTeamEntity extends Model<ResearchTeamEntity> {
     private String name;
 
     /**
-     * 团队负责人
-     */
-    @Schema(description = "团队负责人")
-    private String leader;
-
-    /**
      * 团队研究方向，多个以;分隔
      */
     @Schema(description = "团队研究方向，多个以;分隔")
@@ -70,6 +64,18 @@ public class ResearchTeamEntity extends Model<ResearchTeamEntity> {
      */
     @Schema(description = "联系人手机")
     private String contactPhone;
+
+    /**
+     * 负责人编码
+     */
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String leaderName;
 
     /**
      * 上下架状态（0下架 1上架）

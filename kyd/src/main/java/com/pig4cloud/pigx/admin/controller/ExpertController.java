@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -56,7 +57,7 @@ public class ExpertController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增专家信息")
-    public R<Boolean> create(@RequestBody ExpertCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid ExpertCreateRequest request) {
         return R.ok(expertService.create(request));
     }
 

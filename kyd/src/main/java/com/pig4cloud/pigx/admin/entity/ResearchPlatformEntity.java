@@ -67,10 +67,16 @@ public class ResearchPlatformEntity extends Model<ResearchPlatformEntity> {
     private String contactPhone;
 
     /**
-     * 平台负责人
+     * 负责人编码
      */
-    @Schema(description = "平台负责人")
-    private String principal;
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String leaderName;
 
     /**
      * 上下架状态（0下架 1上架）

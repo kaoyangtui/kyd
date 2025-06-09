@@ -16,6 +16,9 @@ public class ExpertPageRequest extends BasePageQuery {
     @Schema(description = "关键词（姓名、工号、单位模糊）")
     private String keyword;
 
+    @Schema(description = "姓名")
+    private String name;
+
     @Schema(description = "所属院系")
     private String deptId;
 

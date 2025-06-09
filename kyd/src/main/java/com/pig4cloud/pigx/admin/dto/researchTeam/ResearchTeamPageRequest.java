@@ -10,11 +10,14 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "科研团队分页查询请求")
 public class ResearchTeamPageRequest extends BasePageQuery {
 
-    @Schema(description = "关键词（名称/负责人模糊匹配）")
+    @Schema(description = "关键词（名称/研究方向/介绍模糊匹配）")
     private String keyword;
 
-    @Schema(description = "团队负责人")
-    private String leader;
+    /**
+     * 负责人编码
+     */
+    @Schema(description = "负责人编码")
+    private String leaderCode;
 
     @Schema(description = "团队研究方向")
     private String researchTag;
