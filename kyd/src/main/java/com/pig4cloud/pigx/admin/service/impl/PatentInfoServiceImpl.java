@@ -5,6 +5,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -12,13 +13,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.CnirpDisplayColsConstants;
 import com.pig4cloud.pigx.admin.constants.CnirpExpConstants;
+import com.pig4cloud.pigx.admin.constants.DiPatentConstants;
+import com.pig4cloud.pigx.admin.constants.DiPatentLegalStatusEnum;
+import com.pig4cloud.pigx.admin.dto.patent.PatentSearchListReq;
+import com.pig4cloud.pigx.admin.dto.patent.PatentSearchListRes;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
+import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
-import com.pig4cloud.pigx.admin.model.request.PatentSearchListReq;
-import com.pig4cloud.pigx.admin.model.response.PatentSearchListRes;
 import com.pig4cloud.pigx.admin.service.CniprService;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
@@ -213,7 +217,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
     }
 
     @Override
-    public void create(PatentInfoEntity patentInfo) {
+    public void create(PatentInfoEntity patentInfo, String message) {
         patentInfo.setId(null);
         patentInfo.setAppNumber(CodeUtils.getFirstCode(patentInfo.getAppNumber()));
         patentInfo.setPubNumber(CodeUtils.getFirstCode(patentInfo.getPubNumber()));
@@ -235,6 +239,72 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         patentInfo.setBgKey(CodeUtils.formatCodes(patentInfo.getBgKey()));
         patentInfo.setHistoryPatentee(CodeUtils.formatCodes(patentInfo.getHistoryPatentee()));
         patentInfo.setPatenteType(CodeUtils.formatCodes(patentInfo.getPatenteType()));
+        patentInfo.setTransferFlag(calcTransferFlag(patentInfo.getApplicantName(), patentInfo.getPatentee()));
+        JSONObject msgJo = JSONUtil.parseObj(message);
+        //法律信
+        String legalListStr = msgJo.getStr("legalList");
+        if (StrUtil.isNotBlank(legalListStr)) {
+            List<Legal> legalList = JSONUtil.toList(legalListStr, Legal.class);
+            for (Legal legal : legalList) {
+                String prsDate = legal.getPrsDate();
+                String prsCode = legal.getPrsCode();
+                if (DiPatentConstants.EXAMINATION_STATUS.contains(prsCode)) {
+                    patentInfo.setExaminationDate(prsDate);
+                }
+                if (DiPatentConstants.UNAUTHORIZED_STATUS.contains(prsCode)) {
+                    patentInfo.setUnAuthorizedDate(prsDate);
+                }
+                if (DiPatentConstants.UNEFFECTIVE_STATUS.contains(prsCode)) {
+                    patentInfo.setUnEffectiveDate(prsDate);
+                }
+            }
+        }
+        //公开中逻辑：公开=true and 实审数量=false and 授权数量=false and 未授权数量=false and 失效数量=false
+        if (StrUtil.isNotBlank(patentInfo.getPubDate())
+                && StrUtil.isBlank(patentInfo.getExaminationDate())
+                && StrUtil.isBlank(patentInfo.getGrantDate())
+                && StrUtil.isBlank(patentInfo.getUnAuthorizedDate())
+                && StrUtil.isBlank(patentInfo.getUnEffectiveDate())) {
+            patentInfo.setLegalStatus(DiPatentLegalStatusEnum.PUBLICATION.getDesc());
+        }
+        //实审逻辑：实审=true and 授权数量=false and 未授权数量=false and 失效数量=false
+        else if (StrUtil.isNotBlank(patentInfo.getExaminationDate())
+                && StrUtil.isBlank(patentInfo.getGrantDate())
+                && StrUtil.isBlank(patentInfo.getUnAuthorizedDate())
+                && StrUtil.isBlank(patentInfo.getUnEffectiveDate())) {
+            patentInfo.setLegalStatus(DiPatentLegalStatusEnum.EXAMINATION.getDesc());
+        }
+        //未授权逻辑：未授权数量=true
+        else if (StrUtil.isNotBlank(patentInfo.getUnAuthorizedDate())) {
+            patentInfo.setLegalStatus(DiPatentLegalStatusEnum.UNAUTHORIZED.getDesc());
+        }
+        //有效逻辑：授权数量=true and 未授权数量=false and 失效数量=false
+        else if (StrUtil.isNotBlank(patentInfo.getGrantDate())
+                && StrUtil.isBlank(patentInfo.getUnAuthorizedDate())
+                && StrUtil.isBlank(patentInfo.getUnEffectiveDate())) {
+            patentInfo.setLegalStatus(DiPatentLegalStatusEnum.EFFECTIVE.getDesc());
+        }
+        //无效逻辑：失效数量=true
+        else if (StrUtil.isNotBlank(patentInfo.getUnEffectiveDate())) {
+            patentInfo.setLegalStatus(DiPatentLegalStatusEnum.UNEFFECTIVE.getDesc());
+        }
+        //法律状态补充逻辑
+        //10	有效专利
+        //20	失效专利
+        //21	专利权届满的专利
+        //22	在审超期
+        //30	在审专利
+        if (patentInfo.getStatusCode() != null) {
+            switch (patentInfo.getStatusCode()) {
+                case "10":
+                    patentInfo.setLegalStatus(DiPatentLegalStatusEnum.EFFECTIVE.getDesc());
+                    break;
+                case "20":
+                    patentInfo.setLegalStatus(DiPatentLegalStatusEnum.UNEFFECTIVE.getDesc());
+                    break;
+            }
+        }
+
         PatentInfoEntity oldPatentInfo = this.lambdaQuery()
                 .eq(PatentInfoEntity::getPid, patentInfo.getPid())
                 .one();
@@ -260,4 +330,12 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 .update();
     }
 
+    private String calcTransferFlag(String applicantName, String patentee) {
+        List<String> applicants = StrUtil.splitTrim(applicantName, ";");
+        List<String> patentees = StrUtil.splitTrim(patentee, ";");
+        // 没有任何申请人在专利权人里时为转移（返回 "1"）
+        return CollUtil.isNotEmpty(applicants) && CollUtil.isNotEmpty(patentees)
+                && !CollUtil.containsAny(patentees, applicants)
+                ? "1" : "0";
+    }
 }

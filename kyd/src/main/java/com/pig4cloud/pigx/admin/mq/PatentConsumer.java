@@ -6,7 +6,10 @@ import cn.hutool.json.JSONUtil;
 import com.pig4cloud.pigx.admin.constants.TopicConstants;
 import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
-import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.admin.service.PatentDetailService;
+import com.pig4cloud.pigx.admin.service.PatentInfoService;
+import com.pig4cloud.pigx.admin.service.PatentInventorService;
+import com.pig4cloud.pigx.admin.service.PatentMonitorService;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +46,7 @@ public class PatentConsumer implements RocketMQListener<String> {
             }
             PatentInfoEntity patentInfo = JSONUtil.toBean(message, PatentInfoEntity.class);
             //主表信息保存
-            patentInfoService.create(patentInfo);
+            patentInfoService.create(patentInfo, message);
             //详情信息保存
             PatentDetailEntity patentDetail = JSONUtil.toBean(message, PatentDetailEntity.class);
             patentDetail.setId(null);

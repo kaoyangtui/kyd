@@ -73,6 +73,13 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String statusCode;
 
     /**
+     * 当前法律状态
+     * 公开、实审、未授权、有效、失效
+     */
+    @Schema(description = "当前法律状态")
+    private String legalStatus;
+
+    /**
      * 申请号 (数组)
      */
     @Schema(description = "申请号 (数组)")
@@ -97,10 +104,28 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String pubDate;
 
     /**
+     * 实审日期
+     */
+    @Schema(description = "实审日期")
+    private String examinationDate;
+
+    /**
      * 授权日
      */
     @Schema(description = "授权日")
     private String grantDate;
+
+    /**
+     * 未授权日
+     */
+    @Schema(description = "未授权时间")
+    private String unAuthorizedDate;
+
+    /**
+     * 实际失效日
+     */
+    @Schema(description = "失效日期")
+    private String unEffectiveDate;
 
     /**
      * 失效日
@@ -109,9 +134,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String expireDate;
 
     /**
-     * 申请（专利权）人 (List<String>)
+     * 申请（专利权）人
      */
-    @Schema(description = "申请（专利权）人 (List<String>)")
+    @Schema(description = "申请（专利权）人")
     private String applicantName;
 
     /**
@@ -121,21 +146,21 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String applicantType;
 
     /**
-     * 发明（设计）人 (List<String>)
+     * 发明（设计）人
      */
-    @Schema(description = "发明（设计）人 (List<String>)")
+    @Schema(description = "发明（设计）人")
     private String inventorName;
 
     /**
-     * 专利权人 (List<String>)
+     * 专利权人
      */
-    @Schema(description = "专利权人 (List<String>)")
+    @Schema(description = "专利权人")
     private String patentee;
 
     /**
-     * 国民经济分类 (List<String>)
+     * 国民经济分类
      */
-    @Schema(description = "国民经济分类 (List<String>)")
+    @Schema(description = "国民经济分类")
     private String nec;
 
     /**
@@ -145,9 +170,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String mainIpc;
 
     /**
-     * 分类号 (List<String>)
+     * 分类号
      */
-    @Schema(description = "分类号 (List<String>)")
+    @Schema(description = "分类号")
     private String ipc;
 
     /**
@@ -181,9 +206,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String ipcSubGroup;
 
     /**
-     * 联合分类 (List<String>)
+     * 联合分类
      */
-    @Schema(description = "联合分类 (List<String>)")
+    @Schema(description = "联合分类")
     private String cpc;
 
     /**
@@ -223,15 +248,15 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String agencyName;
 
     /**
-     * 代理人 (List<String>)
+     * 代理人
      */
-    @Schema(description = "代理人 (List<String>)")
+    @Schema(description = "代理人")
     private String agentName;
 
     /**
-     * 优先权国家 (List<String>)
+     * 优先权国家
      */
-    @Schema(description = "优先权国家 (List<String>)")
+    @Schema(description = "优先权国家")
     private String priorityCountry;
 
     /**
@@ -319,27 +344,27 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String provinceName;
 
     /**
-     * 关键词 (List<String>)
+     * 关键词
      */
-    @Schema(description = "关键词 (List<String>)")
+    @Schema(description = "关键词")
     private String patentWords;
 
     /**
-     * 名称关键词 (List<String>)
+     * 名称关键词
      */
-    @Schema(description = "名称关键词 (List<String>)")
+    @Schema(description = "名称关键词")
     private String titleKey;
 
     /**
-     * 独权关键词 (List<String>)
+     * 独权关键词
      */
-    @Schema(description = "独权关键词 (List<String>)")
+    @Schema(description = "独权关键词")
     private String clKey;
 
     /**
-     * 背景关键词 (List<String>)
+     * 背景关键词
      */
-    @Schema(description = "背景关键词 (List<String>)")
+    @Schema(description = "背景关键词")
     private String bgKey;
 
     /**
@@ -511,9 +536,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String ipubDate;
 
     /**
-     * PCT指定国家 (List<String>)
+     * PCT指定国家
      */
-    @Schema(description = "PCT指定国家 (List<String>)")
+    @Schema(description = "PCT指定国家")
     private String pctCountry;
 
     /**
@@ -535,9 +560,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String advancedPublishedDocument;
 
     /**
-     * 历史专利权人 (List<String>)
+     * 历史专利权人
      */
-    @Schema(description = "历史专利权人 (List<String>)")
+    @Schema(description = "历史专利权人")
     private String historyPatentee;
 
     /**
@@ -577,9 +602,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String simpleFamilyQuantity;
 
     /**
-     * 简单同族国家 (List<String>)
+     * 简单同族国家
      */
-    @Schema(description = "简单同族国家 (List<String>)")
+    @Schema(description = "简单同族国家")
     private String simpleFamilyCountry;
 
     /**
@@ -601,9 +626,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String extendFamilyQuantity;
 
     /**
-     * 扩展同族国家 (List<String>)
+     * 扩展同族国家
      */
-    @Schema(description = "扩展同族国家 (List<String>)")
+    @Schema(description = "扩展同族国家")
     private String extendFamilyCountry;
 
     /**
@@ -789,12 +814,42 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     /**
      * 申请号合并标识
      */
-    @Schema(description = "申请号合并标识")
+    @Schema(description = "申请号合并标识,1已合并")
     private String mergeFlag;
+
+    /**
+     * 转移标识
+     */
+    @Schema(description = "转移标识,1已转移")
+    private String transferFlag;
+
+    /**
+     * 认领标识
+     */
+    @Schema(description = "认领标识,1已认领")
+    private String claimFlag;
+
+    /**
+     * 上架标识
+     */
+    @Schema(description = "上架标识,1已上架")
+    private String shelfFlag;
 
     /**
      * 浏览量
      */
     @Schema(description = "浏览量")
     private Long viewCount;
+
+    /**
+     * 负责人编码
+     */
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String leaderName;
 }

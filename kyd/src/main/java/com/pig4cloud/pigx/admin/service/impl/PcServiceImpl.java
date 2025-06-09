@@ -8,6 +8,7 @@ import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
+import com.pig4cloud.pigx.admin.dto.patent.PatentDetailResponse;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoResponse;
 import com.pig4cloud.pigx.admin.dto.pc.PortalStatisticResponse;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsResponse;

@@ -1,10 +1,7 @@
 package com.pig4cloud.pigx.admin.dto.patent;
 
-import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 /**
  * 专利信息
@@ -17,13 +14,6 @@ import java.time.LocalDateTime;
 public class PatentInfoResponse {
 
     public static final String BIZ_CODE = "PATENT";
-
-    /**
-     * id
-     */
-    @TableId(type = IdType.ASSIGN_ID)
-    @Schema(description = "id")
-    private Long id;
 
     /**
      * 专利唯一ID
@@ -68,9 +58,16 @@ public class PatentInfoResponse {
     private String statusCode;
 
     /**
-     * 申请号 (数组)
+     * 当前法律状态
+     * 公开、实审、未授权、有效、失效
      */
-    @Schema(description = "申请号 (数组)")
+    @Schema(description = "当前法律状态")
+    private String legalStatus;
+
+    /**
+     * 申请号
+     */
+    @Schema(description = "申请号")
     private String appNumber;
 
     /**
@@ -80,9 +77,9 @@ public class PatentInfoResponse {
     private String appDate;
 
     /**
-     * 公开（公告）号 (数组)
+     * 公开（公告）号
      */
-    @Schema(description = "公开（公告）号 (数组)")
+    @Schema(description = "公开（公告）号")
     private String pubNumber;
 
     /**
@@ -92,10 +89,28 @@ public class PatentInfoResponse {
     private String pubDate;
 
     /**
+     * 实审日期
+     */
+    @Schema(description = "实审日期")
+    private String examinationDate;
+
+    /**
      * 授权日
      */
     @Schema(description = "授权日")
     private String grantDate;
+
+    /**
+     * 未授权日
+     */
+    @Schema(description = "未授权时间")
+    private String unAuthorizedDate;
+
+    /**
+     * 实际失效日
+     */
+    @Schema(description = "失效日期")
+    private String unEffectiveDate;
 
     /**
      * 失效日
@@ -104,33 +119,33 @@ public class PatentInfoResponse {
     private String expireDate;
 
     /**
-     * 申请（专利权）人 (List<String>)
+     * 申请（专利权）人
      */
-    @Schema(description = "申请（专利权）人 (List<String>)")
+    @Schema(description = "申请（专利权）人")
     private String applicantName;
 
     /**
-     * 申请人类型 (Set<String>)
+     * 申请人类型 
      */
-    @Schema(description = "申请人类型 (Set<String>)")
+    @Schema(description = "申请人类型 ")
     private String applicantType;
 
     /**
-     * 发明（设计）人 (List<String>)
+     * 发明（设计）人
      */
-    @Schema(description = "发明（设计）人 (List<String>)")
+    @Schema(description = "发明（设计）人")
     private String inventorName;
 
     /**
-     * 专利权人 (List<String>)
+     * 专利权人
      */
-    @Schema(description = "专利权人 (List<String>)")
+    @Schema(description = "专利权人")
     private String patentee;
 
     /**
-     * 国民经济分类 (List<String>)
+     * 国民经济分类
      */
-    @Schema(description = "国民经济分类 (List<String>)")
+    @Schema(description = "国民经济分类")
     private String nec;
 
     /**
@@ -140,75 +155,75 @@ public class PatentInfoResponse {
     private String mainIpc;
 
     /**
-     * 分类号 (List<String>)
+     * 分类号
      */
-    @Schema(description = "分类号 (List<String>)")
+    @Schema(description = "分类号")
     private String ipc;
 
     /**
-     * 分类号部 (Set<String>)
+     * 分类号部 
      */
-    @Schema(description = "分类号部 (Set<String>)")
+    @Schema(description = "分类号部 ")
     private String ipcSection;
 
     /**
-     * 分类号大类 (Set<String>)
+     * 分类号大类 
      */
-    @Schema(description = "分类号大类 (Set<String>)")
+    @Schema(description = "分类号大类 ")
     private String ipcClass;
 
     /**
-     * 分类号小类 (Set<String>)
+     * 分类号小类 
      */
-    @Schema(description = "分类号小类 (Set<String>)")
+    @Schema(description = "分类号小类 ")
     private String ipcSubClass;
 
     /**
-     * 分类号大组 (Set<String>)
+     * 分类号大组 
      */
-    @Schema(description = "分类号大组 (Set<String>)")
+    @Schema(description = "分类号大组 ")
     private String ipcGroup;
 
     /**
-     * 分类号小组 (Set<String>)
+     * 分类号小组 
      */
-    @Schema(description = "分类号小组 (Set<String>)")
+    @Schema(description = "分类号小组 ")
     private String ipcSubGroup;
 
     /**
-     * 联合分类 (List<String>)
+     * 联合分类
      */
-    @Schema(description = "联合分类 (List<String>)")
+    @Schema(description = "联合分类")
     private String cpc;
 
     /**
-     * 联合分类部 (Set<String>)
+     * 联合分类部 
      */
-    @Schema(description = "联合分类部 (Set<String>)")
+    @Schema(description = "联合分类部 ")
     private String cpcSection;
 
     /**
-     * 联合分类大类 (Set<String>)
+     * 联合分类大类 
      */
-    @Schema(description = "联合分类大类 (Set<String>)")
+    @Schema(description = "联合分类大类 ")
     private String cpcClass;
 
     /**
-     * 联合分类小类 (Set<String>)
+     * 联合分类小类 
      */
-    @Schema(description = "联合分类小类 (Set<String>)")
+    @Schema(description = "联合分类小类 ")
     private String cpcSubClass;
 
     /**
-     * 联合分类大组 (Set<String>)
+     * 联合分类大组 
      */
-    @Schema(description = "联合分类大组 (Set<String>)")
+    @Schema(description = "联合分类大组 ")
     private String cpcGroup;
 
     /**
-     * 联合分类小组 (Set<String>)
+     * 联合分类小组 
      */
-    @Schema(description = "联合分类小组 (Set<String>)")
+    @Schema(description = "联合分类小组 ")
     private String cpcSubGroup;
 
     /**
@@ -218,15 +233,15 @@ public class PatentInfoResponse {
     private String agencyName;
 
     /**
-     * 代理人 (List<String>)
+     * 代理人
      */
-    @Schema(description = "代理人 (List<String>)")
+    @Schema(description = "代理人")
     private String agentName;
 
     /**
-     * 优先权国家 (List<String>)
+     * 优先权国家
      */
-    @Schema(description = "优先权国家 (List<String>)")
+    @Schema(description = "优先权国家")
     private String priorityCountry;
 
     /**
@@ -314,27 +329,27 @@ public class PatentInfoResponse {
     private String provinceName;
 
     /**
-     * 关键词 (List<String>)
+     * 关键词
      */
-    @Schema(description = "关键词 (List<String>)")
+    @Schema(description = "关键词")
     private String patentWords;
 
     /**
-     * 名称关键词 (List<String>)
+     * 名称关键词
      */
-    @Schema(description = "名称关键词 (List<String>)")
+    @Schema(description = "名称关键词")
     private String titleKey;
 
     /**
-     * 独权关键词 (List<String>)
+     * 独权关键词
      */
-    @Schema(description = "独权关键词 (List<String>)")
+    @Schema(description = "独权关键词")
     private String clKey;
 
     /**
-     * 背景关键词 (List<String>)
+     * 背景关键词
      */
-    @Schema(description = "背景关键词 (List<String>)")
+    @Schema(description = "背景关键词")
     private String bgKey;
 
     /**
@@ -434,16 +449,10 @@ public class PatentInfoResponse {
     private String courtDecisionQuantity;
 
     /**
-     * 同日申请 (数组)
+     * 同日申请
      */
-    @Schema(description = "同日申请 (数组)")
+    @Schema(description = "同日申请")
     private String sameApp;
-
-    /**
-     * DB_NAME
-     */
-    @Schema(description = "DB_NAME")
-    private String dbName;
 
     /**
      * 申请来源
@@ -482,9 +491,9 @@ public class PatentInfoResponse {
     private String declassifiedPublicationDate;
 
     /**
-     * 国际申请号 (数组)
+     * 国际申请号
      */
-    @Schema(description = "国际申请号 (数组)")
+    @Schema(description = "国际申请号")
     private String iappNo;
 
     /**
@@ -494,9 +503,9 @@ public class PatentInfoResponse {
     private String iappDate;
 
     /**
-     * 国际公布号 (数组)
+     * 国际公布号
      */
-    @Schema(description = "国际公布号 (数组)")
+    @Schema(description = "国际公布号")
     private String ipubNo;
 
     /**
@@ -506,9 +515,9 @@ public class PatentInfoResponse {
     private String ipubDate;
 
     /**
-     * PCT指定国家 (List<String>)
+     * PCT指定国家
      */
-    @Schema(description = "PCT指定国家 (List<String>)")
+    @Schema(description = "PCT指定国家")
     private String pctCountry;
 
     /**
@@ -530,9 +539,9 @@ public class PatentInfoResponse {
     private String advancedPublishedDocument;
 
     /**
-     * 历史专利权人 (List<String>)
+     * 历史专利权人
      */
-    @Schema(description = "历史专利权人 (List<String>)")
+    @Schema(description = "历史专利权人")
     private String historyPatentee;
 
     /**
@@ -572,9 +581,9 @@ public class PatentInfoResponse {
     private String simpleFamilyQuantity;
 
     /**
-     * 简单同族国家 (List<String>)
+     * 简单同族国家
      */
-    @Schema(description = "简单同族国家 (List<String>)")
+    @Schema(description = "简单同族国家")
     private String simpleFamilyCountry;
 
     /**
@@ -596,9 +605,9 @@ public class PatentInfoResponse {
     private String extendFamilyQuantity;
 
     /**
-     * 扩展同族国家 (List<String>)
+     * 扩展同族国家
      */
-    @Schema(description = "扩展同族国家 (List<String>)")
+    @Schema(description = "扩展同族国家")
     private String extendFamilyCountry;
 
     /**
@@ -626,24 +635,10 @@ public class PatentInfoResponse {
     private String patenteeAddrCounty;
 
     /**
-     * 创建人
+     * 专利权人类型 
      */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建人")
-    private String createBy;
-
-    /**
-     * 专利权人类型 (Set<String>)
-     */
-    @Schema(description = "专利权人类型 (Set<String>)")
+    @Schema(description = "专利权人类型 ")
     private String patenteType;
-
-    /**
-     * createTime
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "createTime")
-    private LocalDateTime createTime;
 
     /**
      * 第一申请（专利权）人
@@ -652,38 +647,18 @@ public class PatentInfoResponse {
     private String primaryApplicantName;
 
     /**
-     * 修改人
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description = "修改人")
-    private String updateBy;
-
-    /**
      * 第一发明（设计）人
      */
     @Schema(description = "第一发明（设计）人")
     private String primaryInventorName;
-
-    /**
-     * updateTime
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description = "updateTime")
-    private LocalDateTime updateTime;
+    
 
     /**
      * 第一专利权人
      */
     @Schema(description = "第一专利权人")
     private String primaryPatentee;
-
-    /**
-     * delFlag
-     */
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "delFlag")
-    private String delFlag;
+    
 
     /**
      * 分案原申请
@@ -692,21 +667,15 @@ public class PatentInfoResponse {
     private String divideInitApp;
 
     /**
-     * tenantId
-     */
-    @Schema(description = "tenantId")
-    private Long tenantId;
-
-    /**
      * 分案原申请日
      */
     @Schema(description = "分案原申请日")
     private String divideInitAppDate;
 
     /**
-     * 分案原申请号 (数组)
+     * 分案原申请号
      */
-    @Schema(description = "分案原申请号 (数组)")
+    @Schema(description = "分案原申请号")
     private String divideInitAppNo;
 
     /**
@@ -784,12 +753,30 @@ public class PatentInfoResponse {
     /**
      * 申请号合并标识
      */
-    @Schema(description = "申请号合并标识")
+    @Schema(description = "申请号合并标识,1已合并")
     private String mergeFlag;
+
+    /**
+     * 转移标识
+     */
+    @Schema(description = "转移标识,1已转移")
+    private String transferFlag;
 
     /**
      * 浏览量
      */
     @Schema(description = "浏览量")
     private Long viewCount;
+
+    /**
+     * 负责人编码
+     */
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String leaderName;
 }
