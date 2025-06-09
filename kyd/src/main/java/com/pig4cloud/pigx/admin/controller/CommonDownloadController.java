@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +49,7 @@ public class CommonDownloadController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增常用下载")
-    public R<Boolean> create(@RequestBody CommonDownloadCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid CommonDownloadCreateRequest request) {
         return R.ok(commonDownloadService.create(request));
     }
 

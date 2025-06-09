@@ -33,6 +33,7 @@ import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
@@ -149,7 +150,7 @@ public class PcController {
 
     @PostMapping("/demand/create")
     @Operation(summary = "需求发布")
-    public R<Boolean> demandCreate(@RequestBody DemandCreateRequest request) {
+    public R<Boolean> demandCreate(@RequestBody @Valid DemandCreateRequest request) {
         request.setCategory(1);
         return R.ok(demandService.create(request));
     }

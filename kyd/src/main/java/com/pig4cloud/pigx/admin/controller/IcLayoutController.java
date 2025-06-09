@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -41,7 +42,7 @@ public class IcLayoutController {
     @Operation(summary = "新增")
     @SysLog("新增集成电路布图登记")
     //@PreAuthorize("@pms.hasPermission('ic_layout_add')")
-    public R<Boolean> create(@RequestBody IcLayoutCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid IcLayoutCreateRequest request) {
         return R.ok(icLayoutService.create(request));
     }
 

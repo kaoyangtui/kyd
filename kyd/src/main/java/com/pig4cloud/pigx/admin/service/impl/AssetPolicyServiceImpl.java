@@ -36,7 +36,16 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(AssetPolicyEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), AssetPolicyEntity::getTitle, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w -> w
+                        .like(AssetPolicyEntity::getTitle, request.getKeyword())
+                        .or()
+                        .like(AssetPolicyEntity::getSource, request.getKeyword())
+                        .or()
+                        .like(AssetPolicyEntity::getContent, request.getKeyword())
+                );
+            }
+            wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), AssetPolicyEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), AssetPolicyEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), AssetPolicyEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), AssetPolicyEntity::getCreateTime, request.getEndTime());

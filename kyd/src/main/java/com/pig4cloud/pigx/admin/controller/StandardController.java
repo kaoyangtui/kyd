@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -56,7 +57,7 @@ public class StandardController {
     @Operation(summary = "新增")
     @SysLog("新增标准信息")
     //@PreAuthorize("@pms.hasPermission('standard_add')")
-    public R<Boolean> create(@RequestBody StandardCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid StandardCreateRequest request) {
         return R.ok(standardService.create(request));
     }
 

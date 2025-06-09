@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +37,7 @@ public class ConsultController {
 
     @PostMapping("/create")
     @Operation(summary = "新增咨询")
-    public R<Boolean> create(@RequestBody ConsultCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid ConsultCreateRequest request) {
         return R.ok(consultService.create(request));
     }
 

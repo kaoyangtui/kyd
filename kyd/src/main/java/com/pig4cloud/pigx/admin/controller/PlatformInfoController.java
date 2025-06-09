@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -48,7 +49,7 @@ public class PlatformInfoController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增关于平台内容")
-    public R<Boolean> create(@RequestBody PlatformInfoCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid PlatformInfoCreateRequest request) {
         return R.ok(platformInfoService.createInfo(request));
     }
 

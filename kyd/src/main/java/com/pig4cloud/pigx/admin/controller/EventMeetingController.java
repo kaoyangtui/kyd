@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -55,7 +56,7 @@ public class EventMeetingController {
     @PostMapping("/create")
     @Operation(summary = "新增活动会议")
     @SysLog("新增活动会议")
-    public R<Boolean> create(@RequestBody EventMeetingCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid EventMeetingCreateRequest request) {
         return R.ok(eventMeetingService.createMeeting(request));
     }
 
@@ -132,7 +133,7 @@ public class EventMeetingController {
     @PostMapping("/apply/create")
     @Operation(summary = "新增活动报名信息")
     @SysLog("新增活动报名信息")
-    public R<Boolean> applyCreate(@RequestBody EventMeetingApplyCreateRequest request) {
+    public R<Boolean> applyCreate(@RequestBody @Valid EventMeetingApplyCreateRequest request) {
         return R.ok(eventMeetingApplyService.createApply(request));
     }
 

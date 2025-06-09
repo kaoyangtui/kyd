@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +40,7 @@ public class DemandInController {
     @PostMapping("/create")
     @Operation(summary = "新增校内需求")
     //@PreAuthorize("@pms.hasPermission('demand_in_add')")
-    public R<Boolean> create(@RequestBody DemandInCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid DemandInCreateRequest request) {
         return R.ok(demandInService.create(request));
     }
 

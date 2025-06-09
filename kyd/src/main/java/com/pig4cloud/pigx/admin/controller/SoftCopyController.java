@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -57,7 +58,7 @@ public class SoftCopyController {
     @Operation(summary = "新增")
     @SysLog("新增软著提案")
     //@PreAuthorize("@pms.hasPermission('soft_copy_add')")
-    public R<Boolean> create(@RequestBody SoftCopyCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid SoftCopyCreateRequest request) {
         return R.ok(softCopyService.createProposal(request));
     }
 

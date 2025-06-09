@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -55,7 +56,7 @@ public class NoticeController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增通知公告")
-    public R<Boolean> create(@RequestBody NoticeCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid NoticeCreateRequest request) {
         return R.ok(noticeService.create(request));
     }
 

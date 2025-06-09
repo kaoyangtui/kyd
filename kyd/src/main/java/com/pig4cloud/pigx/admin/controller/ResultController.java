@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +47,7 @@ public class ResultController {
     @PostMapping("/create")
     @Operation(summary = "新增科研成果")
     //@PreAuthorize("@pms.hasPermission('result_add')")
-    public R<ResultResponse> create(@RequestBody ResultCreateRequest request) {
+    public R<ResultResponse> create(@RequestBody @Valid ResultCreateRequest request) {
         return R.ok(resultService.createResult(request));
     }
 

@@ -13,6 +13,9 @@ public class AssetPolicyPageRequest extends BasePageQuery {
     @Schema(description = "关键词（标题/内容/供稿）")
     private String keyword;
 
+    @Schema(description = "提交人")
+    private String createBy;
+
     @Schema(description = "所属院系ID")
     private String deptId;
 

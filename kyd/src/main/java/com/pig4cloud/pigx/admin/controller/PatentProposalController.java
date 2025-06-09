@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +59,7 @@ public class PatentProposalController {
     @Operation(summary = "新增专利提案")
     @SysLog("新增专利提案")
     //@PreAuthorize("@pms.hasPermission('patent_proposal_add')")
-    public R<Boolean> create(@RequestBody PatentProposalCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid PatentProposalCreateRequest request) {
         return R.ok(patentProposalService.createProposal(request));
     }
 

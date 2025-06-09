@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -41,7 +42,7 @@ public class PlantVarietyController {
     @Operation(summary = "新增")
     @SysLog("新增植物新品种权")
     //@PreAuthorize("@pms.hasPermission('plant_variety_add')")
-    public R<Boolean> create(@RequestBody PlantVarietyCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid PlantVarietyCreateRequest request) {
         return R.ok(plantVarietyService.create(request));
     }
 

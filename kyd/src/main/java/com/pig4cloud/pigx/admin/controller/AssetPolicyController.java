@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -54,7 +55,7 @@ public class AssetPolicyController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增资产政策")
-    public R<Boolean> create(@RequestBody AssetPolicyCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid AssetPolicyCreateRequest request) {
         return R.ok(assetPolicyService.createPolicy(request));
     }
 

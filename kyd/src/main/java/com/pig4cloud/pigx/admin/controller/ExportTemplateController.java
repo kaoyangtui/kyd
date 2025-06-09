@@ -15,6 +15,7 @@ import com.pig4cloud.pigx.common.log.annotation.SysLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -52,7 +53,7 @@ public class ExportTemplateController {
     @PostMapping("/create")
     @Operation(summary = "新增")
     @SysLog("新增导出模板")
-    public R<Boolean> create(@RequestBody ExportTemplateCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid ExportTemplateCreateRequest request) {
         return R.ok(exportTemplateService.createTemplate(request));
     }
 

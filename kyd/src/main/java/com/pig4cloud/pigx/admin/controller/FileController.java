@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +39,7 @@ public class FileController {
     @PostMapping("/create")
     @Operation(summary = "新增文档")
     //@PreAuthorize("@pms.hasPermission('file_add')")
-    public R<Boolean> create(@RequestBody FileCreateRequest request) {
+    public R<Boolean> create(@RequestBody @Valid FileCreateRequest request) {
         return R.ok(fileService.create(request));
     }
 
