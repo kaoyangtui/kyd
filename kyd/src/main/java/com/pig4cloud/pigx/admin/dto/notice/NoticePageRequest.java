@@ -10,8 +10,11 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "通知公告分页查询请求")
 public class NoticePageRequest extends BasePageQuery {
 
-    @Schema(description = "关键词（标题/内容模糊匹配）")
+    @Schema(description = "关键词（标题/内容）")
     private String keyword;
+
+    @Schema(description = "提交人")
+    private String createBy;
 
     @Schema(description = "所属院系ID")
     private String deptId;

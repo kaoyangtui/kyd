@@ -32,11 +32,11 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(ResearchProjectEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResearchProjectEntity::getProjectName, request.getKeyword());
-            wrapper.eq(StrUtil.isNotBlank(request.getProjectType()), ResearchProjectEntity::getProjectType, request.getProjectType());
-            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), ResearchProjectEntity::getDeptId, request.getDeptId());
-            wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResearchProjectEntity::getCreateTime, request.getBeginTime());
-            wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResearchProjectEntity::getCreateTime, request.getEndTime());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(ResearchProjectEntity::getProjectName, request.getKeyword())
+                );
+            }
         }
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
             page.setSize(request.getEndNo() - request.getStartNo() + 1);

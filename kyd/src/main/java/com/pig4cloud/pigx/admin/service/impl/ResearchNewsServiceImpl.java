@@ -42,8 +42,16 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(ResearchNewsEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ResearchNewsEntity::getTitle, request.getKeyword());
-            wrapper.like(StrUtil.isNotBlank(request.getProvider()), ResearchNewsEntity::getProvider, request.getProvider());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(ResearchNewsEntity::getTitle, request.getKeyword())
+                                .or()
+                                .like(ResearchNewsEntity::getContent, request.getKeyword())
+                                .or()
+                                .like(ResearchNewsEntity::getProvider, request.getKeyword())
+                );
+            }
+            wrapper.like(StrUtil.isNotBlank(request.getCreateBy()), ResearchNewsEntity::getCreateBy, request.getCreateBy());
         }
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
             page.setSize(request.getEndNo() - request.getStartNo() + 1);

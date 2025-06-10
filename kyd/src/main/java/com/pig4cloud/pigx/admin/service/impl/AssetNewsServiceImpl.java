@@ -35,7 +35,16 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(AssetNewsEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), AssetNewsEntity::getTitle, request.getKeyword());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w -> w
+                        .like(AssetNewsEntity::getTitle, request.getKeyword())
+                        .or()
+                        .like(AssetNewsEntity::getSource, request.getKeyword())
+                        .or()
+                        .like(AssetNewsEntity::getContent, request.getKeyword())
+                );
+            }
+            wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), AssetNewsEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), AssetNewsEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), AssetNewsEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), AssetNewsEntity::getCreateTime, request.getEndTime());

@@ -9,12 +9,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "科研动态分页请求")
 public class ResearchNewsPageRequest extends BasePageQuery {
-    @Schema(description = "关键词（标题模糊搜索）")
+    @Schema(description = "关键词（标题/内容/供稿）")
     private String keyword;
 
-    @Schema(description = "供稿方")
-    private String provider;
-
-    @Schema(description = "创建/提交人")
+    @Schema(description = "提交人")
     private String createBy;
+
 }

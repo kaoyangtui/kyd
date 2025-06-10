@@ -13,9 +13,6 @@ public class TransformCasePageRequest extends BasePageQuery {
     @Schema(description = "标题关键词")
     private String keyword;
 
-    @Schema(description = "供稿方")
-    private String provider;
-
     @Schema(description = "创建人")
     private String createBy;
 

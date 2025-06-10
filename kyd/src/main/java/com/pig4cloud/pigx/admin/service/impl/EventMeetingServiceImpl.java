@@ -34,8 +34,15 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(EventMeetingEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), EventMeetingEntity::getName, request.getKeyword());
-            wrapper.eq(StrUtil.isNotBlank(request.getOrganizer()), EventMeetingEntity::getOrganizer, request.getOrganizer());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w -> w
+                        .like(EventMeetingEntity::getName, request.getKeyword())
+                        .or()
+                        .like(EventMeetingEntity::getLocation, request.getKeyword())
+                        .or()
+                        .like(EventMeetingEntity::getContent, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), EventMeetingEntity::getCreateBy, request.getCreateBy());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), EventMeetingEntity::getEventTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), EventMeetingEntity::getEventTime, request.getEndTime());

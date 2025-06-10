@@ -39,8 +39,15 @@ public class TransformCaseServiceImpl extends ServiceImpl<TransformCaseMapper, T
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(TransformCaseEntity::getId, request.getIds());
         } else {
-            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), TransformCaseEntity::getTitle, request.getKeyword());
-            wrapper.eq(StrUtil.isNotBlank(request.getProvider()), TransformCaseEntity::getProvider, request.getProvider());
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w ->
+                        w.like(TransformCaseEntity::getTitle, request.getKeyword())
+                                .or()
+                                .like(TransformCaseEntity::getContent, request.getKeyword())
+                                .or()
+                                .like(TransformCaseEntity::getProvider, request.getKeyword())
+                );
+            }
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), TransformCaseEntity::getCreateBy, request.getCreateBy());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), TransformCaseEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), TransformCaseEntity::getCreateTime, request.getEndTime());

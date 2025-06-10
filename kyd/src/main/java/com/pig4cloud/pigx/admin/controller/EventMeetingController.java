@@ -41,7 +41,8 @@ public class EventMeetingController {
     // 主表分页
     @GetMapping("/page")
     @Operation(summary = "活动会议分页查询")
-    public R<IPage<EventMeetingResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject EventMeetingPageRequest request) {
+    public R<IPage<EventMeetingResponse>> page(@ParameterObject PageRequest pageRequest,
+                                               @ParameterObject EventMeetingPageRequest request) {
         return R.ok(eventMeetingService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 

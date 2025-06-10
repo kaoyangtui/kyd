@@ -13,9 +13,6 @@ public class EventMeetingPageRequest extends BasePageQuery {
     @Schema(description = "活动名称关键词")
     private String keyword;
 
-    @Schema(description = "举办方")
-    private String organizer;
-
     @Schema(description = "活动提报人")
     private String createBy;
 

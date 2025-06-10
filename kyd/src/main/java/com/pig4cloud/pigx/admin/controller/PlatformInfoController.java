@@ -36,7 +36,8 @@ public class PlatformInfoController {
 
     @GetMapping("/page")
     @Operation(summary = "分页查询")
-    public R<IPage<PlatformInfoResponse>> page(@ParameterObject Page page, @ParameterObject PlatformInfoPageRequest request) {
+    public R<IPage<PlatformInfoResponse>> page(@ParameterObject Page page,
+                                               @ParameterObject PlatformInfoPageRequest request) {
         return R.ok(platformInfoService.pageResult(page, request));
     }
 

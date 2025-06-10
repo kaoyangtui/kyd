@@ -12,6 +12,7 @@ import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadCreateRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadPageRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadResponse;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
 import com.pig4cloud.pigx.admin.entity.CommonDownloadEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.CommonDownloadMapper;
@@ -35,12 +36,13 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
             wrapper.in(CommonDownloadEntity::getId, request.getIds());
         } else {
             if (StrUtil.isNotBlank(request.getKeyword())) {
-                wrapper.and(w ->
-                        w.like(CommonDownloadEntity::getFileName, request.getKeyword())
-                                .or()
-                                .like(CommonDownloadEntity::getContent, request.getKeyword())
+                wrapper.and(w -> w
+                        .like(CommonDownloadEntity::getFileName, request.getKeyword())
+                        .or()
+                        .like(CommonDownloadEntity::getContent, request.getKeyword())
                 );
             }
+            wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), CommonDownloadEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), CommonDownloadEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), CommonDownloadEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), CommonDownloadEntity::getCreateTime, request.getEndTime());

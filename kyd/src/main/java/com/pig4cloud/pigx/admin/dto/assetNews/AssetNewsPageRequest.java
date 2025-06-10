@@ -10,11 +10,11 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "资产资讯分页查询请求")
 public class AssetNewsPageRequest extends BasePageQuery {
 
-    @Schema(description = "标题关键字")
+    @Schema(description = "关键词（标题/内容/供稿）")
     private String keyword;
 
-    @Schema(description = "供稿")
-    private String source;
+    @Schema(description = "提交人")
+    private String createBy;
 
     @Schema(description = "所属院系ID")
     private String deptId;
