@@ -4,9 +4,11 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,18 +17,17 @@ import com.pig4cloud.pigx.admin.constants.CnirpDisplayColsConstants;
 import com.pig4cloud.pigx.admin.constants.CnirpExpConstants;
 import com.pig4cloud.pigx.admin.constants.DiPatentConstants;
 import com.pig4cloud.pigx.admin.constants.DiPatentLegalStatusEnum;
-import com.pig4cloud.pigx.admin.dto.patent.PatentSearchListReq;
-import com.pig4cloud.pigx.admin.dto.patent.PatentSearchListRes;
-import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
-import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
+import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.service.CniprService;
+import com.pig4cloud.pigx.admin.service.DataScopeService;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
+import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,76 @@ import java.util.Map;
 public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentInfoEntity> implements PatentInfoService {
 
     private final CniprService cniprService;
+    private final DataScopeService dataScopeService;
+
+    @Override
+    public IPage<PatentInfoResponse> pageResult(Page page, PatentPageRequest request) {
+        LambdaQueryWrapper<PatentInfoEntity> wrapper = new LambdaQueryWrapper<>();
+
+        if (CollUtil.isNotEmpty(request.getIds())) {
+            wrapper.in(PatentInfoEntity::getId, request.getIds());
+        } else {
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w -> w
+                        .like(PatentInfoEntity::getTitle, request.getKeyword())
+                        .or()
+                        .like(PatentInfoEntity::getAppNumber, request.getKeyword()));
+            }
+            wrapper.eq(StrUtil.isNotBlank(request.getPatType()), PatentInfoEntity::getPatType, request.getPatType());
+            wrapper.eq(StrUtil.isNotBlank(request.getLegalStatus()), PatentInfoEntity::getLegalStatus, request.getLegalStatus());
+            wrapper.eq(StrUtil.isNotBlank(request.getApplicantName()), PatentInfoEntity::getApplicantName, request.getApplicantName());
+            wrapper.eq(StrUtil.isNotBlank(request.getInventorName()), PatentInfoEntity::getInventorName, request.getInventorName());
+            //wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PatentInfoEntity::getDeptId, request.getDeptId());
+            wrapper.ge(StrUtil.isNotBlank(request.getBeginAppDate()), PatentInfoEntity::getAppDate, request.getBeginAppDate());
+            wrapper.le(StrUtil.isNotBlank(request.getEndAppDate()), PatentInfoEntity::getAppDate, request.getEndAppDate());
+            wrapper.ge(StrUtil.isNotBlank(request.getBeginPubDate()), PatentInfoEntity::getPubDate, request.getBeginPubDate());
+            wrapper.le(StrUtil.isNotBlank(request.getEndPubDate()), PatentInfoEntity::getPubDate, request.getEndPubDate());
+            wrapper.eq(StrUtil.isNotBlank(request.getAgencyName()), PatentInfoEntity::getAgencyName, request.getAgencyName());
+            wrapper.eq(StrUtil.isNotBlank(request.getLeaderCode()), PatentInfoEntity::getLeaderCode, request.getLeaderCode());
+            wrapper.eq(StrUtil.isNotBlank(request.getMergeFlag()), PatentInfoEntity::getMergeFlag, request.getMergeFlag());
+            wrapper.eq(StrUtil.isNotBlank(request.getTransferFlag()), PatentInfoEntity::getTransferFlag, request.getTransferFlag());
+            wrapper.eq(StrUtil.isNotBlank(request.getClaimFlag()), PatentInfoEntity::getTransferFlag, request.getClaimFlag());
+            wrapper.eq(StrUtil.isNotBlank(request.getShelfFlag()), PatentInfoEntity::getShelfFlag, request.getShelfFlag());
+        }
+        //数据权限
+        DataScope dataScope = DataScope.of();
+        if (!dataScopeService.calcScope(dataScope)) {
+            List<Long> deptIds = dataScope.getDeptList();
+            String deptIn = CollUtil.join(deptIds, ",");
+            String name = dataScope.getUsername();
+            // 1.无数据权限限制，则直接返回 0 条数据
+            if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(dataScope.getUsername())) {
+                return null;
+            }
+            // 2.如果为本人权限 + 部门权限控制
+            if (CollUtil.isNotEmpty(deptIds)) {
+                wrapper.apply("exists (select 0 from t_patent_inventor " +
+                        "where pid = t_patent_info.pid and name = {0} and dept_id in (" + deptIn + "))", name);
+            }
+            // 3. 如果为本人
+            else if (StrUtil.isNotBlank(dataScope.getUsername())) {
+                wrapper.apply("exists (select 0 from t_patent_inventor " +
+                        "where pid = t_patent_info.pid and name = {0})", name);
+            }
+            // 4.部门权限控制
+            else {
+                wrapper.apply("exists (select 0 from t_patent_inventor " +
+                        "where pid = t_patent_info.pid and dept_id in (" + deptIn + "))");
+            }
+        }
+
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            page.setSize(request.getEndNo() - request.getStartNo() + 1);
+            page.setCurrent(1);
+        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+            page.setSize(request.getIds().size());
+            page.setCurrent(1);
+        }
+
+        IPage<PatentInfoEntity> entityPage = this.page(page, wrapper);
+
+        return entityPage.convert(entity -> BeanUtil.copyProperties(entity, PatentInfoResponse.class));
+    }
 
     @Override
     public IPage<PatentSearchResponse> searchPatent(Page page, PatentSearchRequest request) {

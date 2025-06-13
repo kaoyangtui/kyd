@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "专利信息分页查询请求")
 public class PatentPageRequest extends BasePageQuery {
 
-    @Schema(description = "关键词（名称/专利号/摘要模糊检索）")
+    @Schema(description = "关键词（名称/专利申请号）")
     private String keyword;
 
     @Schema(description = "专利类型")
@@ -52,7 +52,10 @@ public class PatentPageRequest extends BasePageQuery {
     @Schema(description = "申请号合并标识,1合并查询")
     private String mergeFlag;
 
-    @Schema(description = "认领标识,1已转移")
+    @Schema(description = "转移标识,1已转移")
+    private String transferFlag;
+
+    @Schema(description = "认领标识,1已认领")
     private String claimFlag;
 
     @Schema(description = "上架标识,1已上架")
