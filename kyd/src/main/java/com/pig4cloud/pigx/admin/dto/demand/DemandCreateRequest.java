@@ -15,6 +15,9 @@ import java.util.List;
 @Data
 public class DemandCreateRequest {
 
+    @Schema(description = "门户用户 ID")
+    private Long userId;
+
     @Schema(description = "需求分类，1 企业需求 2专项需求")
     private Integer category;
 

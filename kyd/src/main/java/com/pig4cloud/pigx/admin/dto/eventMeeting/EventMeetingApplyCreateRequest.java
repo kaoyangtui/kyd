@@ -21,4 +21,7 @@ public class EventMeetingApplyCreateRequest {
 
     @Schema(description = "备注")
     private String remark;
+
+    @Schema(description = "门户用户 ID")
+    private Long userId;
 }

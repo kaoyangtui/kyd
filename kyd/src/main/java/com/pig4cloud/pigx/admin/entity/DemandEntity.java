@@ -33,6 +33,12 @@ public class DemandEntity extends Model<DemandEntity> {
     private Long id;
 
     /**
+     * 门户用户 ID
+     */
+    @Schema(description = "门户用户 ID")
+    private Long userId;
+
+    /**
      * 业务编码
      */
     @Schema(description = "业务编码")

@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 专利信息表
@@ -55,8 +56,11 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         LambdaQueryWrapper<PatentInfoEntity> wrapper = new LambdaQueryWrapper<>();
 
         if (CollUtil.isNotEmpty(request.getIds())) {
-            wrapper.in(PatentInfoEntity::getId, request.getIds());
-        } else {
+            List<Long> ids = request.getIds();
+            wrapper.in(PatentInfoEntity::getId, ids)
+                    .last("ORDER BY FIELD(id, " + ids.stream().map(String::valueOf).collect(Collectors.joining(",")) + ")");
+        }
+        else {
             if (StrUtil.isNotBlank(request.getKeyword())) {
                 wrapper.and(w -> w
                         .like(PatentInfoEntity::getTitle, request.getKeyword())
@@ -78,31 +82,31 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             wrapper.eq(StrUtil.isNotBlank(request.getTransferFlag()), PatentInfoEntity::getTransferFlag, request.getTransferFlag());
             wrapper.eq(StrUtil.isNotBlank(request.getClaimFlag()), PatentInfoEntity::getTransferFlag, request.getClaimFlag());
             wrapper.eq(StrUtil.isNotBlank(request.getShelfFlag()), PatentInfoEntity::getShelfFlag, request.getShelfFlag());
-        }
-        //数据权限
-        DataScope dataScope = DataScope.of();
-        if (!dataScopeService.calcScope(dataScope)) {
-            List<Long> deptIds = dataScope.getDeptList();
-            String deptIn = CollUtil.join(deptIds, ",");
-            String name = dataScope.getUsername();
-            // 1.无数据权限限制，则直接返回 0 条数据
-            if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(dataScope.getUsername())) {
-                return null;
-            }
-            // 2.如果为本人权限 + 部门权限控制
-            if (CollUtil.isNotEmpty(deptIds)) {
-                wrapper.apply("exists (select 0 from t_patent_inventor " +
-                        "where pid = t_patent_info.pid and name = {0} and dept_id in (" + deptIn + "))", name);
-            }
-            // 3. 如果为本人
-            else if (StrUtil.isNotBlank(dataScope.getUsername())) {
-                wrapper.apply("exists (select 0 from t_patent_inventor " +
-                        "where pid = t_patent_info.pid and name = {0})", name);
-            }
-            // 4.部门权限控制
-            else {
-                wrapper.apply("exists (select 0 from t_patent_inventor " +
-                        "where pid = t_patent_info.pid and dept_id in (" + deptIn + "))");
+            //数据权限
+            DataScope dataScope = DataScope.of();
+            if (!dataScopeService.calcScope(dataScope)) {
+                List<Long> deptIds = dataScope.getDeptList();
+                String deptIn = CollUtil.join(deptIds, ",");
+                String name = dataScope.getUsername();
+                // 1.无数据权限限制，则直接返回 0 条数据
+                if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(dataScope.getUsername())) {
+                    return null;
+                }
+                // 2.如果为本人权限 + 部门权限控制
+                if (CollUtil.isNotEmpty(deptIds)) {
+                    wrapper.apply("exists (select 0 from t_patent_inventor " +
+                            "where pid = t_patent_info.pid and name = {0} and dept_id in (" + deptIn + "))", name);
+                }
+                // 3. 如果为本人
+                else if (StrUtil.isNotBlank(dataScope.getUsername())) {
+                    wrapper.apply("exists (select 0 from t_patent_inventor " +
+                            "where pid = t_patent_info.pid and name = {0})", name);
+                }
+                // 4.部门权限控制
+                else {
+                    wrapper.apply("exists (select 0 from t_patent_inventor " +
+                            "where pid = t_patent_info.pid and dept_id in (" + deptIn + "))");
+                }
             }
         }
 

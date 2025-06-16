@@ -55,10 +55,10 @@ public class ConsultEntity extends Model<ConsultEntity> {
     private String content;
 
     /**
-     * 前台用户 ID
+     * 门户用户 ID
      */
-    @Schema(description = "前台用户 ID")
-    private Long appUserId;
+    @Schema(description = "门户用户 ID")
+    private Long userId;
 
     /**
      * 联系人

@@ -1,4 +1,4 @@
-package com.pig4cloud.pigx.service.impl;
+package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;

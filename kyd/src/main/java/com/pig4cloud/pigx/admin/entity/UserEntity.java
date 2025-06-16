@@ -10,17 +10,17 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
- * 企业需求报名信息表
+ * 客户表
  *
  * @author pigx
- * @date 2025-05-20 13:03:54
+ * @date 2025-06-15 17:39:39
  */
 @Data
 @TenantTable
-@TableName("t_demand_signup")
+@TableName("t_user")
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "企业需求报名信息表")
-public class DemandSignupEntity extends Model<DemandSignupEntity> {
+@Schema(description = "客户表")
+public class UserEntity extends Model<UserEntity> {
 
 
     /**
@@ -30,65 +30,90 @@ public class DemandSignupEntity extends Model<DemandSignupEntity> {
     @Schema(description = "主键")
     private Long id;
 
-    @Schema(description = "门户用户 ID")
-    private Long userId;
-
     /**
-     * 关联需求ID
+     * 手机号
      */
-    @Schema(description = "关联需求ID")
-    private Long demandId;
+    @Schema(description = "手机号")
+    private String mobile;
 
     /**
-     * 报名人姓名
+     * 头像
      */
-    @Schema(description = "报名人姓名")
-    private String name;
+    @Schema(description = "头像")
+    private String avatarUrl;
 
     /**
-     * 联系电话
+     * 昵称
      */
-    @Schema(description = "联系电话")
-    private String phone;
+    @Schema(description = "昵称")
+    private String nickname;
 
     /**
-     * 邮箱
+     * 用户名
      */
-    @Schema(description = "邮箱")
-    private String email;
+    @Schema(description = "用户名")
+    private String username;
 
     /**
-     * 备注
+     * 密码
      */
-    @Schema(description = "备注")
-    private String remark;
+    @Schema(description = "密码")
+    private String password;
 
     /**
-     * 所属组织ID
+     * 联系方式
+     */
+    @Schema(description = "联系方式")
+    private String contactInfo;
+
+    /**
+     * 所在单位
+     */
+    @Schema(description = "所在单位")
+    private String organization;
+
+    /**
+     * 省
+     */
+    @Schema(description = "省")
+    private String province;
+
+    /**
+     * 市
+     */
+    @Schema(description = "市")
+    private String city;
+
+    /**
+     * 区
+     */
+    @Schema(description = "区")
+    private String district;
+
+    /**
+     * 详细地址
+     */
+    @Schema(description = "详细地址")
+    private String address;
+
+    /**
+     * 所属院系
+     */
+    @Schema(description = "所属院系")
+    private String deptId;
+
+    /**
+     * 创建/提交人
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "所属组织ID")
-    private Long deptId;
-
-    /**
-     * 组织名称
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "组织名称")
-    private String deptName;
-
-    /**
-     * 创建人
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建人")
+    @Schema(description = "创建/提交人")
     private String createBy;
 
     /**
-     * 创建时间
+     * 创建/提交时间
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建时间")
+    @Schema(description = "创建/提交时间")
     private LocalDateTime createTime;
 
     /**

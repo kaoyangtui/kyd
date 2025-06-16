@@ -44,4 +44,7 @@ public class DemandPageRequest extends BasePageQuery {
 
     @Schema(description = "上下架状态，0下架1上架")
     private Integer shelfStatus;
+
+    @Schema(description = "门户用户 ID")
+    private Long userId;
 }

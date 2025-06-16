@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DimController {
     private final DimEcService dimEcService;
-    private final DimRegionService dimRegionService;
+    private final DimAreaService dimAreaService;
     private final SysUserService sysUserService;
     private final DimMajorService dimMajorService;
     private final ResearchProjectService researchProjectService;
@@ -39,13 +39,13 @@ public class DimController {
 
     @Operation(summary = "所属地区")
     @PostMapping("/region/tree")
-    public R<List<Tree<Integer>>> regionTree() {
-        return R.ok(dimRegionService.tree());
+    public R<List<Tree<String>>> regionTree() {
+        return R.ok(dimAreaService.tree());
     }
 
     @Operation(summary = "学科")
     @PostMapping("/major/tree")
-    public R<List<Tree<Integer>>> majorTree() {
+    public R<List<Tree<String>>> majorTree() {
         return R.ok(dimMajorService.tree());
     }
 

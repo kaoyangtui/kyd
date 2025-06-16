@@ -24,4 +24,7 @@ public class ConsultPageRequest extends BasePageQuery {
 
     @Schema(description = "创建时间止")
     private String endTime;
+
+    @Schema(description = "门户用户 ID")
+    private Long userId;
 }

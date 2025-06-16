@@ -13,6 +13,9 @@ public class EventMeetingApplyPageRequest extends BasePageQuery {
     @Schema(description = "关联活动ID")
     private Long meetingId;
 
+    @Schema(description = "门户用户 ID")
+    private Long userId;
+
     @Schema(description = "姓名")
     private String name;
 

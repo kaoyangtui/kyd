@@ -46,6 +46,11 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), EventMeetingEntity::getCreateBy, request.getCreateBy());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), EventMeetingEntity::getEventTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), EventMeetingEntity::getEventTime, request.getEndTime());
+            if (request.getUserId() != null) {
+                wrapper.apply("exists (select 1 from t_event_meeting_apply " +
+                        "where meeting_id = t_event_meeting.id and user_id = {0} and del_flag = '0')", request.getUserId());
+            }
+
         }
 
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {

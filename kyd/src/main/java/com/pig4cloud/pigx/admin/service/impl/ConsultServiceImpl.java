@@ -82,6 +82,7 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(ConsultEntity::getId, request.getIds());
         } else {
+            wrapper.eq(null != request.getUserId(), ConsultEntity::getUserId, request.getUserId());
             wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ConsultEntity::getContent, request.getKeyword());
             wrapper.eq(StrUtil.isNotBlank(request.getType()), ConsultEntity::getType, request.getType());
             wrapper.eq(ObjectUtil.isNotNull(request.getStatus()), ConsultEntity::getStatus, request.getStatus());

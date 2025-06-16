@@ -1,4 +1,4 @@
-package com.pig4cloud.pigx.admin.entity;
+package com.pig4cloud.pigx.admin.dto.user;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -10,17 +10,17 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
- * 活动报名信息子表
+ * 客户表
  *
  * @author pigx
- * @date 2025-05-30 15:07:02
+ * @date 2025-06-15 17:39:39
  */
 @Data
 @TenantTable
-@TableName("t_event_meeting_apply")
+@TableName("t_user")
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "活动报名信息子表")
-public class EventMeetingApplyEntity extends Model<EventMeetingApplyEntity> {
+@Schema(description = "客户表")
+public class UserEntity extends Model<UserEntity> {
 
 
     /**
@@ -31,57 +31,76 @@ public class EventMeetingApplyEntity extends Model<EventMeetingApplyEntity> {
     private Long id;
 
     /**
-     * 关联活动ID
+     * 手机号
      */
-    @Schema(description = "关联活动ID")
-    private Long meetingId;
-
-    @Schema(description = "门户用户 ID")
-    private Long userId;
+    @Schema(description = "手机号")
+    private String mobile;
 
     /**
-     * 报名时间
+     * 头像
      */
-    @Schema(description = "报名时间")
-    private LocalDateTime applyTime;
+    @Schema(description = "头像")
+    private String avatarUrl;
 
     /**
-     * 姓名
+     * 昵称
      */
-    @Schema(description = "姓名")
-    private String name;
+    @Schema(description = "昵称")
+    private String nickname;
 
     /**
-     * 所属单位
+     * 用户名
      */
-    @Schema(description = "所属单位")
+    @Schema(description = "用户名")
+    private String username;
+
+    /**
+     * 密码
+     */
+    @Schema(description = "密码")
+    private String password;
+
+    /**
+     * 联系方式
+     */
+    @Schema(description = "联系方式")
+    private String contactInfo;
+
+    /**
+     * 所在单位
+     */
+    @Schema(description = "所在单位")
     private String organization;
 
     /**
-     * 联系电话
+     * 省
      */
-    @Schema(description = "联系电话")
-    private String phone;
+    @Schema(description = "省")
+    private String province;
 
     /**
-     * 备注
+     * 市
      */
-    @Schema(description = "备注")
-    private String remark;
+    @Schema(description = "市")
+    private String city;
 
     /**
-     * 所属组织ID
+     * 区
      */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "所属组织ID")
-    private Long deptId;
+    @Schema(description = "区")
+    private String district;
 
     /**
-     * 组织名称
+     * 详细地址
      */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "组织名称")
-    private String deptName;
+    @Schema(description = "详细地址")
+    private String address;
+
+    /**
+     * 所属院系
+     */
+    @Schema(description = "所属院系")
+    private String deptId;
 
     /**
      * 创建/提交人

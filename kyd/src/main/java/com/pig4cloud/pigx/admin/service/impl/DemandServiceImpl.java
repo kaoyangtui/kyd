@@ -87,6 +87,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
                 wrapper.and(q -> request.getField().forEach(o -> q.or().like(DemandEntity::getField, o)));
             }
             wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), DemandEntity::getDeptId, request.getCreateByDept());
+            wrapper.eq(null != request.getUserId(), DemandEntity::getUserId, request.getUserId());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), DemandEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), DemandEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), DemandEntity::getCreateTime, request.getBeginTime());

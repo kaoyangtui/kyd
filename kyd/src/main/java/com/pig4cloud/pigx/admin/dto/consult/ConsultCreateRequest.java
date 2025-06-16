@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "咨询信息创建请求")
 public class ConsultCreateRequest {
 
-    @Schema(description = "咨询类型")
+    @Schema(description = "咨询类型,PATENT RESULT EXPERT")
     private String type;
 
     @Schema(description = "咨询目标编码")
@@ -25,6 +25,6 @@ public class ConsultCreateRequest {
     @Schema(description = "联系电话")
     private String contactPhone;
 
-    @Schema(description = "前台用户 ID")
-    private Long appUserId;
+    @Schema(description = "门户用户 ID")
+    private Long userId;
 }
