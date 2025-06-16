@@ -123,9 +123,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 
         entity.setContactInfo(request.getContactInfo());
         entity.setOrganization(request.getOrganization());
-        entity.setProvince(request.getProvince());
-        entity.setCity(request.getCity());
-        entity.setDistrict(request.getDistrict());
+        entity.setProvinceCode(request.getProvinceCode());
+        entity.setProvinceName(request.getProvinceName());
+        entity.setCityCode(request.getCityCode());
+        entity.setCityName(request.getCityName());
+        entity.setDistrictCode(request.getDistrictCode());
+        entity.setDistrictName(request.getDistrictName());
         entity.setAddress(request.getAddress());
         entity.setUpdateTime(LocalDateTime.now());
         this.updateById(entity);

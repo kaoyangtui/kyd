@@ -19,14 +19,23 @@ public class UserProfileUpdateRequest {
     @Schema(description = "所在单位")
     private String organization;
 
-    @Schema(description = "省")
-    private String province;
+    @Schema(description="省code")
+    private String provinceCode;
 
-    @Schema(description = "市")
-    private String city;
+    @Schema(description="省name")
+    private String provinceName;
 
-    @Schema(description = "区")
-    private String district;
+    @Schema(description="市code")
+    private String cityCode;
+
+    @Schema(description="市name")
+    private String cityName;
+
+    @Schema(description="区code")
+    private String districtCode;
+
+    @Schema(description="区name")
+    private String districtName;
 
     @Schema(description = "详细地址")
     private String address;
