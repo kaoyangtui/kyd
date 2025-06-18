@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysFile;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
@@ -69,6 +70,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             entity.setImgUrl(imgUrl);
         }
         if (request.getFileNames() != null && !request.getFileNames().isEmpty()) {
+            request.getFileNames().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
             String fileUrl = StrUtil.join(";", request.getFileNames());
             entity.setFileUrl(fileUrl);
             List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
@@ -127,6 +129,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             entity.setImgUrl(imgUrl);
         }
         if (request.getFileNames() != null && !request.getFileNames().isEmpty()) {
+            request.getFileNames().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
             String fileUrl = StrUtil.join(";", request.getFileNames());
             entity.setFileUrl(fileUrl);
             List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
