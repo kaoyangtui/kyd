@@ -12,6 +12,7 @@ import com.pig4cloud.pigx.admin.dto.demand.DemandPageRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
+import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertPageRequest;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertResponse;
@@ -20,6 +21,7 @@ import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
 import com.pig4cloud.pigx.admin.dto.pc.NewsResponse;
 import com.pig4cloud.pigx.admin.dto.pc.PortalStatisticResponse;
 import com.pig4cloud.pigx.admin.dto.pc.ViewCountIncreaseRequest;
+import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsResponse;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformResponse;
@@ -27,6 +29,7 @@ import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamResponse;
 import com.pig4cloud.pigx.admin.dto.result.ResultPageRequest;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
+import com.pig4cloud.pigx.admin.dto.transformCase.TransformCasePageRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
@@ -71,9 +74,9 @@ public class PcController {
     @GetMapping("/news")
     @Operation(summary = "资讯动态")
     public R<List<NewsResponse>> news() {
-        IPage<ResearchNewsResponse> newsResponsePage = researchNewsService.pageResult(new Page(1, 10), null);
-        IPage<TransformCaseResponse> transformCaseResponsePage = transformCaseService.pageResult(new Page(1, 10), null);
-        IPage<EventMeetingResponse> eventMeetingResponsePage = eventMeetingService.pageResult(new Page(1, 10), null);
+        IPage<ResearchNewsResponse> newsResponsePage = researchNewsService.pageResult(new Page(1, 10), new ResearchNewsPageRequest());
+        IPage<TransformCaseResponse> transformCaseResponsePage = transformCaseService.pageResult(new Page(1, 10), new TransformCasePageRequest());
+        IPage<EventMeetingResponse> eventMeetingResponsePage = eventMeetingService.pageResult(new Page(1, 10), new EventMeetingPageRequest());
         List<NewsResponse> newsList = CollUtil.newArrayList();
 
         // 转换每种数据为 NewsResponse 并添加 sourceType

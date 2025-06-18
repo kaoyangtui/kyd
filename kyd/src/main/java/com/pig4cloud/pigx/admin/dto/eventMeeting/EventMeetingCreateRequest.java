@@ -2,8 +2,10 @@ package com.pig4cloud.pigx.admin.dto.eventMeeting;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -22,9 +24,9 @@ public class EventMeetingCreateRequest {
     @Schema(description = "举办方")
     private String organizer;
 
-    @NotBlank(message = "活动时间不能为空")
+    @NotNull(message = "活动时间不能为空")
     @Schema(description = "活动时间")
-    private String eventTime;
+    private LocalDateTime eventTime;
 
     @NotBlank(message = "活动地点不能为空")
     @Schema(description = "活动地点")
@@ -34,13 +36,13 @@ public class EventMeetingCreateRequest {
     @Schema(description = "活动内容")
     private String content;
 
-    @NotBlank(message = "报名开始时间不能为空")
+    @NotNull(message = "报名开始时间不能为空")
     @Schema(description = "报名开始时间")
-    private String signUpStart;
+    private LocalDateTime signUpStart;
 
-    @NotBlank(message = "报名截止时间不能为空")
+    @NotNull(message = "报名截止时间不能为空")
     @Schema(description = "报名截止时间")
-    private String signUpEnd;
+    private LocalDateTime signUpEnd;
 
     @Schema(description = "附件路径（多个用;分隔）")
     private List<String> fileUrl;

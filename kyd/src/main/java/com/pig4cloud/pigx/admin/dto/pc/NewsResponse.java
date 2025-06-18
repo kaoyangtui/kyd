@@ -9,6 +9,9 @@ import lombok.Data;
 @Data
 @Schema(description = "资讯动态统一响应")
 public class NewsResponse {
+    @Schema(description = "图片地址")
+    private String imgUrl;
+
     @Schema(description = "标题")
     private String title;
 
