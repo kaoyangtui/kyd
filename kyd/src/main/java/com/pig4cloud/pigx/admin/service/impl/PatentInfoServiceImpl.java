@@ -21,6 +21,8 @@ import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
+import com.pig4cloud.pigx.admin.es.PatentEsEntity;
+import com.pig4cloud.pigx.admin.es.mapper.PatentEsMapper;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.service.CniprService;
 import com.pig4cloud.pigx.admin.service.DataScopeService;
@@ -30,6 +32,10 @@ import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.easyes.core.biz.EsPageInfo;
+import org.dromara.easyes.core.conditions.select.LambdaEsQueryWrapper;
+import org.dromara.easyes.core.kernel.EsWrappers;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -50,6 +56,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
 
     private final CniprService cniprService;
     private final DataScopeService dataScopeService;
+    private final PatentEsMapper patentEsMapper;
 
     @Override
     public IPage<PatentInfoResponse> pageResult(Page page, PatentPageRequest request) {
@@ -59,8 +66,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             List<Long> ids = request.getIds();
             wrapper.in(PatentInfoEntity::getId, ids)
                     .last("ORDER BY FIELD(id, " + ids.stream().map(String::valueOf).collect(Collectors.joining(",")) + ")");
-        }
-        else {
+        } else {
             if (StrUtil.isNotBlank(request.getKeyword())) {
                 wrapper.and(w -> w
                         .like(PatentInfoEntity::getTitle, request.getKeyword())
@@ -403,6 +409,140 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 .ne(PatentInfoEntity::getPid, patentInfo.getPid())
                 .set(PatentInfoEntity::getMergeFlag, 0)
                 .update();
+    }
+
+    @Override
+    public Page<PatentEsPageResponse> esPage(PatentEsPageRequest req) {
+        LambdaEsQueryWrapper<PatentEsEntity> wrapper = EsWrappers.lambdaQuery(PatentEsEntity.class);
+
+        // 关键词，支持名称、申请号模糊
+        if (StrUtil.isNotBlank(req.getKeyword())) {
+            wrapper.must(qw -> qw
+                    .should(sq -> sq.match(PatentEsEntity::getTitle, req.getKeyword()))
+                    .should(sq -> sq.match(PatentEsEntity::getAppNumber, req.getKeyword()))
+            );
+        }
+
+        // 专利类型
+        if (req.getPatentTypes() != null && !req.getPatentTypes().isEmpty()) {
+            wrapper.in(PatentEsEntity::getPatType, req.getPatentTypes());
+        }
+
+        // 法律状态
+        if (req.getLegalStatuses() != null && !req.getLegalStatuses().isEmpty()) {
+            wrapper.in(PatentEsEntity::getLegalStatus, req.getLegalStatuses());
+        }
+
+        // 申请人
+        if (StrUtil.isNotBlank(req.getApplicantName())) {
+            wrapper.match(PatentEsEntity::getApplicantName, req.getApplicantName());
+        }
+
+        // 发明人
+        if (StrUtil.isNotBlank(req.getInventorName())) {
+            wrapper.match(PatentEsEntity::getInventorName, req.getInventorName());
+        }
+
+        // IPC 分类
+        if (req.getIpc() != null && !req.getIpc().isEmpty()) {
+            wrapper.in(PatentEsEntity::getIpc, req.getIpc());
+        }
+
+        // 国民经济行业
+        if (req.getIndustries() != null && !req.getIndustries().isEmpty()) {
+            wrapper.in(PatentEsEntity::getNec, req.getIndustries());
+        }
+
+        // 国家战略性新兴产业
+        if (req.getStrategicIndustries() != null && !req.getStrategicIndustries().isEmpty()) {
+            wrapper.in(PatentEsEntity::getStrategicEmergingIndustryFlag, req.getStrategicIndustries());
+        }
+
+        // 江苏省高新技术产业
+        //if (req.getHighTechIndustries() != null && !req.getHighTechIndustries().isEmpty()) {
+        //    wrapper.in(PatentEsEntity::getHighTechIndustry, req.getHighTechIndustries());
+        //}
+
+        // 知识产权密集型技术
+        //if (req.getIpTechTypes() != null && !req.getIpTechTypes().isEmpty()) {
+        //    wrapper.in(PatentEsEntity::getIpTechType, req.getIpTechTypes());
+        //}
+
+        // 区域
+        if (StrUtil.isNotBlank(req.getRegion())) {
+            wrapper.eq(PatentEsEntity::getAddrCounty, req.getRegion());
+        }
+
+        // 区域级别（可以拓展实现：如 regionLevel=“市” 则 eq city）
+        if (StrUtil.isNotBlank(req.getRegionLevel())) {
+            switch (req.getRegionLevel()) {
+                case "省" -> wrapper.isNotNull(PatentEsEntity::getAddrProvince);
+                case "市" -> wrapper.isNotNull(PatentEsEntity::getAddrCity);
+                case "区" -> wrapper.isNotNull(PatentEsEntity::getAddrCounty);
+                default -> {
+                }
+            }
+        }
+
+        // 申请日范围
+        if (req.getAppDateStart() != null || req.getAppDateEnd() != null) {
+            String from = req.getAppDateStart() != null ? req.getAppDateStart().toString() : null;
+            String to = req.getAppDateEnd() != null ? req.getAppDateEnd().toString() : null;
+            wrapper.between(PatentEsEntity::getAppDate, from, to);
+        }
+
+        // 公告日范围
+        if (req.getPubDateStart() != null || req.getPubDateEnd() != null) {
+            String from = req.getPubDateStart() != null ? req.getPubDateStart().toString() : null;
+            String to = req.getPubDateEnd() != null ? req.getPubDateEnd().toString() : null;
+            wrapper.between(PatentEsEntity::getPubDate, from, to);
+        }
+
+        // 排序
+        String orderField = req.getOrderField();
+        String orderType = req.getOrderType();
+        if (StrUtil.isNotBlank(orderField)) {
+            // 允许的排序字段：appDate, pubDate, viewCount, grantDate, ...
+            boolean asc = "asc".equalsIgnoreCase(orderType);
+            if (asc) {
+                switch (orderField) {
+                    case "appDate" -> wrapper.orderByAsc(PatentEsEntity::getAppDate);
+                    case "pubDate" -> wrapper.orderByAsc(PatentEsEntity::getPubDate);
+                    case "viewCount" -> wrapper.orderByAsc(PatentEsEntity::getViewCount);
+                    default -> wrapper.orderByAsc(PatentEsEntity::getAppDate);
+                }
+            } else {
+                switch (orderField) {
+                    case "appDate" -> wrapper.orderByDesc(PatentEsEntity::getAppDate);
+                    case "pubDate" -> wrapper.orderByDesc(PatentEsEntity::getPubDate);
+                    case "viewCount" -> wrapper.orderByDesc(PatentEsEntity::getViewCount);
+                    default -> wrapper.orderByDesc(PatentEsEntity::getAppDate);
+                }
+            }
+        } else {
+            // 默认排序
+            wrapper.orderByDesc(PatentEsEntity::getAppDate);
+        }
+
+        // 分页查询
+        int pageNo = (int) (req.getCurrent() > 0 ? req.getCurrent() : 1);
+        int pageSize = (int) (req.getSize() > 0 ? req.getSize() : 10);
+
+        EsPageInfo<PatentEsEntity> esPage = patentEsMapper.pageQuery(wrapper, pageNo, pageSize);
+
+        // 转换返回
+        Page<PatentEsPageResponse> result = new Page<>(pageNo, pageSize, esPage.getTotal());
+        result.setRecords(new ArrayList<>());
+
+        if (esPage.getList() != null && !esPage.getList().isEmpty()) {
+            for (PatentEsEntity entity : esPage.getList()) {
+                PatentEsPageResponse resp = new PatentEsPageResponse();
+                BeanUtils.copyProperties(entity, resp);
+                result.getRecords().add(resp);
+            }
+        }
+        return result;
+
     }
 
     private String calcTransferFlag(String applicantName, String patentee) {

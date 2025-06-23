@@ -40,6 +40,14 @@ public class PatentInfoController {
 
     private final PatentInfoService patentInfoService;
 
+    /**
+     * ES专利分页检索
+     */
+    @PostMapping("/es/page")
+    public R<IPage<PatentEsPageResponse>> esPage(@RequestBody PatentEsPageRequest request) {
+        return R.ok(patentInfoService.esPage(request));
+    }
+
     @GetMapping("/page")
     @Operation(summary = "专利信息分页查询")
     public R<IPage<PatentInfoResponse>> page(@ParameterObject PageRequest pageRequest,

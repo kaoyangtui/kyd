@@ -18,4 +18,6 @@ public interface PatentInfoService extends IService<PatentInfoEntity> {
     IPage<PatentSearchListRes> searchList(PatentSearchListReq req);
 
     void create(PatentInfoEntity patentInfo, String message);
+
+    IPage<PatentEsPageResponse> esPage(PatentEsPageRequest request);
 }

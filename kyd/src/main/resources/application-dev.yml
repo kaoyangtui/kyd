@@ -21,6 +21,16 @@ spring:
       username: root
       password: 2cbef9494050eb99
       url: jdbc:mysql://14.103.149.91:3306/pigxx_boot?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+  elasticsearch:
+    uris: 14.103.193.249:9200
+    username: elastic
+    password: COwkX393BF
+
+easy-es:
+  address: ${spring.elasticsearch.uris}
+  username: ${spring.elasticsearch.username}
+  password: ${spring.elasticsearch.password}
+
 rocketmq:
   name-server: 14.103.181.209:9876
   producer:
@@ -34,6 +44,7 @@ cnipr:
   user-password: "ZhongGao1314@"
   client-id: "F06C930529889BAC8978C141106C158D"
   client-secret: "6635D2B036D3A7E0B55137851DC71138"
+
 
 pigx:
   mybatis:
