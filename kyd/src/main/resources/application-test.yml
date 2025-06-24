@@ -5,12 +5,14 @@ security:
       ignore-urls:
         - /**
 spring:
+  cache:
+    type: redis
   data:
     redis:
       host: 127.0.0.1
       port: 6379
       password: wakeyoga123
-      database: 15
+      database: 6
   # 数据库相关配置
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
@@ -19,6 +21,16 @@ spring:
       username: root
       password: c45540d049692a9c
       url: jdbc:mysql://127.0.0.1:3306/pigxx_boot?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+  elasticsearch:
+    uris: 127.0.0.1:9200
+    username: elastic
+    password: COwkX393BF
+
+easy-es:
+  address: ${spring.elasticsearch.uris}
+  username: ${spring.elasticsearch.username}
+  password: ${spring.elasticsearch.password}
+
 rocketmq:
   name-server: 127.0.0.1:9876
   producer:
@@ -32,3 +44,8 @@ cnipr:
   user-password: "ZhongGao1314@"
   client-id: "F06C930529889BAC8978C141106C158D"
   client-secret: "6635D2B036D3A7E0B55137851DC71138"
+
+
+pigx:
+  mybatis:
+    show-sql: false
