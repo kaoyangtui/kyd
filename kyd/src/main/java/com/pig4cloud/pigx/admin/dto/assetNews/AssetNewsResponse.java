@@ -28,9 +28,4 @@ public class AssetNewsResponse extends BaseResponse {
     @Schema(description = "附件URL（List）")
     private List<String> fileUrl;
 
-    @Schema(description = "创建时间")
-    private LocalDateTime createTime;
-
-    @Schema(description = "所属院系ID")
-    private String deptId;
 }

@@ -37,7 +37,6 @@ public class PatentConsumer implements RocketMQListener<String> {
     private final PatentMonitorService patentMonitorService;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void onMessage(String message) {
         try {
             if (StrUtil.isBlank(message)) {
