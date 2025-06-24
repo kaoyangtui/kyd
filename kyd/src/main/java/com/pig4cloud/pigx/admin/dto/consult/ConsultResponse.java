@@ -1,11 +1,12 @@
 package com.pig4cloud.pigx.admin.dto.consult;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
 @Schema(description = "咨询信息响应")
-public class ConsultResponse {
+public class ConsultResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "CONSULT";
     @Schema(description = "主键ID")

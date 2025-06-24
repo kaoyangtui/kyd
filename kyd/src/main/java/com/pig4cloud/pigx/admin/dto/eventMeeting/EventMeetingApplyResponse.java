@@ -1,11 +1,12 @@
 package com.pig4cloud.pigx.admin.dto.eventMeeting;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
 @Schema(description = "活动会议报名信息响应")
-public class EventMeetingApplyResponse {
+public class EventMeetingApplyResponse extends BaseResponse {
 
     @Schema(description = "主键ID")
     private Long id;
@@ -28,12 +29,4 @@ public class EventMeetingApplyResponse {
     @Schema(description = "备注")
     private String remark;
 
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    @Schema(description = "所属院系")
-    private String deptId;
-
-    @Schema(description = "组织名称")
-    private String deptName;
 }

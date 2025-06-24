@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.demand;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Schema(description = "企业需求响应")
 @Data
-public class DemandResponse {
+public class DemandResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "DEMAND";
     @Schema(description = "主键")

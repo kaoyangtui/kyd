@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.ipTransform;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,7 +12,7 @@ import java.util.List;
  */
 @Data
 @Schema(description = "知识产权转化响应")
-public class IpTransformResponse {
+public class IpTransformResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "IP_TRANSFORM";
     @Schema(description = "主键 ID")
@@ -40,8 +41,5 @@ public class IpTransformResponse {
     private List<String> consentFileUrl;
     @Schema(description = "专利转化承诺书附件URL")
     private List<String> promiseFileUrl;
-    @Schema(description = "提交时间")
-    private String createTime;
-    @Schema(description = "所属院系")
-    private String deptId;
+
 }

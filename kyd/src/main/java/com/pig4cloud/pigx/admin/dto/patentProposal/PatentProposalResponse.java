@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Data
 @Schema(description = "专利提案响应对象")
-public class PatentProposalResponse {
+public class PatentProposalResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "PATENT_PROPOSAL";
 
@@ -123,33 +124,5 @@ public class PatentProposalResponse {
      */
     @Schema(description = "负责人姓名")
     private String leaderName;
-
-    /**
-     * 所属组织ID
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "所属组织ID")
-    private Long deptId;
-
-    /**
-     * 组织名称
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "组织名称")
-    private String deptName;
-
-    /**
-     * 创建/提交人
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建/提交人")
-    private String createBy;
-
-    /**
-     * 创建/提交时间
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建/提交时间")
-    private LocalDateTime createTime;
 
 }

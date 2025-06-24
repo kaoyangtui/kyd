@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.standard;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Data
 @Schema(description = "标准信息响应")
-public class StandardResponse {
+public class StandardResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "STANDARD";
 
@@ -51,18 +52,6 @@ public class StandardResponse {
 
     @Schema(description = "负责人姓名")
     private String leaderName;
-
-    @Schema(description = "创建人")
-    private String createBy;
-
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    @Schema(description = "所属院系 ID")
-    private String deptId;
-
-    @Schema(description = "所属院系名称")
-    private String deptName;
 
     @Schema(description = "起草单位列表")
     private List<OwnerEntity> owners;

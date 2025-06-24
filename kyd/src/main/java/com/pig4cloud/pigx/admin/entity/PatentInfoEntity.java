@@ -662,6 +662,14 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     @Schema(description = "创建人")
     private String createBy;
 
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人ID")
+    private Long createUserId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人姓名")
+    private String createUserName;
+
     /**
      * 专利权人类型 (Set<String>)
      */

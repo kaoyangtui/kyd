@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.assetNews;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -8,7 +9,7 @@ import java.util.List;
 
 @Data
 @Schema(description = "资产资讯响应")
-public class AssetNewsResponse {
+public class AssetNewsResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "ASSET_NEWS";
 

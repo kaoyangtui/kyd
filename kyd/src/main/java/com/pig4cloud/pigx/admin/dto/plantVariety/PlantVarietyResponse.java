@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.dto.plantVariety;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 @Data
 @Schema(description = "植物新品种权登记响应")
-public class PlantVarietyResponse {
+public class PlantVarietyResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "PLANT_VARIETY";
 
@@ -67,18 +68,6 @@ public class PlantVarietyResponse {
 
     @Schema(description = "负责人姓名")
     private String leaderName;
-
-    @Schema(description = "创建时间")
-    private Date createTime;
-
-    @Schema(description = "创建人")
-    private String createBy;
-
-    @Schema(description = "所属组织")
-    private Long deptId;
-
-    @Schema(description = "组织名称")
-    private String deptName;
 
     @Schema(description = "完成人列表")
     private List<CompleterEntity> completers;

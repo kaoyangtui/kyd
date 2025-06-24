@@ -66,8 +66,16 @@ public class NoticeEntity extends Model<NoticeEntity> {
      * 创建/提交人
      */
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建/提交人")
+    @Schema(description = "创建人")
     private String createBy;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人ID")
+    private Long createUserId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人姓名")
+    private String createUserName;
 
     /**
      * 创建/提交时间

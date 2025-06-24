@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.exportExecute;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "导出模板响应对象")
-public class ExportTemplateResponse {
+public class ExportTemplateResponse extends BaseResponse {
     @Schema(description = "主键 ID")
     private Long id;
 
@@ -23,9 +24,4 @@ public class ExportTemplateResponse {
     @Schema(description = "是否默认，0 否 1 是")
     private Integer isDefault;
 
-    @Schema(description = "创建时间")
-    private LocalDateTime createTime;
-
-    @Schema(description = "创建人")
-    private String createBy;
 }

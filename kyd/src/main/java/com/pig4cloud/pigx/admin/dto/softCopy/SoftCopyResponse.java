@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Data
 @Schema(description = "软著提案返回信息")
-public class SoftCopyResponse {
+public class SoftCopyResponse extends BaseResponse {
     public static final String BIZ_CODE = "SOFT_COPY";
 
 
@@ -134,20 +135,6 @@ public class SoftCopyResponse {
      */
     @Schema(description = "负责人姓名")
     private String leaderName;
-
-    /**
-     * 创建人
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建人")
-    private String createBy;
-
-    /**
-     * 创建时间
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建时间")
-    private LocalDateTime createTime;
 
     @Schema(description = "完成人信息列表")
     private List<CompleterEntity> completers;

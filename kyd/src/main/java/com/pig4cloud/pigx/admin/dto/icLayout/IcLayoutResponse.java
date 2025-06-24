@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.icLayout;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Data
 @Schema(description = "集成电路布图登记响应")
-public class IcLayoutResponse {
+public class IcLayoutResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "IC_LAYOUT";
 
@@ -55,24 +56,6 @@ public class IcLayoutResponse {
 
     @Schema(description = "负责人姓名")
     private String leaderName;
-
-    @Schema(description = "创建人")
-    private String createBy;
-
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    @Schema(description = "更新人")
-    private String updateBy;
-
-    @Schema(description = "更新时间")
-    private String updateTime;
-
-    @Schema(description = "所属院系 ID")
-    private String deptId;
-
-    @Schema(description = "所属院系名称")
-    private String deptName;
 
     @Schema(description = "完成人信息")
     private List<CompleterEntity> completers;

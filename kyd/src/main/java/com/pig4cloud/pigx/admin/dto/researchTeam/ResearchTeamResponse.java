@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.researchTeam;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -8,7 +9,7 @@ import java.util.List;
 
 @Data
 @Schema(description = "科研团队返回信息")
-public class ResearchTeamResponse {
+public class ResearchTeamResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "RESEARCH_TEAM";
 
@@ -47,21 +48,6 @@ public class ResearchTeamResponse {
 
     @Schema(description = "上下架状态（0下架 1上架）")
     private Integer shelfStatus;
-
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    @Schema(description = "更新时间")
-    private String updateTime;
-
-    @Schema(description = "创建人")
-    private String createBy;
-
-    @Schema(description = "更新人")
-    private String updateBy;
-
-    @Schema(description = "所属院系")
-    private String deptId;
 
     @Schema(description = "团队成员列表")
     private List<CompleterEntity> completers;

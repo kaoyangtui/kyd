@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.dto.softCopyReg;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Data
 @Schema(description = "软著登记返回信息")
-public class SoftCopyRegResponse {
+public class SoftCopyRegResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "SOFT_COPY";
 
@@ -64,18 +65,6 @@ public class SoftCopyRegResponse {
 
     @Schema(description = "负责人姓名")
     private String leaderName;
-
-    @Schema(description = "所属组织 ID")
-    private Long deptId;
-
-    @Schema(description = "组织名称")
-    private String deptName;
-
-    @Schema(description = "创建人")
-    private String createBy;
-
-    @Schema(description = "创建时间")
-    private LocalDateTime createTime;
 
     @Schema(description = "著作权人列表")
     private List<OwnerEntity> owners;

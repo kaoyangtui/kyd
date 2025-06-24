@@ -84,6 +84,14 @@ public class DemandSignupEntity extends Model<DemandSignupEntity> {
     @Schema(description = "创建人")
     private String createBy;
 
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人ID")
+    private Long createUserId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人姓名")
+    private String createUserName;
+
     /**
      * 创建时间
      */

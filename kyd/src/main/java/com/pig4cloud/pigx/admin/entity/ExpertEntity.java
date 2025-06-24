@@ -135,6 +135,14 @@ public class ExpertEntity extends Model<ExpertEntity> {
     @Schema(description = "创建人")
     private String createBy;
 
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人ID")
+    private Long createUserId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人姓名")
+    private String createUserName;
+
     /**
      * 创建时间
      */

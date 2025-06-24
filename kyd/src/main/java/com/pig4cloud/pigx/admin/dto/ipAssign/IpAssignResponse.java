@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.ipAssign;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import java.util.List;
  */
 @Data
 @Schema(description = "赋权响应")
-public class IpAssignResponse {
+public class IpAssignResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "IP_ASSIGN";
     @Schema(description = "主键ID")
@@ -33,8 +34,5 @@ public class IpAssignResponse {
     private List<String> proofFileUrl;
     @Schema(description = "赋权申请附件URL（已分号分隔）")
     private List<String> attachFileUrl;
-    @Schema(description = "创建时间")
-    private String createTime;
-    @Schema(description = "创建人所属院系")
-    private String deptId;
+
 }

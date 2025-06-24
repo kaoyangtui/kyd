@@ -1,11 +1,12 @@
 package com.pig4cloud.pigx.admin.dto.expert;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
 @Schema(description = "专家返回数据")
-public class ExpertResponse {
+public class ExpertResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "EXPERT";
 
@@ -44,24 +45,6 @@ public class ExpertResponse {
 
     @Schema(description = "工作经历")
     private String workExp;
-
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    @Schema(description = "更新时间")
-    private String updateTime;
-
-    @Schema(description = "创建人")
-    private String createBy;
-
-    @Schema(description = "更新人")
-    private String updateBy;
-
-    @Schema(description = "所属院系")
-    private String deptId;
-
-    @Schema(description = "院系名称")
-    private String deptName;
 
     @Schema(description = "专利数量")
     private Long patentCnt;

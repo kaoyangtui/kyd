@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.demandIn;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ import java.util.List;
  */
 @Data
 @Schema(description = "校内需求响应")
-public class DemandInResponse {
+public class DemandInResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "DEMAND_IN";
     @Schema(description = "主键 ID")
@@ -47,8 +48,4 @@ public class DemandInResponse {
     private List<String> tags;
     @Schema(description = "需求附件URL")
     private List<String> attachFileUrl;
-    @Schema(description = "创建时间")
-    private String createTime;
-    @Schema(description = "所属院系")
-    private String deptId;
 }
