@@ -133,7 +133,6 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
             });
             fileService.batchCreate(fileCreateRequestList);
 
-            request.getAttachFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
             entity.setAttachFileUrl(StrUtil.join(";", request.getAttachFileUrl()));
         }
 

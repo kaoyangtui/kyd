@@ -100,7 +100,6 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
         EventMeetingEntity entity = BeanUtil.copyProperties(request, EventMeetingEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            request.getFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
         }
 

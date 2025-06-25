@@ -11,7 +11,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.api.entity.SysFile;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
@@ -88,23 +87,18 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         entity.setImgUrl(StrUtil.join(";", request.getImgUrl()));
 
         if (CollUtil.isNotEmpty(request.getFileNames())) {
-            List<FileCreateRequest> fileList = Lists.newArrayList();
-            for (String fileName : request.getFileNames()) {
-                SysFile sysFile = sysFileService.lambdaQuery()
-                        .eq(SysFile::getFileName, fileName)
-                        .orderByDesc(SysFile::getCreateTime)
-                        .last("limit 1")
-                        .one();
-                if (sysFile != null) {
-                    FileCreateRequest file = BeanUtil.copyProperties(sysFile, FileCreateRequest.class);
-                    file.setCode(entity.getCode());
-                    file.setApplyType(ResultResponse.BIZ_CODE);
-                    file.setSubjectName(entity.getName());
-                    file.setBizType(FileBizTypeEnum.ATTACHMENT.getValue());
-                    fileList.add(file);
-                }
-            }
-            fileService.batchCreate(fileList);
+            List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
+            request.getFileNames().forEach(fileName -> {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        ResultResponse.BIZ_CODE,
+                        entity.getName(),
+                        FileBizTypeEnum.ATTACHMENT.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+            fileService.batchCreate(fileCreateRequestList);
             entity.setFileUrl(StrUtil.join(";", request.getFileNames()));
         }
 

@@ -106,7 +106,6 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
         AssetNewsEntity entity = BeanUtil.copyProperties(request, AssetNewsEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            request.getFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
         }
 

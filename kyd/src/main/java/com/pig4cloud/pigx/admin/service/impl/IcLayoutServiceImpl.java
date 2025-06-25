@@ -131,7 +131,6 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
 
         // 设置附件
         if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
-            request.getCertFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
             entity.setCertFileUrl(StrUtil.join(";", request.getCertFileUrl()));
 
             List<FileCreateRequest> fileList = Lists.newArrayList();

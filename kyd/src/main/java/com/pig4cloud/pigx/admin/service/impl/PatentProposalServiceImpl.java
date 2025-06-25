@@ -129,25 +129,21 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         List<FileCreateRequest> fileList = Lists.newArrayList();
 
         if (CollUtil.isNotEmpty(request.getClaimsFile())) {
-            request.getClaimsFile().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setClaimsFile(StrUtil.join(";", request.getClaimsFile()));
             request.getClaimsFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.CLAIMS.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getDescriptionFile())) {
-            request.getDescriptionFile().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setDescriptionFile(StrUtil.join(";", request.getDescriptionFile()));
             request.getDescriptionFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.DESCRIPTION.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getAbstractFile())) {
-            request.getAbstractFile().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setAbstractFile(StrUtil.join(";", request.getAbstractFile()));
             request.getAbstractFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.ABSTRACT.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getDescFigureFile())) {
-            request.getDescFigureFile().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setDescFigureFile(StrUtil.join(";", request.getDescFigureFile()));
         }
 

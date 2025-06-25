@@ -72,7 +72,6 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
         }
 
         if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
-            request.getCertFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setCertFileUrl(StrUtil.join(";", request.getCertFileUrl()));
 
             List<FileCreateRequest> fileList = Lists.newArrayList();

@@ -111,12 +111,10 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
         IpAssignEntity entity = BeanUtil.copyProperties(request, IpAssignEntity.class);
 
         if (CollUtil.isNotEmpty(request.getProofFileUrl())) {
-            request.getProofFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setProofFileUrl(StrUtil.join(";", request.getProofFileUrl()));
         }
 
         if (CollUtil.isNotEmpty(request.getAttachFileUrl())) {
-            request.getAttachFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setAttachFileUrl(StrUtil.join(";", request.getAttachFileUrl()));
         }
 

@@ -85,7 +85,6 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
                 fileList.add(file);
             });
             fileService.batchCreate(fileList);
-            request.getCertFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setCertFileUrl(StrUtil.join(";", request.getCertFileUrl()));
         }
 

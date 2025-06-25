@@ -110,6 +110,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
                                                   String applyType,
                                                   String subjectName,
                                                   String bizType) {
+        fileName = extractFileName(fileName);
         SysFile sysFile = sysFileService.lambdaQuery()
                 .eq(SysFile::getFileName, fileName)
                 .orderByDesc(SysFile::getCreateTime)
@@ -126,4 +127,18 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         fileCreateRequest.setFileSize(sysFile.getFileSize());
         return fileCreateRequest;
     }
+
+    public String extractFileName(String url) {
+        if (StrUtil.isBlank(url)) {
+            return null;
+        }
+        // 支持 fileName=xxx 或 fileName=xxx&xxx=yyy 这种
+        String pattern = "(?:\\?|&)?fileName=([^&]+)";
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(url);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
 }

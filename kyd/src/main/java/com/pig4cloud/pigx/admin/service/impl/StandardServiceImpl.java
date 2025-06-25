@@ -84,7 +84,6 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
                 fileCreateRequestList.add(fileCreateRequest);
             }
             fileService.batchCreate(fileCreateRequestList);
-            request.getFileUrls().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setFileUrl(StrUtil.join(";", request.getFileUrls()));
         }
 

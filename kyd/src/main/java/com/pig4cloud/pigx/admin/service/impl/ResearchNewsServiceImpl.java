@@ -59,7 +59,6 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
         ResearchNewsEntity entity = BeanUtil.copyProperties(request, ResearchNewsEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            request.getFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
         }
 

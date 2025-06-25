@@ -93,7 +93,6 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
         CommonDownloadEntity entity = BeanUtil.copyProperties(request, CommonDownloadEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            request.getFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
         }
 

@@ -56,7 +56,6 @@ public class TransformCaseServiceImpl extends ServiceImpl<TransformCaseMapper, T
         TransformCaseEntity entity = BeanUtil.copyProperties(request, TransformCaseEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            request.getFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
         }
 

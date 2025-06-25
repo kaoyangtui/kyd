@@ -97,7 +97,6 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
         NoticeEntity entity = BeanUtil.copyProperties(request, NoticeEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            request.getFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
         }
 

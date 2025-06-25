@@ -98,7 +98,6 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
         AssetPolicyEntity entity = BeanUtil.copyProperties(request, AssetPolicyEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            request.getFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
         }
 

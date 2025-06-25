@@ -87,7 +87,6 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
                 fileList.add(file);
             });
             fileService.batchCreate(fileList);
-            request.getAttachmentUrls().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setAttachmentUrls(StrUtil.join(";", request.getAttachmentUrls()));
         }
 

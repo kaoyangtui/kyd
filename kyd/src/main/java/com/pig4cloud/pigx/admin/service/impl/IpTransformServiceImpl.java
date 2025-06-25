@@ -105,12 +105,10 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         entity.setIpCode(StrUtil.join(";", request.getIpCode()));
 
         if (CollUtil.isNotEmpty(request.getConsentFileUrl())) {
-            request.getConsentFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setConsentFileUrl(StrUtil.join(";", request.getConsentFileUrl()));
         }
 
         if (CollUtil.isNotEmpty(request.getPromiseFileUrl())) {
-            request.getPromiseFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
             entity.setPromiseFileUrl(StrUtil.join(";", request.getPromiseFileUrl()));
         }
 
