@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysFile;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
@@ -52,114 +51,81 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     private final SysFileService sysFileService;
     private final CompleterService completerService;
 
-    @Override
+    @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public ResultResponse createResult(ResultCreateRequest request) {
-        ResultEntity entity = BeanUtil.copyProperties(request, ResultEntity.class);
-        entity.setCode(ParamResolver.getStr(ResultResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
-        if (request.getTechArea() != null && !request.getTechArea().isEmpty()) {
-            String techArea = StrUtil.join(";", request.getTechArea());
-            entity.setTechArea(techArea);
-        }
-        if (request.getTransWay() != null && !request.getTransWay().isEmpty()) {
-            String transWayString = StrUtil.join(";", request.getTransWay());
-            entity.setTransWay(transWayString);
-        }
-        if (request.getImgUrl() != null && !request.getImgUrl().isEmpty()) {
-            String imgUrl = StrUtil.join(";", request.getImgUrl());
-            entity.setImgUrl(imgUrl);
-        }
-        if (request.getFileNames() != null && !request.getFileNames().isEmpty()) {
-            request.getFileNames().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
-            String fileUrl = StrUtil.join(";", request.getFileNames());
-            entity.setFileUrl(fileUrl);
-            List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
-            request.getFileNames().forEach(fileName -> {
-                SysFile sysFile = sysFileService.lambdaQuery()
-                        .eq(SysFile::getFileName, fileName)
-                        .orderByDesc(SysFile::getCreateTime)
-                        .last("limit 1")
-                        .one();
-                FileCreateRequest fileCreateRequest = new FileCreateRequest();
-                fileCreateRequest.setCode(entity.getCode());
-                fileCreateRequest.setApplyType(ResultResponse.BIZ_CODE);
-                fileCreateRequest.setSubjectName(entity.getName());
-                fileCreateRequest.setBizType(FileBizTypeEnum.ATTACHMENT.getValue());
-                fileCreateRequest.setFileName(sysFile.getFileName());
-                fileCreateRequest.setFileType(sysFile.getType());
-                fileCreateRequest.setDownloadName(sysFile.getOriginal());
-                fileCreateRequestList.add(fileCreateRequest);
-            });
-            fileService.batchCreate(fileCreateRequestList);
-        }
-        request.getCompleters().forEach(completer -> {
-            if (completer.getCompleterLeader() == 1) {
-                entity.setLeaderCode(completer.getCompleterNo());
-                entity.setLeaderName(completer.getCompleterName());
-            }
-        });
-        save(entity);
-        ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
-        response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
-        response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
-        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        return response;
+        return doSaveOrUpdate(request, true);
     }
 
     @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean updateResult(ResultUpdateRequest request) {
-        ResultEntity entity = getById(request.getId());
-        if (entity == null) {
-            throw new BizException("成果不存在");
+        if (ObjectUtil.isNull(request.getId())) {
+            throw new BizException("ID不能为空");
         }
-        BeanUtil.copyProperties(request, entity, CopyOptions.create().ignoreNullValue());
-        if (request.getTechArea() != null && !request.getTechArea().isEmpty()) {
-            String techArea = StrUtil.join(";", request.getTechArea());
-            entity.setTechArea(techArea);
+        doSaveOrUpdate(request, false);
+        return Boolean.TRUE;
+    }
+
+    private ResultResponse doSaveOrUpdate(ResultCreateRequest request, boolean isCreate) throws BizException {
+        ResultEntity entity;
+        if (isCreate) {
+            entity = BeanUtil.copyProperties(request, ResultEntity.class);
+            entity.setCode(ParamResolver.getStr(ResultResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+        } else {
+            ResultEntity existing = this.getById(((ResultUpdateRequest) request).getId());
+            if (existing == null) {
+                throw new BizException("数据不存在");
+            }
+            entity = existing;
+            BeanUtil.copyProperties(request, entity, CopyOptions.create().ignoreNullValue());
         }
-        if (request.getTransWay() != null && !request.getTransWay().isEmpty()) {
-            String transWayString = StrUtil.join(";", request.getTransWay());
-            entity.setTransWay(transWayString);
-        }
-        if (request.getImgUrl() != null && !request.getImgUrl().isEmpty()) {
-            String imgUrl = StrUtil.join(";", request.getImgUrl());
-            entity.setImgUrl(imgUrl);
-        }
-        if (request.getFileNames() != null && !request.getFileNames().isEmpty()) {
-            request.getFileNames().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
-            String fileUrl = StrUtil.join(";", request.getFileNames());
-            entity.setFileUrl(fileUrl);
-            List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
-            request.getFileNames().forEach(fileName -> {
+
+        entity.setTechArea(StrUtil.join(";", request.getTechArea()));
+        entity.setTransWay(StrUtil.join(";", request.getTransWay()));
+        entity.setImgUrl(StrUtil.join(";", request.getImgUrl()));
+
+        if (CollUtil.isNotEmpty(request.getFileNames())) {
+            List<FileCreateRequest> fileList = Lists.newArrayList();
+            for (String fileName : request.getFileNames()) {
                 SysFile sysFile = sysFileService.lambdaQuery()
                         .eq(SysFile::getFileName, fileName)
                         .orderByDesc(SysFile::getCreateTime)
                         .last("limit 1")
                         .one();
-                FileCreateRequest fileCreateRequest = new FileCreateRequest();
-                fileCreateRequest.setCode(entity.getCode());
-                fileCreateRequest.setApplyType(ResultResponse.BIZ_CODE);
-                fileCreateRequest.setSubjectName(entity.getName());
-                fileCreateRequest.setBizType(FileBizTypeEnum.ATTACHMENT.getValue());
-                fileCreateRequest.setFileName(sysFile.getFileName());
-                fileCreateRequest.setFileType(sysFile.getType());
-                fileCreateRequest.setDownloadName(sysFile.getOriginal());
-                fileCreateRequestList.add(fileCreateRequest);
-            });
-            fileService.batchCreate(fileCreateRequestList);
-        }
-        request.getCompleters().forEach(completer -> {
-            if (completer.getCompleterLeader() == 1) {
-                entity.setLeaderCode(completer.getCompleterNo());
-                entity.setLeaderName(completer.getCompleterName());
+                if (sysFile != null) {
+                    FileCreateRequest file = BeanUtil.copyProperties(sysFile, FileCreateRequest.class);
+                    file.setCode(entity.getCode());
+                    file.setApplyType(ResultResponse.BIZ_CODE);
+                    file.setSubjectName(entity.getName());
+                    file.setBizType(FileBizTypeEnum.ATTACHMENT.getValue());
+                    fileList.add(file);
+                }
             }
-        });
-        updateById(entity);
+            fileService.batchCreate(fileList);
+            entity.setFileUrl(StrUtil.join(";", request.getFileNames()));
+        }
+
+        if (CollUtil.isNotEmpty(request.getCompleters())) {
+            request.getCompleters().stream()
+                    .filter(c -> ObjectUtil.equal(c.getCompleterLeader(), 1))
+                    .findFirst()
+                    .ifPresent(leader -> {
+                        entity.setLeaderCode(leader.getCompleterNo());
+                        entity.setLeaderName(leader.getCompleterName());
+                    });
+        }
+
+        if (isCreate) {
+            this.save(entity);
+        } else {
+            this.updateById(entity);
+        }
+
         completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        return Boolean.TRUE;
+        return convertToResponse(entity);
     }
 
     @Override
@@ -169,13 +135,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(ResultEntity::getId, request.getIds());
         } else {
-            if (StrUtil.isNotBlank(request.getKeyword())) {
-                wrapper.and(w ->
-                        w.like(ResultEntity::getName, request.getKeyword())
-                                .or().like(ResultEntity::getCode, request.getKeyword())
-                                .or().like(ResultEntity::getTags, request.getKeyword())
-                );
-            }
+            wrapper.and(StrUtil.isNotBlank(request.getKeyword()), w ->
+                    w.like(ResultEntity::getName, request.getKeyword())
+                            .or().like(ResultEntity::getCode, request.getKeyword())
+                            .or().like(ResultEntity::getTags, request.getKeyword()));
             wrapper.eq(StrUtil.isNotBlank(request.getLeaderCode()), ResultEntity::getLeaderCode, request.getLeaderCode());
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), ResultEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getSubject()), ResultEntity::getSubject, request.getSubject());
@@ -185,52 +148,26 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), ResultEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ResultEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResultEntity::getCreateTime, request.getEndTime());
-            //技术领域
+
             if (CollUtil.isNotEmpty(request.getTechArea())) {
-                wrapper.and(q -> request.getTechArea().forEach(o -> q.or().like(ResultEntity::getTechArea, o)));
+                wrapper.and(w -> request.getTechArea().forEach(val -> w.or().like(ResultEntity::getTechArea, val)));
             }
-            //合作方式
             if (CollUtil.isNotEmpty(request.getTransWay())) {
-                wrapper.and(q -> request.getTransWay().forEach(o -> q.or().like(ResultEntity::getTransWay, o)));
+                wrapper.and(w -> request.getTransWay().forEach(val -> w.or().like(ResultEntity::getTransWay, val)));
             }
-            //技术成熟度
             wrapper.eq(StrUtil.isNotBlank(request.getMaturity()), ResultEntity::getMaturity, request.getMaturity());
         }
 
-        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+        if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {
             reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
             reqPage.setCurrent(1);
-        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
             reqPage.setSize(request.getIds().size());
             reqPage.setCurrent(1);
         }
 
-        IPage<ResultEntity> resPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
-
-        return resPage.convert(entity -> {
-            ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
-            response.setTechArea(StrUtil.split(entity.getTechArea(), ";"));
-            response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
-            response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
-            response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-            return response;
-        });
-    }
-
-
-    @Override
-    public Boolean updateShelfStatus(ResultShelfRequest request) {
-        return this.update(Wrappers.<ResultEntity>lambdaUpdate()
-                .eq(ResultEntity::getId, request.getId())
-                .set(ResultEntity::getShelfStatus, request.getShelfStatus())
-                .set(ResultEntity::getShelfTime, LocalDateTime.now())
-                .set(null != request.getTechArea(), ResultEntity::getTechArea, request.getTechArea())
-                .set(null != request.getTags() && !request.getTags().isEmpty(),
-                        ResultEntity::getTags, StrUtil.join(";", request.getTags()))
-                .set(null != request.getTransWay() && !request.getTransWay().isEmpty(),
-                        ResultEntity::getTransWay, StrUtil.join(";", request.getTransWay()))
-                .set(null != request.getTransPrice(), ResultEntity::getTransPrice, request.getTransPrice())
-        );
+        IPage<ResultEntity> entityPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
+        return entityPage.convert(this::convertToResponse);
     }
 
     @SneakyThrows
@@ -240,11 +177,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
-        response.setTechArea(StrUtil.split(entity.getTechArea(), ";"));
-        response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
-        response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
-        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        ResultResponse response = convertToResponse(entity);
         response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
         return response;
     }
@@ -260,4 +193,25 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         return this.removeBatchByIds(ids);
     }
 
+    @Override
+    public Boolean updateShelfStatus(ResultShelfRequest request) {
+        return this.update(Wrappers.<ResultEntity>lambdaUpdate()
+                .eq(ResultEntity::getId, request.getId())
+                .set(ResultEntity::getShelfStatus, request.getShelfStatus())
+                .set(ResultEntity::getShelfTime, LocalDateTime.now())
+                .set(ObjectUtil.isNotNull(request.getTechArea()), ResultEntity::getTechArea, request.getTechArea())
+                .set(CollUtil.isNotEmpty(request.getTags()), ResultEntity::getTags, StrUtil.join(";", request.getTags()))
+                .set(CollUtil.isNotEmpty(request.getTransWay()), ResultEntity::getTransWay, StrUtil.join(";", request.getTransWay()))
+                .set(ObjectUtil.isNotNull(request.getTransPrice()), ResultEntity::getTransPrice, request.getTransPrice())
+        );
+    }
+
+    private ResultResponse convertToResponse(ResultEntity entity) {
+        ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
+        response.setTechArea(StrUtil.split(entity.getTechArea(), ";"));
+        response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
+        response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
+        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        return response;
+    }
 }

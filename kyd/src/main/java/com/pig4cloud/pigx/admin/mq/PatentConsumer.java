@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author zhaoliang
@@ -27,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RocketMQMessageListener(
         topic = TopicConstants.TOPIC_PATENT,
         consumerGroup = TopicConstants.CONSUMER_GROUP_PATENT + "_" + "${spring.profiles.active}",
-        selectorExpression = "${spring.profiles.active}"
+        selectorExpression = TopicConstants.TOPIC_PATENT_TAG + "_" + "${spring.profiles.active}"
 )
 public class PatentConsumer implements RocketMQListener<String> {
 

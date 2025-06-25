@@ -1,7 +1,6 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.dto.patent.PatentInfoResponse;
 import com.pig4cloud.pigx.admin.entity.UserFollowEntity;
 import com.pig4cloud.pigx.admin.mapper.UserFollowMapper;
 import com.pig4cloud.pigx.admin.service.UserFollowService;

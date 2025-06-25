@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.notice.NoticeCreateRequest;
 import com.pig4cloud.pigx.admin.dto.notice.NoticePageRequest;
 import com.pig4cloud.pigx.admin.dto.notice.NoticeResponse;
@@ -29,36 +30,21 @@ import java.util.List;
 public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> implements NoticeService {
 
     @Override
-    public IPage<NoticeResponse> pageResult(Page page, NoticePageRequest request) {
-        LambdaQueryWrapper<NoticeEntity> wrapper = new LambdaQueryWrapper<>();
-        if (CollUtil.isNotEmpty(request.getIds())) {
-            wrapper.in(NoticeEntity::getId, request.getIds());
-        } else {
-            if (StrUtil.isNotBlank(request.getKeyword())) {
-                wrapper.and(w ->
-                        w.like(NoticeEntity::getTitle, request.getKeyword())
-                                .or()
-                                .like(NoticeEntity::getContent, request.getKeyword())
-                );
-            }
-            wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), NoticeEntity::getCreateBy, request.getCreateBy());
-            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), NoticeEntity::getDeptId, request.getDeptId());
-            wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), NoticeEntity::getCreateTime, request.getBeginTime());
-            wrapper.le(StrUtil.isNotBlank(request.getEndTime()), NoticeEntity::getCreateTime, request.getEndTime());
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean create(NoticeCreateRequest request) {
+        doSaveOrUpdate(request, true);
+        return Boolean.TRUE;
+    }
+
+    @SneakyThrows
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean update(NoticeUpdateRequest request) {
+        if (ObjectUtil.isNull(request.getId())) {
+            throw new BizException("ID不能为空");
         }
-        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
-            page.setSize(request.getEndNo() - request.getStartNo() + 1);
-            page.setCurrent(1);
-        } else if (CollUtil.isNotEmpty(request.getIds())) {
-            page.setSize(request.getIds().size());
-            page.setCurrent(1);
-        }
-        IPage<NoticeEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return resPage.convert(entity -> {
-            NoticeResponse response = BeanUtil.copyProperties(entity, NoticeResponse.class);
-            response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-            return response;
-        });
+        doSaveOrUpdate(request, false);
+        return Boolean.TRUE;
     }
 
     @SneakyThrows
@@ -68,25 +54,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        NoticeResponse response = BeanUtil.copyProperties(entity, NoticeResponse.class);
-        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-        return response;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean create(NoticeCreateRequest request) {
-        NoticeEntity entity = BeanUtil.copyProperties(request, NoticeEntity.class);
-        entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        return this.save(entity);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean update(NoticeUpdateRequest request) {
-        NoticeEntity entity = BeanUtil.copyProperties(request, NoticeEntity.class);
-        entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        return this.updateById(entity);
+        return convertToResponse(entity);
     }
 
     @Override
@@ -95,4 +63,55 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
         return this.removeBatchByIds(ids);
     }
 
+    @Override
+    public IPage<NoticeResponse> pageResult(Page page, NoticePageRequest request) {
+        LambdaQueryWrapper<NoticeEntity> wrapper = new LambdaQueryWrapper<>();
+        if (CollUtil.isNotEmpty(request.getIds())) {
+            wrapper.in(NoticeEntity::getId, request.getIds());
+        } else {
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w -> w
+                        .like(NoticeEntity::getTitle, request.getKeyword())
+                        .or()
+                        .like(NoticeEntity::getContent, request.getKeyword()));
+            }
+            wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), NoticeEntity::getCreateBy, request.getCreateBy());
+            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), NoticeEntity::getDeptId, request.getDeptId());
+            wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), NoticeEntity::getCreateTime, request.getBeginTime());
+            wrapper.le(StrUtil.isNotBlank(request.getEndTime()), NoticeEntity::getCreateTime, request.getEndTime());
+        }
+
+        if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {
+            page.setSize(request.getEndNo() - request.getStartNo() + 1);
+            page.setCurrent(1);
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
+            page.setSize(request.getIds().size());
+            page.setCurrent(1);
+        }
+
+        IPage<NoticeEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        return entityPage.convert(this::convertToResponse);
+    }
+
+    private void doSaveOrUpdate(NoticeCreateRequest request, boolean isCreate) {
+        NoticeEntity entity = BeanUtil.copyProperties(request, NoticeEntity.class);
+
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            request.getFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
+
+        if (!isCreate && request instanceof NoticeUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            this.updateById(entity);
+        } else {
+            this.save(entity);
+        }
+    }
+
+    private NoticeResponse convertToResponse(NoticeEntity entity) {
+        NoticeResponse response = BeanUtil.copyProperties(entity, NoticeResponse.class);
+        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        return response;
+    }
 }

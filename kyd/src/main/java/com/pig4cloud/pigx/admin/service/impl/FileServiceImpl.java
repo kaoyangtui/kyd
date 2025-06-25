@@ -123,6 +123,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         fileCreateRequest.setFileName(sysFile.getFileName());
         fileCreateRequest.setFileType(sysFile.getType());
         fileCreateRequest.setDownloadName(sysFile.getOriginal());
+        fileCreateRequest.setFileSize(sysFile.getFileSize());
         return fileCreateRequest;
     }
 }

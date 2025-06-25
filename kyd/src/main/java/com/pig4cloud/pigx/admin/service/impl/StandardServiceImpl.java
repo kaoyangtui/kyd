@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.standard.StandardCreateRequest;
@@ -40,6 +41,77 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
     private final OwnerService ownerService;
     private final CompleterService completerService;
 
+    @SneakyThrows
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean create(StandardCreateRequest request) {
+        doSaveOrUpdate(request, true);
+        return Boolean.TRUE;
+    }
+
+    @SneakyThrows
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean update(StandardUpdateRequest request) {
+        if (ObjectUtil.isNull(request.getId())) {
+            throw new BizException("ID不能为空");
+        }
+        doSaveOrUpdate(request, false);
+        return Boolean.TRUE;
+    }
+
+    @SneakyThrows
+    private void doSaveOrUpdate(StandardCreateRequest request, boolean isCreate) {
+        StandardEntity entity = BeanUtil.copyProperties(request, StandardEntity.class);
+
+        if (isCreate) {
+            entity.setCode(StandardResponse.BIZ_CODE + IdUtil.getSnowflakeNextIdStr());
+        } else if (request instanceof StandardUpdateRequest updateReq) {
+            entity.setId(updateReq.getId());
+        }
+
+        // 附件处理
+        if (CollUtil.isNotEmpty(request.getFileUrls())) {
+            List<FileCreateRequest> fileCreateRequestList = CollUtil.newArrayList();
+            for (String fileName : request.getFileUrls()) {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        StandardResponse.BIZ_CODE,
+                        entity.getName(),
+                        FileBizTypeEnum.ATTACHMENT.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            }
+            fileService.batchCreate(fileCreateRequestList);
+            request.getFileUrls().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrls()));
+        }
+
+        // 负责人处理
+        if (CollUtil.isNotEmpty(request.getCompleters())) {
+            request.getCompleters().stream()
+                    .filter(c -> ObjectUtil.equal(c.getCompleterLeader(), 1))
+                    .findFirst()
+                    .ifPresent(leader -> {
+                        entity.setLeaderCode(leader.getCompleterNo());
+                        entity.setLeaderName(leader.getCompleterName());
+                    });
+        }
+
+        if (isCreate) {
+            this.save(entity);
+            if (ObjectUtil.isNull(entity.getId())) {
+                throw new BizException("标准信息保存失败，未生成 ID");
+            }
+        } else {
+            this.updateById(entity);
+        }
+
+        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+    }
+
     @Override
     public IPage<StandardResponse> pageResult(Page page, StandardPageRequest request) {
         LambdaQueryWrapper<StandardEntity> wrapper = new LambdaQueryWrapper<>();
@@ -54,7 +126,6 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
                                 .like(StandardEntity::getName, request.getKeyword())
                 );
             }
-
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), StandardEntity::getDeptId, request.getDeptId());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), StandardEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), StandardEntity::getCurrentNodeName, request.getCurrentNodeName());
@@ -71,11 +142,7 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         }
 
         IPage<StandardEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return entityPage.convert(entity -> {
-            StandardResponse response = BeanUtil.copyProperties(entity, StandardResponse.class);
-            response.setFileUrls(StrUtil.split(entity.getFileUrl(), ";"));
-            return response;
-        });
+        return entityPage.convert(this::convertToResponse);
     }
 
     @SneakyThrows
@@ -85,79 +152,16 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         if (entity == null) {
             throw new BizException("标准信息不存在");
         }
-        StandardResponse res = BeanUtil.copyProperties(entity, StandardResponse.class);
-        res.setFileUrls(StrUtil.split(entity.getFileUrl(), ";"));
+        StandardResponse res = convertToResponse(entity);
         res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
         res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
         return res;
     }
 
-    @SneakyThrows
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean create(StandardCreateRequest request) {
-        StandardEntity entity = BeanUtil.copyProperties(request, StandardEntity.class);
-        entity.setCode(StandardResponse.BIZ_CODE + IdUtil.getSnowflakeNextIdStr());
-        if (CollUtil.isNotEmpty(request.getFileUrls())) {
-            entity.setFileUrl(StrUtil.join(";", request.getFileUrls()));
-            List<FileCreateRequest> fileCreateRequestList = CollUtil.newArrayList();
-            for (String fileName : request.getFileUrls()) {
-                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
-                        fileName,
-                        entity.getCode(),
-                        StandardResponse.BIZ_CODE,
-                        entity.getName(),
-                        FileBizTypeEnum.ATTACHMENT.getValue()
-                );
-                fileCreateRequestList.add(fileCreateRequest);
-            }
-            fileService.batchCreate(fileCreateRequestList);
-        }
-        request.getCompleters().forEach(completer -> {
-            if (completer.getCompleterLeader() == 1) {
-                entity.setLeaderCode(completer.getCompleterNo());
-                entity.setLeaderName(completer.getCompleterName());
-            }
-        });
-        this.save(entity);
-        if (ObjectUtil.isNull(entity.getId())) {
-            throw new BizException("标准信息保存失败，未生成 ID");
-        }
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        return Boolean.TRUE;
-    }
-
-    @SneakyThrows
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean update(StandardUpdateRequest request) {
-        StandardEntity entity = BeanUtil.copyProperties(request, StandardEntity.class);
-        if (CollUtil.isNotEmpty(request.getFileUrls())) {
-            entity.setFileUrl(StrUtil.join(";", request.getFileUrls()));
-            List<FileCreateRequest> fileCreateRequestList = CollUtil.newArrayList();
-            for (String fileName : request.getFileUrls()) {
-                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
-                        fileName,
-                        entity.getCode(),
-                        StandardResponse.BIZ_CODE,
-                        entity.getName(),
-                        FileBizTypeEnum.ATTACHMENT.getValue()
-                );
-                fileCreateRequestList.add(fileCreateRequest);
-            }
-            fileService.batchCreate(fileCreateRequestList);
-        }
-        request.getCompleters().forEach(completer -> {
-            if (completer.getCompleterLeader() == 1) {
-                entity.setLeaderCode(completer.getCompleterNo());
-                entity.setLeaderName(completer.getCompleterName());
-            }
-        });
-        this.updateById(entity);
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        return Boolean.TRUE;
+    private StandardResponse convertToResponse(StandardEntity entity) {
+        StandardResponse response = BeanUtil.copyProperties(entity, StandardResponse.class);
+        response.setFileUrls(StrUtil.split(entity.getFileUrl(), ";"));
+        return response;
     }
 
     @Override

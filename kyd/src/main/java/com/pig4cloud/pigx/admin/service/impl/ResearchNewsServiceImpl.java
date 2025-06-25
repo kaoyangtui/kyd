@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsCreateRequest;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsPageRequest;
@@ -37,31 +38,37 @@ import java.util.List;
 public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, ResearchNewsEntity> implements ResearchNewsService {
 
     @Override
-    public IPage<ResearchNewsResponse> pageResult(Page page, ResearchNewsPageRequest request) {
-        LambdaQueryWrapper<ResearchNewsEntity> wrapper = Wrappers.lambdaQuery();
-        if (CollUtil.isNotEmpty(request.getIds())) {
-            wrapper.in(ResearchNewsEntity::getId, request.getIds());
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean createNews(ResearchNewsCreateRequest request) {
+        doSaveOrUpdate(request, true);
+        return Boolean.TRUE;
+    }
+
+    @SneakyThrows
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean updateNews(ResearchNewsUpdateRequest request) {
+        if (ObjectUtil.isNull(request.getId())) {
+            throw new BizException("ID不能为空");
+        }
+        doSaveOrUpdate(request, false);
+        return Boolean.TRUE;
+    }
+
+    private void doSaveOrUpdate(ResearchNewsCreateRequest request, boolean isCreate) {
+        ResearchNewsEntity entity = BeanUtil.copyProperties(request, ResearchNewsEntity.class);
+
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            request.getFileUrl().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
+
+        if (!isCreate && request instanceof ResearchNewsUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            this.updateById(entity);
         } else {
-            if (StrUtil.isNotBlank(request.getKeyword())) {
-                wrapper.and(w ->
-                        w.like(ResearchNewsEntity::getTitle, request.getKeyword())
-                                .or()
-                                .like(ResearchNewsEntity::getContent, request.getKeyword())
-                                .or()
-                                .like(ResearchNewsEntity::getProvider, request.getKeyword())
-                );
-            }
-            wrapper.like(StrUtil.isNotBlank(request.getCreateBy()), ResearchNewsEntity::getCreateBy, request.getCreateBy());
+            this.save(entity);
         }
-        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
-            page.setSize(request.getEndNo() - request.getStartNo() + 1);
-            page.setCurrent(1);
-        } else if (CollUtil.isNotEmpty(request.getIds())) {
-            page.setSize(request.getIds().size());
-            page.setCurrent(1);
-        }
-        IPage<ResearchNewsEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return entityPage.convert(entity -> BeanUtil.copyProperties(entity, ResearchNewsResponse.class));
     }
 
     @SneakyThrows
@@ -71,33 +78,45 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        ResearchNewsResponse response = BeanUtil.copyProperties(entity, ResearchNewsResponse.class);
+        return convertToResponse(entity);
+    }
 
-        response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
-                ? StrUtil.split(entity.getFileUrl(), ";")
-                : null);
+    @Override
+    public IPage<ResearchNewsResponse> pageResult(Page page, ResearchNewsPageRequest request) {
+        LambdaQueryWrapper<ResearchNewsEntity> wrapper = Wrappers.lambdaQuery();
+        if (CollUtil.isNotEmpty(request.getIds())) {
+            wrapper.in(ResearchNewsEntity::getId, request.getIds());
+        } else {
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w -> w
+                        .like(ResearchNewsEntity::getTitle, request.getKeyword())
+                        .or().like(ResearchNewsEntity::getContent, request.getKeyword())
+                        .or().like(ResearchNewsEntity::getProvider, request.getKeyword()));
+            }
+            wrapper.like(StrUtil.isNotBlank(request.getCreateBy()), ResearchNewsEntity::getCreateBy, request.getCreateBy());
+        }
+
+        if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {
+            page.setSize(request.getEndNo() - request.getStartNo() + 1);
+            page.setCurrent(1);
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
+            page.setSize(request.getIds().size());
+            page.setCurrent(1);
+        }
+
+        IPage<ResearchNewsEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        return entityPage.convert(this::convertToResponse);
+    }
+
+    private ResearchNewsResponse convertToResponse(ResearchNewsEntity entity) {
+        ResearchNewsResponse response = BeanUtil.copyProperties(entity, ResearchNewsResponse.class);
+        response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl()) ? StrUtil.split(entity.getFileUrl(), ";") : null);
         return response;
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean createNews(ResearchNewsCreateRequest request) {
-        ResearchNewsEntity entity = BeanUtil.copyProperties(request, ResearchNewsEntity.class);
-        if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        }
-        return this.save(entity);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean updateNews(ResearchNewsUpdateRequest request) {
-        ResearchNewsEntity entity = BeanUtil.copyProperties(request, ResearchNewsEntity.class);
-        entity.setId(request.getId());
-        if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        }
-        return this.updateById(entity);
+    public ExportFieldListResponse exportFields() {
+        return ExportFieldHelper.buildExportFieldList(ResearchNewsResponse.BIZ_CODE, ResearchNewsResponse.class);
     }
 
     @Override
@@ -105,12 +124,6 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
     public Boolean removeNews(List<Long> ids) {
         return this.removeBatchByIds(ids);
     }
-
-    @Override
-    public ExportFieldListResponse exportFields() {
-        return ExportFieldHelper.buildExportFieldList(
-                ResearchNewsResponse.BIZ_CODE,
-                ResearchNewsResponse.class
-        );
-    }
 }
+
+

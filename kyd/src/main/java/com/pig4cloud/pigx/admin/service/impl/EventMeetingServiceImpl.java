@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingCreateRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
@@ -46,29 +47,23 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), EventMeetingEntity::getCreateBy, request.getCreateBy());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), EventMeetingEntity::getEventTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), EventMeetingEntity::getEventTime, request.getEndTime());
+
             if (request.getUserId() != null) {
                 wrapper.apply("exists (select 1 from t_event_meeting_apply " +
                         "where meeting_id = t_event_meeting.id and user_id = {0} and del_flag = '0')", request.getUserId());
             }
-
         }
 
-        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+        if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {
             page.setSize(request.getEndNo() - request.getStartNo() + 1);
             page.setCurrent(1);
-        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
         }
 
         IPage<EventMeetingEntity> entityPage = this.page(page, wrapper);
-        return entityPage.convert(entity -> {
-            EventMeetingResponse response = BeanUtil.copyProperties(entity, EventMeetingResponse.class);
-            response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
-                    ? StrUtil.split(entity.getFileUrl(), ";")
-                    : null);
-            return response;
-        });
+        return entityPage.convert(this::convertToResponse);
     }
 
     @SneakyThrows
@@ -78,31 +73,21 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        EventMeetingResponse response = BeanUtil.copyProperties(entity, EventMeetingResponse.class);
-        response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
-                ? StrUtil.split(entity.getFileUrl(), ";")
-                : null);
-        return response;
+        return convertToResponse(entity);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createMeeting(EventMeetingCreateRequest request) {
-        EventMeetingEntity entity = BeanUtil.copyProperties(request, EventMeetingEntity.class);
-        if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        }
-        return this.save(entity);
+        doSaveOrUpdate(request, true);
+        return true;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateMeeting(EventMeetingUpdateRequest request) {
-        EventMeetingEntity entity = BeanUtil.copyProperties(request, EventMeetingEntity.class);
-        if (CollUtil.isNotEmpty(request.getFileUrl())) {
-            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        }
-        return this.updateById(entity);
+        doSaveOrUpdate(request, false);
+        return true;
     }
 
     @Override
@@ -110,4 +95,29 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
     public boolean removeMeetings(List<Long> ids) {
         return this.removeBatchByIds(ids);
     }
+
+    private void doSaveOrUpdate(EventMeetingCreateRequest request, boolean isCreate) {
+        EventMeetingEntity entity = BeanUtil.copyProperties(request, EventMeetingEntity.class);
+
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            request.getFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
+
+        if (!isCreate && request instanceof EventMeetingUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            this.updateById(entity);
+        } else {
+            this.save(entity);
+        }
+    }
+
+    private EventMeetingResponse convertToResponse(EventMeetingEntity entity) {
+        EventMeetingResponse response = BeanUtil.copyProperties(entity, EventMeetingResponse.class);
+        response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
+                ? StrUtil.split(entity.getFileUrl(), ";")
+                : null);
+        return response;
+    }
 }
+

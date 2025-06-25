@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyPageRequest;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyResponse;
@@ -60,41 +61,30 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
         }
 
         IPage<AssetPolicyEntity> resultPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return resultPage.convert(entity -> {
-            AssetPolicyResponse res = BeanUtil.copyProperties(entity, AssetPolicyResponse.class);
-            res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-            return res;
-        });
+        return resultPage.convert(this::convertToResponse);
     }
 
-    @Override
     @SneakyThrows
+    @Override
     public AssetPolicyResponse getDetail(Long id) {
         AssetPolicyEntity entity = this.getById(id);
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        AssetPolicyResponse res = BeanUtil.copyProperties(entity, AssetPolicyResponse.class);
-        res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-        return res;
+        return convertToResponse(entity);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean createPolicy(AssetPolicyCreateRequest request) {
-        AssetPolicyEntity entity = BeanUtil.copyProperties(request, AssetPolicyEntity.class);
-        entity.setId(null);
-        entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        this.save(entity);
+        doSaveOrUpdate(request, true);
         return Boolean.TRUE;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updatePolicy(AssetPolicyUpdateRequest request) {
-        AssetPolicyEntity entity = BeanUtil.copyProperties(request, AssetPolicyEntity.class);
-        entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        this.updateById(entity);
+        doSaveOrUpdate(request, false);
         return Boolean.TRUE;
     }
 
@@ -102,5 +92,27 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
     @Transactional(rollbackFor = Exception.class)
     public Boolean removePolicies(List<Long> ids) {
         return this.removeBatchByIds(ids);
+    }
+
+    private void doSaveOrUpdate(AssetPolicyCreateRequest request, boolean isCreate) {
+        AssetPolicyEntity entity = BeanUtil.copyProperties(request, AssetPolicyEntity.class);
+
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            request.getFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
+
+        if (!isCreate && request instanceof AssetPolicyUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            this.updateById(entity);
+        } else {
+            this.save(entity);
+        }
+    }
+
+    private AssetPolicyResponse convertToResponse(AssetPolicyEntity entity) {
+        AssetPolicyResponse res = BeanUtil.copyProperties(entity, AssetPolicyResponse.class);
+        res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        return res;
     }
 }

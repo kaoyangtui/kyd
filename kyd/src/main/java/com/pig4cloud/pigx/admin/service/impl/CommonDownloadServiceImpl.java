@@ -8,11 +8,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadCreateRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadPageRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadResponse;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
 import com.pig4cloud.pigx.admin.entity.CommonDownloadEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.CommonDownloadMapper;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper, CommonDownloadEntity> implements CommonDownloadService {
@@ -32,6 +31,7 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
     @Override
     public IPage<CommonDownloadResponse> pageResult(Page page, CommonDownloadPageRequest request) {
         LambdaQueryWrapper<CommonDownloadEntity> wrapper = new LambdaQueryWrapper<>();
+
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(CommonDownloadEntity::getId, request.getIds());
         } else {
@@ -39,14 +39,14 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
                 wrapper.and(w -> w
                         .like(CommonDownloadEntity::getFileName, request.getKeyword())
                         .or()
-                        .like(CommonDownloadEntity::getContent, request.getKeyword())
-                );
+                        .like(CommonDownloadEntity::getContent, request.getKeyword()));
             }
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), CommonDownloadEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), CommonDownloadEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), CommonDownloadEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), CommonDownloadEntity::getCreateTime, request.getEndTime());
         }
+
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
             page.setSize(request.getEndNo() - request.getStartNo() + 1);
             page.setCurrent(1);
@@ -54,12 +54,9 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
             page.setSize(request.getIds().size());
             page.setCurrent(1);
         }
+
         IPage<CommonDownloadEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return resPage.convert(entity -> {
-            CommonDownloadResponse response = BeanUtil.copyProperties(entity, CommonDownloadResponse.class);
-            response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-            return response;
-        });
+        return resPage.convert(this::convertToResponse);
     }
 
     @SneakyThrows
@@ -69,25 +66,21 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        CommonDownloadResponse response = BeanUtil.copyProperties(entity, CommonDownloadResponse.class);
-        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-        return response;
+        return convertToResponse(entity);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(CommonDownloadCreateRequest request) {
-        CommonDownloadEntity entity = BeanUtil.copyProperties(request, CommonDownloadEntity.class);
-        entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        return this.save(entity);
+        doSaveOrUpdate(request, true);
+        return Boolean.TRUE;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean update(CommonDownloadUpdateRequest request) {
-        CommonDownloadEntity entity = BeanUtil.copyProperties(request, CommonDownloadEntity.class);
-        entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        return this.updateById(entity);
+        doSaveOrUpdate(request, false);
+        return Boolean.TRUE;
     }
 
     @Override
@@ -96,4 +89,26 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
         return this.removeBatchByIds(ids);
     }
 
+    private void doSaveOrUpdate(CommonDownloadCreateRequest request, boolean isCreate) {
+        CommonDownloadEntity entity = BeanUtil.copyProperties(request, CommonDownloadEntity.class);
+
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            request.getFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
+
+        if (!isCreate && request instanceof CommonDownloadUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            this.updateById(entity);
+        } else {
+            this.save(entity);
+        }
+    }
+
+    private CommonDownloadResponse convertToResponse(CommonDownloadEntity entity) {
+        CommonDownloadResponse response = BeanUtil.copyProperties(entity, CommonDownloadResponse.class);
+        response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        return response;
+    }
 }
+

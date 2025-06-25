@@ -9,8 +9,6 @@ import com.pig4cloud.pigx.admin.dto.platformInfo.PlatformInfoResponse;
 import com.pig4cloud.pigx.admin.dto.platformInfo.PlatformInfoUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.PlatformInfoEntity;
 
-import java.util.List;
-
 public interface PlatformInfoService extends IService<PlatformInfoEntity> {
     IPage<PlatformInfoResponse> pageResult(Page page, PlatformInfoPageRequest request);
 

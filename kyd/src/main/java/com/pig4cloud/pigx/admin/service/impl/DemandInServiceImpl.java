@@ -8,17 +8,22 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
+import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInCreateRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
+import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.DemandInMapper;
 import com.pig4cloud.pigx.admin.service.DemandInService;
+import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,26 +33,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEntity> implements DemandInService {
 
+    private final FileService fileService;
+
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Boolean create(DemandInCreateRequest request) {
-        DemandInEntity entity = BeanUtil.copyProperties(request, DemandInEntity.class);
-        entity.setTags(StrUtil.join(";", request.getTags()));
-        entity.setAttachFileUrl(StrUtil.join(";", request.getAttachFileUrl()));
-        return this.save(entity);
+        doSaveOrUpdate(request, true);
+        return Boolean.TRUE;
     }
 
     @SneakyThrows
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Boolean update(DemandInUpdateRequest request) {
         if (ObjectUtil.isNull(request.getId())) {
             throw new BizException("ID不能为空");
         }
-        DemandInEntity entity = BeanUtil.copyProperties(request, DemandInEntity.class);
-        entity.setTags(StrUtil.join(";", request.getTags()));
-        entity.setAttachFileUrl(StrUtil.join(";", request.getAttachFileUrl()));
-        return this.updateById(entity);
+        doSaveOrUpdate(request, false);
+        return Boolean.TRUE;
     }
 
     @SneakyThrows
@@ -57,10 +60,7 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
-        DemandInResponse response = BeanUtil.copyProperties(entity, DemandInResponse.class);
-        response.setTags(StrUtil.split(entity.getTags(), ";"));
-        response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
-        return response;
+        return convertToResponse(entity);
     }
 
     @Override
@@ -77,7 +77,6 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         } else {
             wrapper.like(StrUtil.isNotBlank(request.getKeyword()), DemandInEntity::getName, request.getKeyword());
             wrapper.eq(StrUtil.isNotBlank(request.getType()), DemandInEntity::getType, request.getType());
-            //技术领域
             if (CollUtil.isNotEmpty(request.getField())) {
                 wrapper.and(q -> request.getField().forEach(o -> q.or().like(DemandInEntity::getField, o)));
             }
@@ -98,16 +97,11 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         }
 
         Page<DemandInEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return entityPage.convert(entity -> {
-            DemandInResponse response = BeanUtil.copyProperties(entity, DemandInResponse.class);
-            response.setTags(StrUtil.split(entity.getTags(), ";"));
-            response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
-            return response;
-        });
+        return entityPage.convert(this::convertToResponse);
     }
 
     @SneakyThrows
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean updateShelfStatus(Long id, Integer shelfStatus) {
         if (ObjectUtil.isNull(id)) {
@@ -120,4 +114,42 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         entity.setShelfStatus(shelfStatus);
         return this.updateById(entity);
     }
+
+    private void doSaveOrUpdate(DemandInCreateRequest request, boolean isCreate) {
+        DemandInEntity entity = BeanUtil.copyProperties(request, DemandInEntity.class);
+        entity.setTags(StrUtil.join(";", request.getTags()));
+
+        if (CollUtil.isNotEmpty(request.getAttachFileUrl())) {
+            List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
+            request.getAttachFileUrl().forEach(fileName -> {
+                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
+                        fileName,
+                        entity.getCode(),
+                        DemandInResponse.BIZ_CODE,
+                        entity.getName(),
+                        FileBizTypeEnum.ATTACHMENT.getValue()
+                );
+                fileCreateRequestList.add(fileCreateRequest);
+            });
+            fileService.batchCreate(fileCreateRequestList);
+
+            request.getAttachFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
+            entity.setAttachFileUrl(StrUtil.join(";", request.getAttachFileUrl()));
+        }
+
+        if (!isCreate && request instanceof DemandInUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            this.updateById(entity);
+        } else {
+            this.save(entity);
+        }
+    }
+
+    private DemandInResponse convertToResponse(DemandInEntity entity) {
+        DemandInResponse response = BeanUtil.copyProperties(entity, DemandInResponse.class);
+        response.setTags(StrUtil.split(entity.getTags(), ";"));
+        response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
+        return response;
+    }
 }
+

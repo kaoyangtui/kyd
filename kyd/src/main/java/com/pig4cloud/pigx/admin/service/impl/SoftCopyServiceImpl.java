@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyCreateRequest;
@@ -47,83 +48,76 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
     private final OwnerService ownerService;
 
     @SneakyThrows
-    @Override
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public Boolean createProposal(SoftCopyCreateRequest request) {
-        SoftCopyEntity entity = BeanUtil.copyProperties(request, SoftCopyEntity.class);
-        entity.setCode(ParamResolver.getStr(SoftCopyResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
-        if (request.getAttachmentUrls() != null && !request.getAttachmentUrls().isEmpty()) {
-            String fileUrl = StrUtil.join(";", request.getAttachmentUrls());
-            entity.setAttachmentUrls(fileUrl);
-            List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
-            request.getAttachmentUrls().forEach(fileName -> {
-                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
-                        fileName,
-                        entity.getCode(),
-                        SoftCopyResponse.BIZ_CODE,
-                        entity.getSoftName(),
-                        FileBizTypeEnum.ATTACHMENT.getValue()
-                );
-                fileCreateRequestList.add(fileCreateRequest);
-            });
-            fileService.batchCreate(fileCreateRequestList);
-        }
-        request.getCompleters().forEach(completer -> {
-            if (completer.getCompleterLeader() == 1) {
-                entity.setLeaderCode(completer.getCompleterNo());
-                entity.setLeaderName(completer.getCompleterName());
-            }
-        });
-        this.save(entity);
-        Long softCopyId = entity.getId();
-        if (ObjectUtil.isNull(softCopyId)) {
-            throw new BizException("软著提案保存失败，未生成 ID");
-        }
-
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        doSaveOrUpdate(request, true);
         return Boolean.TRUE;
     }
 
-    @Override
+    @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public Boolean updateProposal(SoftCopyUpdateRequest request) {
-        Long id = request.getId();
-        SoftCopyEntity entity = BeanUtil.copyProperties(request, SoftCopyEntity.class);
-        entity.setId(id);
-        if (request.getAttachmentUrls() != null && !request.getAttachmentUrls().isEmpty()) {
-            String fileUrl = StrUtil.join(";", request.getAttachmentUrls());
-            entity.setAttachmentUrls(fileUrl);
-            List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
-            request.getAttachmentUrls().forEach(fileName -> {
-                FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
-                        fileName,
-                        entity.getCode(),
-                        SoftCopyResponse.BIZ_CODE,
-                        entity.getSoftName(),
-                        FileBizTypeEnum.ATTACHMENT.getValue()
-                );
-                fileCreateRequestList.add(fileCreateRequest);
-            });
-            fileService.batchCreate(fileCreateRequestList);
+        if (ObjectUtil.isNull(request.getId())) {
+            throw new BizException("ID不能为空");
         }
-        request.getCompleters().forEach(completer -> {
-            if (completer.getCompleterLeader() == 1) {
-                entity.setLeaderCode(completer.getCompleterNo());
-                entity.setLeaderName(completer.getCompleterName());
+        doSaveOrUpdate(request, false);
+        return Boolean.TRUE;
+    }
+
+    @SneakyThrows
+    private void doSaveOrUpdate(SoftCopyCreateRequest request, boolean isCreate) {
+        SoftCopyEntity entity = BeanUtil.copyProperties(request, SoftCopyEntity.class);
+
+        if (isCreate) {
+            entity.setCode(ParamResolver.getStr(SoftCopyResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+        } else if (request instanceof SoftCopyUpdateRequest updateReq) {
+            entity.setId(updateReq.getId());
+        }
+
+        // 附件处理
+        if (CollUtil.isNotEmpty(request.getAttachmentUrls())) {
+            List<FileCreateRequest> fileList = Lists.newArrayList();
+            request.getAttachmentUrls().forEach(fileName -> {
+                FileCreateRequest file = fileService.getFileCreateRequest(
+                        fileName, entity.getCode(),
+                        SoftCopyResponse.BIZ_CODE, entity.getSoftName(),
+                        FileBizTypeEnum.ATTACHMENT.getValue());
+                fileList.add(file);
+            });
+            fileService.batchCreate(fileList);
+            request.getAttachmentUrls().replaceAll(f -> StrUtil.format(CommonConstants.FILE_GET_URL, f));
+            entity.setAttachmentUrls(StrUtil.join(";", request.getAttachmentUrls()));
+        }
+
+        // 负责人处理
+        if (CollUtil.isNotEmpty(request.getCompleters())) {
+            request.getCompleters().stream()
+                    .filter(c -> ObjectUtil.equal(c.getCompleterLeader(), 1))
+                    .findFirst()
+                    .ifPresent(leader -> {
+                        entity.setLeaderCode(leader.getCompleterNo());
+                        entity.setLeaderName(leader.getCompleterName());
+                    });
+        }
+
+        if (isCreate) {
+            this.save(entity);
+            if (ObjectUtil.isNull(entity.getId())) {
+                throw new BizException("软著提案保存失败，未生成 ID");
             }
-        });
-        this.updateById(entity);
+        } else {
+            this.updateById(entity);
+        }
 
         completerService.replaceCompleters(entity.getCode(), request.getCompleters());
         ownerService.replaceOwners(entity.getCode(), request.getOwners());
-        return Boolean.TRUE;
     }
 
     @Override
     public IPage<SoftCopyResponse> pageResult(Page reqPage, SoftCopyPageRequest request) {
         LambdaQueryWrapper<SoftCopyEntity> wrapper = Wrappers.lambdaQuery();
-
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(SoftCopyEntity::getId, request.getIds());
         } else {
@@ -131,8 +125,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
                 wrapper.and(w ->
                         w.like(SoftCopyEntity::getCode, request.getKeyword())
                                 .or()
-                                .like(SoftCopyEntity::getSoftName, request.getKeyword())
-                );
+                                .like(SoftCopyEntity::getSoftName, request.getKeyword()));
             }
             wrapper.eq(StrUtil.isNotBlank(request.getTechField()), SoftCopyEntity::getTechField, request.getTechField());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), SoftCopyEntity::getDeptId, request.getDeptId());
@@ -141,22 +134,16 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), SoftCopyEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), SoftCopyEntity::getCreateTime, request.getEndTime());
         }
-
-        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+        if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {
             reqPage.setSize(request.getEndNo() - request.getStartNo() + 1);
             reqPage.setCurrent(1);
-        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
             reqPage.setSize(request.getIds().size());
             reqPage.setCurrent(1);
         }
 
         IPage<SoftCopyEntity> page = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
-
-        return page.convert(entity -> {
-            SoftCopyResponse response = BeanUtil.copyProperties(entity, SoftCopyResponse.class);
-            response.setAttachmentUrls(StrUtil.split(entity.getAttachmentUrls(), ";"));
-            return response;
-        });
+        return page.convert(this::convertToResponse);
     }
 
     @SneakyThrows
@@ -166,17 +153,21 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        SoftCopyResponse res = BeanUtil.copyProperties(entity, SoftCopyResponse.class);
-        res.setAttachmentUrls(StrUtil.split(entity.getAttachmentUrls(), ";"));
+        SoftCopyResponse res = convertToResponse(entity);
         res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
         res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
         return res;
     }
 
-    @Override
+    private SoftCopyResponse convertToResponse(SoftCopyEntity entity) {
+        SoftCopyResponse res = BeanUtil.copyProperties(entity, SoftCopyResponse.class);
+        res.setAttachmentUrls(StrUtil.split(entity.getAttachmentUrls(), ";"));
+        return res;
+    }
+
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public Boolean removeProposals(List<Long> ids) {
         return this.removeBatchByIds(ids);
     }
-
 }

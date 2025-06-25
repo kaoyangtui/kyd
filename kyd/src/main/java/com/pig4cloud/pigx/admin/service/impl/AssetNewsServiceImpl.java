@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsCreateRequest;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsPageRequest;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsResponse;
@@ -35,22 +36,19 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(AssetNewsEntity::getId, request.getIds());
         } else {
-            if (StrUtil.isNotBlank(request.getKeyword())) {
-                wrapper.and(w -> w
-                        .like(AssetNewsEntity::getTitle, request.getKeyword())
-                        .or()
-                        .like(AssetNewsEntity::getSource, request.getKeyword())
-                        .or()
-                        .like(AssetNewsEntity::getContent, request.getKeyword())
-                );
-            }
+            wrapper.like(StrUtil.isNotBlank(request.getKeyword()), AssetNewsEntity::getTitle, request.getKeyword())
+                    .or(StrUtil.isNotBlank(request.getKeyword()))
+                    .like(AssetNewsEntity::getSource, request.getKeyword())
+                    .or(StrUtil.isNotBlank(request.getKeyword()))
+                    .like(AssetNewsEntity::getContent, request.getKeyword());
+
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), AssetNewsEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), AssetNewsEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), AssetNewsEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), AssetNewsEntity::getCreateTime, request.getEndTime());
         }
 
-        // 支持 ids、startNo、endNo 特殊分页
+        // 支持 startNo/endNo 分页
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
             page.setSize(request.getEndNo() - request.getStartNo() + 1);
             page.setCurrent(1);
@@ -60,11 +58,7 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
         }
 
         IPage<AssetNewsEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return entityPage.convert(entity -> {
-            AssetNewsResponse res = BeanUtil.copyProperties(entity, AssetNewsResponse.class);
-            res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-            return res;
-        });
+        return entityPage.convert(this::convertToResponse);
     }
 
     @SneakyThrows
@@ -74,26 +68,20 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        AssetNewsResponse res = BeanUtil.copyProperties(entity, AssetNewsResponse.class);
-        res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-        return res;
+        return convertToResponse(entity);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(AssetNewsCreateRequest request) {
-        AssetNewsEntity entity = BeanUtil.copyProperties(request, AssetNewsEntity.class);
-        entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        this.save(entity);
+        doSaveOrUpdate(request, true);
         return Boolean.TRUE;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean update(AssetNewsUpdateRequest request) {
-        AssetNewsEntity entity = BeanUtil.copyProperties(request, AssetNewsEntity.class);
-        entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
-        this.updateById(entity);
+        doSaveOrUpdate(request, false);
         return Boolean.TRUE;
     }
 
@@ -109,13 +97,30 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(AssetNewsEntity::getId, request.getIds());
         }
-        List<AssetNewsEntity> list = this.list(wrapper);
-        List<AssetNewsResponse> result = list.stream().map(entity -> {
-            AssetNewsResponse res = BeanUtil.copyProperties(entity, AssetNewsResponse.class);
-            res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
-            return res;
-        }).toList();
-        return result;
+        return this.list(wrapper).stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
 
+    private void doSaveOrUpdate(AssetNewsCreateRequest request, boolean isCreate) {
+        AssetNewsEntity entity = BeanUtil.copyProperties(request, AssetNewsEntity.class);
+
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            request.getFileUrl().replaceAll(fileName -> StrUtil.format(CommonConstants.FILE_GET_URL, fileName));
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
+        }
+
+        if (!isCreate && request instanceof AssetNewsUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            this.updateById(entity);
+        } else {
+            this.save(entity);
+        }
+    }
+
+    private AssetNewsResponse convertToResponse(AssetNewsEntity entity) {
+        AssetNewsResponse res = BeanUtil.copyProperties(entity, AssetNewsResponse.class);
+        res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        return res;
     }
 }

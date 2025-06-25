@@ -72,6 +72,9 @@ public class FileEntity extends Model<FileEntity> {
     @Schema(description = "下载文件名")
     private String downloadName;
 
+    @Schema(description = "文件大小")
+    private Long fileSize;
+
     /**
      * 所属组织ID
      */
