@@ -129,7 +129,9 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
                         entity.getName(),
                         FileBizTypeEnum.ATTACHMENT.getValue()
                 );
-                fileCreateRequestList.add(fileCreateRequest);
+                if (ObjectUtil.isNotNull(fileCreateRequest)) {
+                    fileCreateRequestList.add(fileCreateRequest);
+                }
             });
             fileService.batchCreate(fileCreateRequestList);
             entity.setAttachFileUrl(StrUtil.join(";", request.getAttachFileUrl()));

@@ -116,16 +116,19 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
                 .orderByDesc(SysFile::getCreateTime)
                 .last("limit 1")
                 .one();
-        FileCreateRequest fileCreateRequest = new FileCreateRequest();
-        fileCreateRequest.setCode(code);
-        fileCreateRequest.setApplyType(applyType);
-        fileCreateRequest.setSubjectName(subjectName);
-        fileCreateRequest.setBizType(bizType);
-        fileCreateRequest.setFileName(sysFile.getFileName());
-        fileCreateRequest.setFileType(sysFile.getType());
-        fileCreateRequest.setDownloadName(sysFile.getOriginal());
-        fileCreateRequest.setFileSize(sysFile.getFileSize());
-        return fileCreateRequest;
+        if (ObjectUtil.isNotNull(sysFile)) {
+            FileCreateRequest fileCreateRequest = new FileCreateRequest();
+            fileCreateRequest.setCode(code);
+            fileCreateRequest.setApplyType(applyType);
+            fileCreateRequest.setSubjectName(subjectName);
+            fileCreateRequest.setBizType(bizType);
+            fileCreateRequest.setFileName(sysFile.getFileName());
+            fileCreateRequest.setFileType(sysFile.getType());
+            fileCreateRequest.setDownloadName(sysFile.getOriginal());
+            fileCreateRequest.setFileSize(sysFile.getFileSize());
+            return fileCreateRequest;
+        }
+        return null;
     }
 
     public String extractFileName(String url) {
