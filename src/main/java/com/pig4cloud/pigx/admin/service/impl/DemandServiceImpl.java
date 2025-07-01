@@ -142,9 +142,9 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
 
         if (!isCreate && request instanceof DemandUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
-            entity.setCode(ParamResolver.getStr(DemandResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.updateById(entity);
         } else {
+            entity.setCode(ParamResolver.getStr(DemandResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
         }
     }
