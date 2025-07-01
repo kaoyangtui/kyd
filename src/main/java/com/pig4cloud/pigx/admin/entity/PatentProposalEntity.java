@@ -1,0 +1,276 @@
+package com.pig4cloud.pigx.admin.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.pig4cloud.pigx.common.core.util.TenantTable;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
+
+/**
+ * 专利提案表
+ *
+ * @author pigx
+ * @date 2025-05-23 11:25:13
+ */
+@Data
+@TenantTable
+@TableName("t_patent_proposal")
+@EqualsAndHashCode(callSuper = true)
+@Schema(description = "专利提案表")
+public class PatentProposalEntity extends Model<PatentProposalEntity> {
+
+
+    /**
+     * 主键
+     */
+    @TableId(type = IdType.ASSIGN_ID)
+    @Schema(description = "主键")
+    private Long id;
+
+    /**
+     * 业务编码
+     */
+    @Schema(description = "业务编码")
+    private String code;
+
+    /**
+     * 流程实例 ID
+     */
+    @Schema(description = "流程实例 ID")
+    private String flowInstId;
+
+    /**
+     * 流程KEY
+     */
+    @Schema(description = "流程KEY")
+    private String flowKey;
+
+    /**
+     * 流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回
+     */
+    @Schema(description = "流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回")
+    private Integer flowStatus;
+
+    /**
+     * 当前流程节点名称
+     */
+    @Schema(description = "当前流程节点名称")
+    private String currentNodeName;
+
+    /**
+     * 拟申请专利名称
+     */
+    @Schema(description = "拟申请专利名称")
+    private String title;
+
+    /**
+     * 拟申请专利类型（如：发明专利、实用新型等）
+     */
+    @Schema(description = "拟申请专利类型（如：发明专利、实用新型等）")
+    private String type;
+
+    /**
+     * 技术所属领域
+     */
+    @Schema(description = "技术所属领域")
+    private String techField;
+
+    /**
+     * 专利计划维持年限
+     */
+    @Schema(description = "专利计划维持年限")
+    private Integer planYears;
+
+    /**
+     * 是否来源于校内高价值专利培育，0否1是
+     */
+    @Schema(description = "是否来源于校内高价值专利培育，0否1是")
+    private Integer isHighValueInner;
+
+    /**
+     * 是否有意成果转化，0否1是
+     */
+    @Schema(description = "是否有意成果转化，0否1是")
+    private Integer isTransform;
+
+    /**
+     * 是否依托项目，0否1是
+     */
+    @Schema(description = "是否依托项目，0否1是")
+    private Integer isFromProject;
+
+    /**
+     * 是否快速预审，0否1是
+     */
+    @Schema(description = "是否快速预审，0否1是")
+    private Integer isFastTrack;
+
+    /**
+     * 项目类型
+     */
+    @Schema(description = "项目类型")
+    private String projectType;
+
+    /**
+     * 项目名称
+     */
+    @Schema(description = "项目名称")
+    private String projectName;
+
+    /**
+     * 发明人（校外），最多10个，分号隔开
+     */
+    @Schema(description = "发明人（校外），最多10个，分号隔开")
+    private String inventorsOuter;
+
+    /**
+     * 摘要
+     */
+    @Schema(description = "摘要")
+    private String abstractText;
+
+    /**
+     * 权利要求
+     */
+    @Schema(description = "权利要求")
+    private String claimsText;
+
+    /**
+     * 说明书
+     */
+    @Schema(description = "说明书")
+    private String descriptionText;
+
+    /**
+     * 是否承诺发明人承诺书，0否1是
+     */
+    @Schema(description = "是否承诺发明人承诺书，0否1是")
+    private Integer isPromise;
+
+    /**
+     * 是否代理，0否1是
+     */
+    @Schema(description = "是否代理，0否1是")
+    private Integer isAgency;
+
+    /**
+     * 代理机构名称
+     */
+    @Schema(description = "代理机构名称")
+    private String agencyName;
+
+    /**
+     * 快速预审附件
+     */
+    @Schema(description = "快速预审附件")
+    private String fastTrackFile;
+
+    /**
+     * 权利要求书附件
+     */
+    @Schema(description = "权利要求书附件")
+    private String claimsFile;
+
+    /**
+     * 说明书附件
+     */
+    @Schema(description = "说明书附件")
+    private String descriptionFile;
+
+    /**
+     * 说明书附图
+     */
+    @Schema(description = "说明书附图")
+    private String descFigureFile;
+
+    /**
+     * 说明书摘要附图
+     */
+    @Schema(description = "说明书摘要附图")
+    private String abstractFigureFile;
+
+    /**
+     * 说明书摘要附件
+     */
+    @Schema(description = "说明书摘要附件")
+    private String abstractFile;
+
+    /**
+     * 负责人编码
+     */
+    @Schema(description = "负责人编码")
+    private String leaderCode;
+
+    /**
+     * 负责人姓名
+     */
+    @Schema(description = "负责人姓名")
+    private String leaderName;
+
+    /**
+     * 所属组织ID
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "所属组织ID")
+    private Long deptId;
+
+    /**
+     * 组织名称
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "组织名称")
+    private String deptName;
+
+    /**
+     * 创建/提交人
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人")
+    private String createBy;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人ID")
+    private Long createUserId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人姓名")
+    private String createUserName;
+
+    /**
+     * 创建/提交时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建/提交时间")
+    private LocalDateTime createTime;
+
+    /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新人")
+    private String updateBy;
+
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新时间")
+    private LocalDateTime updateTime;
+
+    /**
+     * 删除标识
+     */
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "删除标识")
+    private String delFlag;
+
+    /**
+     * 租户
+     */
+    @Schema(description = "租户")
+    private Long tenantId;
+}
