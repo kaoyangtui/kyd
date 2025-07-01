@@ -125,13 +125,13 @@ public class DemandEntity extends Model<DemandEntity> {
      * 报名开始时间
      */
     @Schema(description = "报名开始时间")
-    private LocalDateTime signUpStart;
+    private LocalDate signUpStart;
 
     /**
      * 报名截止时间
      */
     @Schema(description = "报名截止时间")
-    private LocalDateTime signUpEnd;
+    private LocalDate signUpEnd;
 
     /**
      * 企业名称

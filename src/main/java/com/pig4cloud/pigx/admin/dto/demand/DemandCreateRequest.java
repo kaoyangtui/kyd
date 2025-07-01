@@ -30,8 +30,11 @@ public class DemandCreateRequest {
     @Schema(description = "所属领域")
     private String field;
 
-    @Schema(description = "需求有效期")
-    private LocalDate validUntil;
+    @Schema(description = "有效期开始时间")
+    private LocalDate validStart;
+
+    @Schema(description = "有效期结束时间")
+    private LocalDate validEnd;
 
     @Schema(description = "预算金额（万元）")
     private BigDecimal budget;
@@ -43,10 +46,10 @@ public class DemandCreateRequest {
     private List<String> tags;
 
     @Schema(description = "报名开始时间")
-    private LocalDateTime signUpStart;
+    private LocalDate signUpStart;
 
     @Schema(description = "报名截止时间")
-    private LocalDateTime signUpEnd;
+    private LocalDate signUpEnd;
 
     @Schema(description = "企业名称")
     private String companyName;
