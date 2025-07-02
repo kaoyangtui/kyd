@@ -3,6 +3,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -22,9 +23,9 @@ import com.pig4cloud.pigx.admin.mapper.ResultMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.ResultService;
-import com.pig4cloud.pigx.admin.service.SysFileService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.jsonflow.service.RunFlowService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 科研成果表
@@ -47,7 +49,7 @@ import java.util.List;
 public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> implements ResultService {
 
     private final FileService fileService;
-    private final SysFileService sysFileService;
+    private final RunFlowService runFlowService;
     private final CompleterService completerService;
 
     @SneakyThrows
@@ -96,7 +98,9 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
                         entity.getName(),
                         FileBizTypeEnum.ATTACHMENT.getValue()
                 );
-                fileCreateRequestList.add(fileCreateRequest);
+                if (fileCreateRequest != null) {
+                    fileCreateRequestList.add(fileCreateRequest);
+                }
             });
             fileService.batchCreate(fileCreateRequestList);
             entity.setFileUrl(StrUtil.join(";", request.getFileNames()));
@@ -113,7 +117,24 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         }
 
         if (isCreate) {
+            entity.setFlowKey(ResultResponse.BIZ_CODE);
+            entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
+            //发起流程
+            Map<String, Object> order = MapUtil.newHashMap();
+            //	 * @param order  工单数据（必须字段: id, flowInstId, flowKey或defFlowId）
+            order.put("id", entity.getId());
+            order.put("flowInstId", entity.getFlowInstId());
+            order.put("flowKey", entity.getFlowKey());
+            Map<String, Object> params = MapUtil.newHashMap();
+            params.put("flowInstId", entity.getFlowInstId());
+            params.put("code", entity.getCode());
+            params.put("flowKey", entity.getFlowKey());
+            params.put("orderName", entity.getName());
+            Boolean bl = runFlowService.startFlow(order, params);
+            if (!bl) {
+                throw new BizException("流程启动失败");
+            }
         } else {
             this.updateById(entity);
         }
