@@ -17,6 +17,8 @@ import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author zhaoliang
  */
@@ -39,24 +41,44 @@ public class PatentConsumer implements RocketMQListener<String> {
     public void onMessage(String message) {
         try {
             if (StrUtil.isBlank(message)) {
-                log.warn("消息为空");
+                log.warn("接收到的消息为空，跳过处理");
                 return;
             }
+
+            log.info("========== 【专利消息处理开始】==========");
+            log.info("接收到消息内容: {}", message);
+
+            // 主表信息保存
             PatentInfoEntity patentInfo = JSONUtil.toBean(message, PatentInfoEntity.class);
-            //主表信息保存
+            log.info("解析主表信息完成，专利ID: {}", patentInfo.getPid());
             patentInfoService.create(patentInfo, message);
-            //详情信息保存
+            log.info("主表信息保存完成");
+
+            // 详情信息保存
             PatentDetailEntity patentDetail = JSONUtil.toBean(message, PatentDetailEntity.class);
             patentDetail.setId(null);
             patentDetail.setCitationForwardCountry(CodeUtils.formatCodes(patentDetail.getCitationForwardCountry()));
+            log.info("解析详情信息完成");
             patentDetailService.save(patentDetail);
-            //发明人
-            patentInventorService.create(patentInfo.getPid(), StrUtil.split(patentInfo.getInventorName(), ';'));
-            //专利监控
+            log.info("详情信息保存完成");
+
+            // 发明人处理
+            List<String> inventorNames = StrUtil.split(patentInfo.getInventorName(), ';');
+            log.info("发明人分割完成，共 {} 人", inventorNames.size());
+            patentInventorService.create(patentInfo.getPid(), inventorNames);
+            log.info("发明人信息保存完成");
+
+            // 专利监控
             patentMonitorService.create(message);
+            log.info("专利监控信息保存完成");
+
+            log.info("========== 【专利消息处理结束】==========");
+
         } catch (Exception e) {
-            log.info("消费消息: {}", message);
-            log.error("消费消息异常: {}", e.getMessage(), e);
+            log.error("========== 【专利消息处理异常】==========");
+            log.error("消息内容: {}", message);
+            log.error("异常信息: {}", e.getMessage(), e);
         }
     }
+
 }

@@ -27,6 +27,7 @@ import com.pig4cloud.pigx.admin.es.mapper.PatentEsMapper;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.service.CniprService;
 import com.pig4cloud.pigx.admin.service.DataScopeService;
+import com.pig4cloud.pigx.admin.service.PatentDetailService;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
@@ -58,6 +59,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
     private final CniprService cniprService;
     private final DataScopeService dataScopeService;
     private final PatentEsMapper patentEsMapper;
+    private final PatentDetailService patentDetailService;
 
     @Override
     public IPage<PatentInfoResponse> pageResult(Page page, PatentPageRequest request) {
