@@ -96,18 +96,18 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             if (!dataScopeService.calcScope(dataScope)) {
                 List<Long> deptIds = dataScope.getDeptList();
                 String deptIn = CollUtil.join(deptIds, ",");
-                String name = dataScope.getUsername();
+                String name = dataScope.getName();
                 // 1.无数据权限限制，则直接返回 0 条数据
-                if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(dataScope.getUsername())) {
+                if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(name)) {
                     return null;
                 }
                 // 2.如果为本人权限 + 部门权限控制
-                if (CollUtil.isNotEmpty(deptIds)) {
+                if (StrUtil.isNotBlank(name) && CollUtil.isNotEmpty(deptIds)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
-                            "where pid = t_patent_info.pid and name = {0} and dept_id in (" + deptIn + "))", name);
+                            "where pid = t_patent_info.pid and (name = {0} or dept_id in (" + deptIn + ")))", name);
                 }
                 // 3. 如果为本人
-                else if (StrUtil.isNotBlank(dataScope.getUsername())) {
+                else if (StrUtil.isNotBlank(name)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and name = {0})", name);
                 }

@@ -24,6 +24,7 @@ public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, P
     public void create(String message) {
         PatentMonitorEntity patentMonitor = JSONUtil.toBean(message, PatentMonitorEntity.class);
         patentMonitor.setId(null);
+        patentMonitor.setTenantId(1L);
         JSONObject jsonObject = JSONUtil.parseObj(message);
         JSONArray jsonArray = jsonObject.getJSONArray("legalList");
         // 获取第一个项

@@ -50,6 +50,7 @@ public class PatentConsumer implements RocketMQListener<String> {
 
             // 主表信息保存
             PatentInfoEntity patentInfo = JSONUtil.toBean(message, PatentInfoEntity.class);
+            patentInfo.setTenantId(1L);
             log.info("解析主表信息完成，专利ID: {}", patentInfo.getPid());
             patentInfoService.create(patentInfo, message);
             log.info("主表信息保存完成");
@@ -57,6 +58,7 @@ public class PatentConsumer implements RocketMQListener<String> {
             // 详情信息保存
             PatentDetailEntity patentDetail = JSONUtil.toBean(message, PatentDetailEntity.class);
             patentDetail.setId(null);
+            patentDetail.setTenantId(1L);
             patentDetail.setCitationForwardCountry(CodeUtils.formatCodes(patentDetail.getCitationForwardCountry()));
             log.info("解析详情信息完成");
             patentDetailService.save(patentDetail);
