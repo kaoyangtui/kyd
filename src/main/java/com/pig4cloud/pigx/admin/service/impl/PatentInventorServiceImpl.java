@@ -75,5 +75,6 @@ public class PatentInventorServiceImpl extends ServiceImpl<PatentInventorMapper,
                 patentInventorList.add(inventor);
             }
         }
+        this.saveBatch(patentInventorList);
     }
 }
