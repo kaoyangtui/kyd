@@ -15,6 +15,7 @@ import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
@@ -60,6 +61,10 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
+        this.lambdaUpdate()
+                .eq(IpTransformEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         return convertToResponse(entity);
     }
 

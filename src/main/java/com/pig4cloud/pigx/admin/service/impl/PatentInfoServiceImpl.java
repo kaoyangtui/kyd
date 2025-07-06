@@ -19,6 +19,7 @@ import com.pig4cloud.pigx.admin.constants.DiPatentConstants;
 import com.pig4cloud.pigx.admin.constants.DiPatentLegalStatusEnum;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
+import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.es.PatentEsEntity;
@@ -552,5 +553,28 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         return CollUtil.isNotEmpty(applicants) && CollUtil.isNotEmpty(patentees)
                 && !CollUtil.containsAny(patentees, applicants)
                 ? "1" : "0";
+    }
+
+    @Override
+    public PatentDetailResponse getDetailByPid(String pid) {
+        PatentInfoEntity info = this.lambdaQuery()
+                .eq(PatentInfoEntity::getPid, pid)
+                .one();
+        PatentDetailEntity detail = patentDetailService.lambdaQuery()
+                .eq(PatentDetailEntity::getPid, pid)
+                .one();
+
+        PatentDetailResponse resp = new PatentDetailResponse();
+        if (info != null) {
+            BeanUtil.copyProperties(info, resp);
+        }
+        if (detail != null) {
+            BeanUtil.copyProperties(detail, resp);
+        }
+        this.lambdaUpdate()
+                .eq(PatentInfoEntity::getPid, pid)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
+        return resp;
     }
 }

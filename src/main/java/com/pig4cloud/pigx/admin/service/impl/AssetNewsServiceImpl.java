@@ -68,6 +68,10 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        this.lambdaUpdate()
+                .eq(AssetNewsEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         return convertToResponse(entity);
     }
 

@@ -15,6 +15,7 @@ import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamResponse;
 import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchNewsEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchTeamEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchTeamMapper;
@@ -84,6 +85,10 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
         if (entity == null) {
             throw new BizException("科研团队不存在");
         }
+        this.lambdaUpdate()
+                .eq(ResearchTeamEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         ResearchTeamResponse response = BeanUtil.copyProperties(entity, ResearchTeamResponse.class);
         response.setResearchTags(StrUtil.split(entity.getResearchTags(), ";"));
         response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());

@@ -15,6 +15,7 @@ import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.entity.DemandEntity;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.DemandInMapper;
@@ -60,6 +61,10 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
+        this.lambdaUpdate()
+                .eq(DemandInEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         return convertToResponse(entity);
     }
 

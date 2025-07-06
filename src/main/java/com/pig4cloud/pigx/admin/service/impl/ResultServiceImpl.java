@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchTeamEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
@@ -192,6 +193,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        this.lambdaUpdate()
+                .eq(ResultEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         ResultResponse response = convertToResponse(entity);
         response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
         return response;

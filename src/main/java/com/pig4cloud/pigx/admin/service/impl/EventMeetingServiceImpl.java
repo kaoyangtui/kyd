@@ -13,6 +13,7 @@ import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingCreateRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.EventMeetingMapper;
@@ -73,6 +74,10 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        this.lambdaUpdate()
+                .eq(EventMeetingEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         return convertToResponse(entity);
     }
 

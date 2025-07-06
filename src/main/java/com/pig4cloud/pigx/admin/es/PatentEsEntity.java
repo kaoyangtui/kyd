@@ -5,6 +5,7 @@ import lombok.Data;
 import org.dromara.easyes.annotation.IndexField;
 import org.dromara.easyes.annotation.IndexName;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -42,13 +43,13 @@ public class PatentEsEntity {
     private String appNumber;
 
     @IndexField("app_date")
-    private String appDate;
+    private LocalDate appDate;
 
     @IndexField("pub_number")
     private String pubNumber;
 
     @IndexField("pub_date")
-    private String pubDate;
+    private LocalDate pubDate;
 
     @IndexField("examination_date")
     private String examinationDate;

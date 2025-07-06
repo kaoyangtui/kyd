@@ -15,6 +15,7 @@ import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsCreateRequest;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsResponse;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchNewsEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchNewsMapper;
@@ -77,6 +78,10 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        this.lambdaUpdate()
+                .eq(ResearchNewsEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         return convertToResponse(entity);
     }
 

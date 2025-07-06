@@ -13,6 +13,7 @@ import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseCreateRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCasePageRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.entity.TransformCaseEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.TransformCaseMapper;
@@ -107,6 +108,10 @@ public class TransformCaseServiceImpl extends ServiceImpl<TransformCaseMapper, T
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        this.lambdaUpdate()
+                .eq(TransformCaseEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         return convertToResponse(entity);
     }
 

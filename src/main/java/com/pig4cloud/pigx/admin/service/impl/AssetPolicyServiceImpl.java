@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyPageRequest;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyResponse;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
 import com.pig4cloud.pigx.admin.entity.AssetPolicyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.AssetPolicyMapper;
@@ -71,6 +72,10 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        this.lambdaUpdate()
+                .eq(AssetPolicyEntity::getId, id)
+                .setSql("view_count = ifnull(view_count,0) + 1")
+                .update();
         return convertToResponse(entity);
     }
 

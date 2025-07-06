@@ -55,12 +55,6 @@ public class PatentInfoController {
         return R.ok(patentInfoService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
-    @GetMapping("/detail")
-    @Operation(summary = "专利信息详情")
-    public R<IPage<PatentDetailResponse>> detail(@RequestParam String pid) {
-        return R.ok();
-    }
-
     @Operation(summary = "全国专利查询")
     @PostMapping("/search")
     public R<IPage<PatentSearchListRes>> search(@RequestBody PatentSearchListReq req) {
@@ -134,4 +128,9 @@ public class PatentInfoController {
         );
     }
 
+    @GetMapping("/detail")
+    @Operation(summary = "专利信息详情")
+    public R<PatentDetailResponse> detail(@RequestParam String pid) {
+        return R.ok(patentInfoService.getDetailByPid(pid));
+    }
 }
