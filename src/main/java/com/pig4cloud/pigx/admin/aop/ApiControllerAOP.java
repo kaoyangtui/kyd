@@ -17,8 +17,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class ApiControllerAOP {
 
-    // 需要跳过的参数类型（Hutool 5.8.36 兼容写法）
+    // 跳过的参数类型
     private static final Set<Class<?>> SKIPPED_PARAM_TYPES = CollUtil.newHashSet(
             HttpServletRequest.class,
             HttpServletResponse.class,
@@ -39,10 +39,10 @@ public class ApiControllerAOP {
             org.springframework.validation.BindingResult.class
     );
 
-    // JSON 序列化配置
+    // JSON 配置：忽略 null、异常、格式时间
     private static final JSONConfig JSON_CONFIG = new JSONConfig()
             .setIgnoreNullValue(true)
-            .setIgnoreError(true) // 忽略序列化异常
+            .setIgnoreError(true)
             .setDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Around("execution(public * com.pig4cloud.pigx.admin.controller..*(..))")
@@ -50,42 +50,51 @@ public class ApiControllerAOP {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        // 获取请求信息（Hutool 安全处理）
-        HttpServletRequest request = (HttpServletRequest) Optional.ofNullable(RequestContextHolder.getRequestAttributes())
+        HttpServletRequest request = Optional.ofNullable(RequestContextHolder.getRequestAttributes())
+                .filter(ServletRequestAttributes.class::isInstance)
                 .map(ServletRequestAttributes.class::cast)
                 .map(ServletRequestAttributes::getRequest)
                 .orElse(null);
 
         String url = request != null ? request.getRequestURI() : "N/A";
         String httpMethod = request != null ? request.getMethod() : "N/A";
-
-        // 处理请求参数
         String paramsJson = processParameters(pjp);
 
-        log.info("Request Start => URL: [{}], Method: [{}], Params: {}", url, httpMethod, paramsJson);
+        log.info("Request Start => [{} {}], Params: {}", httpMethod, url, paramsJson);
 
         try {
             Object response = pjp.proceed();
             watch.stop();
 
-            // 序列化响应（Hutool 安全处理）
             String responseJson = JSONUtil.toJsonStr(response, JSON_CONFIG);
-            responseJson = StrUtil.subPre(responseJson, 1000); // 截断过长的响应
+            responseJson = StrUtil.subPre(responseJson, 1000); // 截断输出
 
-            log.info("Request Finish => URL: [{}], Time: [{}ms], Response: {}",
-                    url, watch.getTotalTimeMillis(), responseJson);
+            // 可选：提取统一响应结构 code/message
+            String code = "-";
+            String message = "-";
+            if (response != null && response.getClass().getSimpleName().equals("R")) {
+                try {
+                    Object codeObj = response.getClass().getMethod("getCode").invoke(response);
+                    Object msgObj = response.getClass().getMethod("getMsg").invoke(response);
+                    code = String.valueOf(codeObj);
+                    message = String.valueOf(msgObj);
+                } catch (Exception ignore) {
+                }
+            }
+
+            log.info("Request Finish => [{} {}], Code: {}, Time: {}ms, Response: {}",
+                    httpMethod, url, code, watch.getTotalTimeMillis(), responseJson);
 
             return response;
         } catch (Throwable e) {
             watch.stop();
-            log.error("Request Error => URL: [{}], Time: [{}ms], Error: {}",
-                    url, watch.getTotalTimeMillis(), e.getMessage());
+            log.error("Request Error => [{} {}], Time: {}ms", httpMethod, url, watch.getTotalTimeMillis(), e);
             throw e;
         }
     }
 
     /**
-     * 处理请求参数（修复索引和类型检查问题）
+     * 处理请求参数（忽略上传/请求等不可序列化对象）
      */
     private String processParameters(ProceedingJoinPoint pjp) {
         Object[] args = pjp.getArgs();
@@ -95,22 +104,20 @@ public class ApiControllerAOP {
 
         String[] paramNames = ((MethodSignature) pjp.getSignature()).getParameterNames();
 
-        // 使用流处理参数（避免索引越界）
         Map<String, Object> params = IntStream.range(0, args.length)
                 .filter(i -> {
                     Object arg = args[i];
-                    return SKIPPED_PARAM_TYPES.stream()
+                    return arg != null && SKIPPED_PARAM_TYPES.stream()
                             .noneMatch(clazz -> ClassUtil.isAssignable(clazz, arg.getClass()));
                 })
                 .boxed()
                 .collect(Collectors.toMap(
-                        i -> paramNames.length > i ? paramNames[i] : "arg" + i, // 处理参数名缺失
+                        i -> paramNames.length > i ? paramNames[i] : "arg" + i,
                         i -> args[i],
                         (oldVal, newVal) -> oldVal,
-                        LinkedHashMap::new // 保持顺序
+                        LinkedHashMap::new
                 ));
 
-        // Hutool 安全序列化
         return JSONUtil.toJsonStr(params, JSON_CONFIG);
     }
 }
