@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RocketMQMessageListener(
         topic = TopicConstants.TOPIC_PATENT,
-        consumerGroup = TopicConstants.CONSUMER_GROUP_PATENT + "_" + "${spring.profiles.active}",
+        consumerGroup = TopicConstants.CONSUMER_GROUP_PATENT + "_" + TopicConstants.TOPIC_PATENT_TAG + "_" + "${spring.profiles.active}",
         selectorExpression = TopicConstants.TOPIC_PATENT_TAG + "_" + "${spring.profiles.active}"
 )
 public class PatentConsumer implements RocketMQListener<String> {
