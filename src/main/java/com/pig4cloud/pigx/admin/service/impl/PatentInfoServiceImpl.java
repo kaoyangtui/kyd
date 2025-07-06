@@ -96,7 +96,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             if (!dataScopeService.calcScope(dataScope)) {
                 List<Long> deptIds = dataScope.getDeptList();
                 String deptIn = CollUtil.join(deptIds, ",");
-                String name = dataScope.getName();
+                String name = dataScope.getUsername();
                 // 1.无数据权限限制，则直接返回 0 条数据
                 if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(name)) {
                     return null;
