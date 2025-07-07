@@ -74,6 +74,7 @@ public class PatentInventorServiceImpl extends ServiceImpl<PatentInventorMapper,
                                 .update();
                     } else {
                         ExpertEntity expert = new ExpertEntity();
+                        expert.setTenantId(1L);
                         expert.setCode(sysUser.getCode());
                         expert.setName(sysUser.getName());
                         expert.setOrgName(sysUser.getDeptName());

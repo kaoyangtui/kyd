@@ -47,7 +47,7 @@ public class PatentConsumer implements RocketMQListener<String> {
             }
 
             log.info("========== 【专利消息处理开始】==========");
-            log.info("接收到消息内容: {}", message);
+            log.debug("接收到消息内容: {}", message);
 
             // 主表信息保存
             PatentInfoEntity patentInfo = JSONUtil.toBean(message, PatentInfoEntity.class);
