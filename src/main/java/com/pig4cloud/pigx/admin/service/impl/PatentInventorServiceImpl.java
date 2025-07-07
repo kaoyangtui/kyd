@@ -2,8 +2,10 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
+import com.pig4cloud.pigx.admin.entity.ExpertEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInventorEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentInventorMapper;
+import com.pig4cloud.pigx.admin.service.ExpertService;
 import com.pig4cloud.pigx.admin.service.PatentInventorService;
 import com.pig4cloud.pigx.admin.service.SysUserService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.List;
 public class PatentInventorServiceImpl extends ServiceImpl<PatentInventorMapper, PatentInventorEntity> implements PatentInventorService {
 
     private final SysUserService sysUserService;
+    private final ExpertService expertService;
 
     @Override
     public void create(String pid, List<String> inventorNames) {
@@ -60,6 +63,25 @@ public class PatentInventorServiceImpl extends ServiceImpl<PatentInventorMapper,
                     inventor.setEmail(sysUser.getEmail());
                     inventor.setIsLeader(0);
                     patentInventorList.add(inventor);
+
+                    boolean bl = expertService.lambdaQuery()
+                            .eq(ExpertEntity::getCode, sysUser.getCode())
+                            .exists();
+                    if (bl) {
+                        expertService.lambdaUpdate()
+                                .eq(ExpertEntity::getCode, sysUser.getCode())
+                                .setSql("patent_cnt = ifnull(patent_cnt,0) + 1")
+                                .update();
+                    } else {
+                        ExpertEntity expert = new ExpertEntity();
+                        expert.setCode(sysUser.getCode());
+                        expert.setName(sysUser.getName());
+                        expert.setOrgName(sysUser.getDeptName());
+                        expert.setShelfStatus(0);
+                        expert.setPatentCnt(1L);
+                        expert.setResultCnt(0L);
+                        expertService.save(expert);
+                    }
                 }
             }
             if (!isMatch) {

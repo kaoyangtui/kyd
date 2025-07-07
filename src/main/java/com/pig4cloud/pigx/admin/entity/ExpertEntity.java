@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * 专家信息表
  *
  * @author pigx
- * @date 2025-05-27 19:51:51
+ * @date 2025-07-07 08:19:57
  */
 @Data
 @TenantTable
@@ -29,6 +29,12 @@ public class ExpertEntity extends Model<ExpertEntity> {
     @TableId(type = IdType.ASSIGN_ID)
     @Schema(description = "主键")
     private Long id;
+
+    /**
+     * 专家编码
+     */
+    @Schema(description = "专家编码")
+    private String code;
 
     /**
      * 专家姓名
@@ -91,23 +97,9 @@ public class ExpertEntity extends Model<ExpertEntity> {
     private String workExp;
 
     /**
-     * 所属组织ID
+     * 上下架状态（0下架 1上架）
      */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "所属组织ID")
-    private Long deptId;
-
-    /**
-     * 组织名称
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "组织名称")
-    private String deptName;
-
-    /**
-     * 上下架状态，0下架1上架
-     */
-    @Schema(description = "上下架状态，0下架1上架")
+    @Schema(description = "上下架状态（0下架 1上架）")
     private Integer shelfStatus;
 
     /**
@@ -129,19 +121,35 @@ public class ExpertEntity extends Model<ExpertEntity> {
     private Long resultCnt;
 
     /**
+     * 所属院系
+     */
+    @Schema(description = "所属院系")
+    private String deptId;
+
+    /**
+     * 组织名称
+     */
+    @Schema(description = "组织名称")
+    private String deptName;
+
+    /**
+     * 创建人ID
+     */
+    @Schema(description = "创建人ID")
+    private Long createUserId;
+
+    /**
+     * 创建人姓名
+     */
+    @Schema(description = "创建人姓名")
+    private String createUserName;
+
+    /**
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)
     @Schema(description = "创建人")
     private String createBy;
-
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建人ID")
-    private Long createUserId;
-
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建人姓名")
-    private String createUserName;
 
     /**
      * 创建时间

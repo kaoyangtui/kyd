@@ -51,6 +51,9 @@ public class ExpertCreateRequest {
     @Schema(description = "工作经历")
     private String workExp;
 
-    @Schema(description = "所属院系")
-    private String deptId;
+    @Schema(description = "专利数量")
+    private Long patentCnt;
+
+    @Schema(description = "成果数量")
+    private Long resultCnt;
 }
