@@ -25,7 +25,7 @@ import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.es.PatentEsEntity;
 import com.pig4cloud.pigx.admin.es.mapper.PatentEsMapper;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
-import com.pig4cloud.pigx.admin.service.CniprService;
+import com.pig4cloud.pigx.admin.service.YtService;
 import com.pig4cloud.pigx.admin.service.DataScopeService;
 import com.pig4cloud.pigx.admin.service.PatentDetailService;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentInfoEntity> implements PatentInfoService {
 
-    private final CniprService cniprService;
+    private final YtService ytService;
     private final DataScopeService dataScopeService;
     private final PatentEsMapper patentEsMapper;
     private final PatentDetailService patentDetailService;
@@ -275,7 +275,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         boolean isDbAgg = false;
         int from = req.getFrom();
         int size = req.getSize();
-        Page<PatentLogEntity> patentLogEntityPage = cniprService.page(exp, dbs, option, order, from, size, displayCols, highLight, isDbAgg);
+        Page<PatentLogEntity> patentLogEntityPage = ytService.page(exp, dbs, option, order, from, size, displayCols, highLight, isDbAgg);
         IPage<PatentSearchListRes> resPage = patentLogEntityPage.convert(item -> {
             PatentInfoEntity patentInfo = JSONUtil.toBean(item.getResponseBody(), PatentInfoEntity.class);
             PatentSearchListRes res = new PatentSearchListRes();

@@ -6,16 +6,8 @@ import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 /**
  * @author zhaoliang
  */
-public interface CniprService {
-
-
-    void fetchAllPatents(String exp,
-                         String dbs,
-                         int option,
-                         String order,
-                         String displayCols,
-                         boolean highLight,
-                         boolean isDbAgg);
+public interface YtService {
+    
 
     Page<PatentLogEntity> page(String exp,
                                String dbs,

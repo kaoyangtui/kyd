@@ -9,10 +9,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "cnipr")
-public class CnirpConfig {
-    private String userAccount;
-    private String userPassword;
-    private String clientId;
-    private String clientSecret;
+@ConfigurationProperties(prefix = "yt")
+public class YtConfig {
+    private String url;
 }
