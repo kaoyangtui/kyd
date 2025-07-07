@@ -3,6 +3,7 @@ package com.pig4cloud.pigx.admin.mq;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.pig4cloud.pigx.admin.constants.TopicConstants;
 import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
@@ -61,8 +62,20 @@ public class PatentConsumer implements RocketMQListener<String> {
             patentDetail.setTenantId(1L);
             patentDetail.setCitationForwardCountry(CodeUtils.formatCodes(patentDetail.getCitationForwardCountry()));
             log.info("解析详情信息完成");
-            patentDetailService.save(patentDetail);
-            log.info("详情信息保存完成");
+
+            // ==== 只改这部分 ====
+            LambdaQueryWrapper<PatentDetailEntity> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(PatentDetailEntity::getPid, patentDetail.getPid());
+
+            PatentDetailEntity exist = patentDetailService.getOne(wrapper, false);
+            if (exist != null) {
+                // 已存在，更新
+                patentDetail.setId(exist.getId());
+                patentDetailService.updateById(patentDetail);
+            } else {
+                // 不存在，插入
+                patentDetailService.save(patentDetail);
+            }
 
             // 发明人处理
             List<String> inventorNames = StrUtil.split(patentInfo.getInventorName(), ';');
