@@ -40,7 +40,7 @@ rocketmq:
     retry-next-server: true # 失败切换broker
 
 yt:
-  url: 14.103.193.249:9898
+  sf1-v1-url: http://14.103.193.249:9898/admin/cnipr/page
 
 pigx:
   mybatis:

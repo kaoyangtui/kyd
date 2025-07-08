@@ -11,5 +11,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "yt")
 public class YtConfig {
-    private String url;
+    private String sf1V1Url;
 }

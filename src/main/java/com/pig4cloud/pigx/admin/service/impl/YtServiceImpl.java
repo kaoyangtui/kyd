@@ -1,9 +1,7 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -14,13 +12,13 @@ import com.pig4cloud.pigx.admin.service.YtService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author zhaoliang
@@ -46,23 +44,17 @@ public class YtServiceImpl implements YtService {
         param.put("displayCols", displayCols);
         param.put("highLight", highLight);
         param.put("isDbAgg", isDbAgg);
-        JSONObject patentResult = this.doPost(ytConfig.getUrl(), param);
-        Page<PatentLogEntity> page = JSONUtil.toBean(patentResult.getJSONObject("data"), Page.class);
-        page.setTotal(MapUtil.getLong(patentResult, "total"));
-        String results = patentResult.getStr("results");
-        JSONArray resultJsonArray = JSONUtil.parseArray(results);
-        List<PatentLogEntity> patentLogEntityList = Lists.newArrayList();
-        resultJsonArray.forEach(item -> {
-            JSONObject resultJson = JSONUtil.parseObj(item);
-            PatentLogEntity patentLogEntity = new PatentLogEntity();
-            patentLogEntity.setPid(resultJson.getStr("pid"));
-            patentLogEntity.setRequestParam(JSONUtil.toJsonStr(param));
-            patentLogEntity.setResponseBody(resultJson.toString());
-            patentLogEntity.setAppDate(resultJson.getStr("appDate"));
-            patentLogEntity.setStatus(0);
-            patentLogEntityList.add(patentLogEntity);
-        });
-        page.setRecords(patentLogEntityList);
+        JSONObject patentResult = this.doPost(ytConfig.getSf1V1Url(), param);
+        Page<JSONObject> jsonPage = JSONUtil.toBean(patentResult.getJSONObject("data"), Page.class);
+        List<PatentLogEntity> entityList = jsonPage.getRecords().stream()
+                .map(obj -> JSONUtil.toBean((JSONObject) obj, PatentLogEntity.class))
+                .collect(Collectors.toList());
+
+        Page<PatentLogEntity> page = new Page<>();
+        page.setCurrent(jsonPage.getCurrent());
+        page.setSize(jsonPage.getSize());
+        page.setTotal(jsonPage.getTotal());
+        page.setRecords(entityList);
         return page;
     }
     /**
