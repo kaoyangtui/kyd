@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.spring.annotation.ConsumeMode;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,8 @@ import java.util.List;
 @RocketMQMessageListener(
         topic = TopicConstants.TOPIC_PATENT,
         consumerGroup = TopicConstants.CONSUMER_GROUP_PATENT + "_" + TopicConstants.TOPIC_PATENT_TAG + "_" + "${spring.profiles.active}",
-        selectorExpression = TopicConstants.TOPIC_PATENT_TAG + "_" + "${spring.profiles.active}"
+        selectorExpression = TopicConstants.TOPIC_PATENT_TAG + "_" + "${spring.profiles.active}",
+        consumeMode = ConsumeMode.ORDERLY // 顺序消费，默认是 CONCURRENTLY 并发
 )
 public class PatentConsumer implements RocketMQListener<String> {
 
