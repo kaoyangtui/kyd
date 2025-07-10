@@ -601,18 +601,18 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             cache.setPid(pid);
             String absUrl = ytService.absUrl(pid);
             if (StrUtil.isNotBlank(absUrl)) {
-                cache.setDraws(fileService.uploadFileByUrl(absUrl, "abstract", FileGroupTypeEnum.IMAGE));
+                cache.setDraws(fileService.uploadFileByUrl(absUrl, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE));
             }
-            cache.setDrawsPic(buildBatchPicUrls(pid, detail.getIncPic(), "specification", FileGroupTypeEnum.IMAGE, ytService));
-            cache.setTifDistributePath(buildBatchPicUrls(pid, detail.getDesignPic(), "design", FileGroupTypeEnum.IMAGE, ytService));
+            cache.setDrawsPic(buildBatchPicUrls(pid, detail.getIncPic(), PatentFileTypeEnum.SPECIFICATION.getCode(), FileGroupTypeEnum.IMAGE, ytService));
+            cache.setTifDistributePath(buildBatchPicUrls(pid, detail.getDesignPic(), PatentFileTypeEnum.DESIGN.getCode(), FileGroupTypeEnum.IMAGE, ytService));
             //cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), "pdf", FileGroupTypeEnum.FILE));
             cache.setTenantId(1L);
             cache.setStatus(1);
             patentDetailCacheService.save(cache);
         } else {
             if (cache.getStatus() != 1) {
-                cache.setDrawsPic(buildBatchPicUrls(pid, detail.getIncPic(), "specification", FileGroupTypeEnum.IMAGE, ytService));
-                cache.setTifDistributePath(buildBatchPicUrls(pid, detail.getDesignPic(), "design", FileGroupTypeEnum.IMAGE, ytService));
+                cache.setDrawsPic(buildBatchPicUrls(pid, detail.getIncPic(), PatentFileTypeEnum.SPECIFICATION.getCode(), FileGroupTypeEnum.IMAGE, ytService));
+                cache.setTifDistributePath(buildBatchPicUrls(pid, detail.getDesignPic(), PatentFileTypeEnum.DESIGN.getCode(), FileGroupTypeEnum.IMAGE, ytService));
                 //cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), "pdf", FileGroupTypeEnum.FILE));
                 cache.setStatus(1);
                 patentDetailCacheService.updateById(cache);
@@ -635,7 +635,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         }
         List<String> urlList = picList.stream()
                 .map(pic -> {
-                    if (group.equals("design")) {
+                    if (group.equals(PatentFileTypeEnum.DESIGN.getCode())) {
                         //外观专利格式需要处理
                         //["立体图:000001.JPG","俯视图:000002.JPG","后视图:000003.JPG","左视图:000004.JPG","主视图:000005.JPG","右视图:000006.JPG","仰视图:000007.JPG"]
                         pic = StrUtil.subAfter(pic, ":", true);

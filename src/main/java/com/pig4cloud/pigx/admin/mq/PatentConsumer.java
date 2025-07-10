@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.pig4cloud.pigx.admin.constants.FileGroupTypeEnum;
+import com.pig4cloud.pigx.admin.constants.PatentFileTypeEnum;
 import com.pig4cloud.pigx.admin.constants.TopicConstants;
 import com.pig4cloud.pigx.admin.entity.PatentDetailCacheEntity;
 import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
@@ -83,7 +84,7 @@ public class PatentConsumer implements RocketMQListener<String> {
                 detailCache.setPid(patentInfo.getPid());
                 String absUrl = ytService.absUrl(patentInfo.getPid());
                 if (StrUtil.isNotBlank(absUrl)) {
-                    detailCache.setDraws(fileService.uploadFileByUrl(absUrl, "abstract", FileGroupTypeEnum.IMAGE));
+                    detailCache.setDraws(fileService.uploadFileByUrl(absUrl, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE));
                 }
                 detailCache.setStatus(0);
                 detailCache.setTenantId(1L);
