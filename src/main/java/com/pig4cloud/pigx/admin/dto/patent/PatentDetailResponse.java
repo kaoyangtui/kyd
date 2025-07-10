@@ -24,6 +24,13 @@ public class PatentDetailResponse extends PatentInfoResponse {
      */
     @Schema(description = "主权项")
     private String cl;
+
+    @Schema(description = "外观专利图URL")
+    private List<String> tifDistributePath;
+
+    @Schema(description = "说明书附图")
+    private List<String> drawsPic;
+
     /**
      * 权利要求书
      */

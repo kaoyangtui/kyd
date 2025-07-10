@@ -3,6 +3,7 @@ package com.pig4cloud.pigx.admin.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.pig4cloud.pigx.admin.constants.FileGroupTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FilePageRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileResponse;
@@ -28,4 +29,6 @@ public interface FileService extends IService<FileEntity> {
                                            String applyType,
                                            String subjectName,
                                            String bizType);
+    String uploadFileByUrl(String url, String dir, FileGroupTypeEnum type);
+
 }

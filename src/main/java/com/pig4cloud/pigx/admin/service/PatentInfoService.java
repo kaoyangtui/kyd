@@ -23,4 +23,6 @@ public interface PatentInfoService extends IService<PatentInfoEntity> {
 
     PatentDetailResponse getDetailByPid(String pid);
 
+    PatentDetailResponse getDetailImgByPid(String pid);
+
 }

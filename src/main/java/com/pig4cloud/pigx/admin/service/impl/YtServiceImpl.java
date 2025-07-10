@@ -57,6 +57,36 @@ public class YtServiceImpl implements YtService {
         page.setRecords(entityList);
         return page;
     }
+
+
+    @SneakyThrows
+    @Override
+    public String imgUrl(String pid, String resourceName) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("pid", pid);
+        param.put("resourceName", resourceName);
+        JSONObject patentResult = this.doGet(ytConfig.getPi16Url(), param);
+        return patentResult.getStr("data");
+    }
+
+    @SneakyThrows
+    @Override
+    public String absUrl(String pid) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("pid", pid);
+        JSONObject patentResult = this.doGet(ytConfig.getPi12Url(), param);
+        return patentResult.getStr("data");
+    }
+
+    @SneakyThrows
+    @Override
+    public String pdfUrl(String pid) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("pid", pid);
+        JSONObject patentResult = this.doGet(ytConfig.getPi11Url(), param);
+        return patentResult.getStr("data");
+    }
+
     /**
      * 带参数的post请求（使用 Hutool）
      *
@@ -79,4 +109,19 @@ public class YtServiceImpl implements YtService {
         }
     }
 
+    private JSONObject doGet(String url, Map<String, Object> params) throws BizException {
+        try (HttpResponse response = HttpRequest.get(url)
+                .form(params)
+                .execute()) {
+            JSONObject result = JSONUtil.parseObj(response.body());
+            Long status = result.getLong("code");
+            if (status == 0) {
+                return result;
+            } else {
+                throw new BizException("接口调用失败，地址：{}，响应：{}", url, result);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 }

@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysFile;
+import com.pig4cloud.pigx.admin.api.entity.SysFileGroup;
+import com.pig4cloud.pigx.admin.constants.FileGroupTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FilePageRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileResponse;
@@ -17,6 +19,7 @@ import com.pig4cloud.pigx.admin.entity.FileEntity;
 import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.mapper.FileMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
+import com.pig4cloud.pigx.admin.service.SysFileGroupService;
 import com.pig4cloud.pigx.admin.service.SysFileService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +27,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> implements FileService {
 
     private final SysFileService sysFileService;
+    private final SysFileGroupService sysFileGroupService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -144,4 +149,31 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
         return null;
     }
 
+    @Override
+    public String uploadFileByUrl(String url, String dir, FileGroupTypeEnum type) {
+        try {
+            SysFileGroup sysFileGroup = sysFileGroupService.lambdaQuery()
+                    .eq(SysFileGroup::getType, type.getValue())
+                    .eq(SysFileGroup::getPid, -1L)
+                    .eq(SysFileGroup::getName, "系统专利资源组")
+                    .last("limit 1")
+                    .one();
+            if (sysFileGroup == null) {
+                sysFileGroup = new SysFileGroup();
+                sysFileGroup.setPid(-1L);
+                sysFileGroup.setType(type.getValue());
+                sysFileGroup.setName("系统专利资源组");
+                sysFileGroupService.save(sysFileGroup);
+            }
+            Map<String, String> map = sysFileService.uploadFileByUrl(url, dir, sysFileGroup.getId(), String.valueOf(sysFileGroup.getType()));
+            String mapUrl = StrUtil.EMPTY;
+            if (null != map) {
+                mapUrl = map.get("url");
+            }
+            return mapUrl;
+        } catch (Exception e) {
+            log.error("上传文件异常", e);
+        }
+        return null;
+    }
 }

@@ -1,16 +1,15 @@
 package com.pig4cloud.pigx.admin.mq;
 
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pigx.admin.constants.FileGroupTypeEnum;
 import com.pig4cloud.pigx.admin.constants.TopicConstants;
+import com.pig4cloud.pigx.admin.entity.PatentDetailCacheEntity;
 import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
-import com.pig4cloud.pigx.admin.service.PatentDetailService;
-import com.pig4cloud.pigx.admin.service.PatentInfoService;
-import com.pig4cloud.pigx.admin.service.PatentInventorService;
-import com.pig4cloud.pigx.admin.service.PatentMonitorService;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +36,9 @@ public class PatentConsumer implements RocketMQListener<String> {
     private final PatentDetailService patentDetailService;
     private final PatentInventorService patentInventorService;
     private final PatentMonitorService patentMonitorService;
+    private final PatentDetailCacheService patentDetailCacheService;
+    private final YtService ytService;
+    private final FileService fileService;
 
     @Override
     public void onMessage(String message) {
@@ -56,25 +58,35 @@ public class PatentConsumer implements RocketMQListener<String> {
             patentInfoService.create(patentInfo, message);
             log.info("主表信息保存完成");
 
-            // 详情信息保存
-            PatentDetailEntity patentDetail = JSONUtil.toBean(message, PatentDetailEntity.class);
-            patentDetail.setId(null);
-            patentDetail.setTenantId(1L);
-            patentDetail.setCitationForwardCountry(CodeUtils.formatCodes(patentDetail.getCitationForwardCountry()));
-            log.info("解析详情信息完成");
+            //详情信息保存
+            PatentDetailEntity oldDetail = patentDetailService.lambdaQuery()
+                    .eq(PatentDetailEntity::getPid, patentInfo.getPid())
+                    .one();
+            PatentDetailEntity newDetail = JSONUtil.toBean(message, PatentDetailEntity.class);
+            newDetail.setCitationForwardCountry(CodeUtils.formatCodes(newDetail.getCitationForwardCountry()));
 
-            // ==== 只改这部分 ====
-            LambdaQueryWrapper<PatentDetailEntity> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(PatentDetailEntity::getPid, patentDetail.getPid());
-
-            PatentDetailEntity exist = patentDetailService.getOne(wrapper, false);
-            if (exist != null) {
-                // 已存在，更新
-                patentDetail.setId(exist.getId());
-                patentDetailService.updateById(patentDetail);
+            if (ObjectUtil.isEmpty(oldDetail)) {
+                newDetail.setId(null);
+                newDetail.setTenantId(1L);
+                patentDetailService.save(newDetail);
             } else {
-                // 不存在，插入
-                patentDetailService.save(patentDetail);
+                newDetail.setId(oldDetail.getId());
+                // 如果只想部分字段更新，建议用 BeanUtil.copyProperties(newDetail, oldDetail, CopyOptions.create().ignoreNullValue());
+                patentDetailService.updateById(newDetail);
+            }
+
+            //处理详情缓存中的主图
+            PatentDetailCacheEntity detailCache = patentDetailCacheService.lambdaQuery()
+                    .eq(PatentDetailCacheEntity::getPid, patentInfo.getPid()).one();
+            if (ObjectUtil.isEmpty(detailCache)) {
+                detailCache = new PatentDetailCacheEntity();
+                detailCache.setPid(patentInfo.getPid());
+                String absUrl = ytService.absUrl(patentInfo.getPid());
+                if (StrUtil.isNotBlank(absUrl)) {
+                    detailCache.setDraws(fileService.uploadFileByUrl(absUrl, "abstract", FileGroupTypeEnum.IMAGE));
+                }
+                detailCache.setStatus(0);
+                patentDetailCacheService.save(detailCache);
             }
 
             // 发明人处理

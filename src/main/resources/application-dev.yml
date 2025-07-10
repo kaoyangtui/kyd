@@ -43,8 +43,15 @@ rocketmq:
 # 📦 中科院专利接口配置
 # =========================
 yt:
-  sf1-v1-url: http://14.103.193.249:9898/admin/cnipr/page
+  base-url: http://14.103.193.249:9898/admin/cnipr
+  sf1-v1-url: ${yt.base-url}/page
+  pi11-url:  ${yt.base-url}/pdfUrl
+  pi12-url:  ${yt.base-url}/absUrl
+  pi16-url:  ${yt.base-url}/imgUrl
 
+# =========================
+# 🐷 PigX 配置
+# =========================
 pigx:
   mybatis:
     show-sql: false

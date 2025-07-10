@@ -133,4 +133,10 @@ public class PatentInfoController {
     public R<PatentDetailResponse> detail(@RequestParam String pid) {
         return R.ok(patentInfoService.getDetailByPid(pid));
     }
+
+    @GetMapping("/detail/img")
+    @Operation(summary = "专利信息详情附图")
+    public R<PatentDetailResponse> detailImg(@RequestParam String pid) {
+        return R.ok(patentInfoService.getDetailImgByPid(pid));
+    }
 }

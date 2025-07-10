@@ -13,22 +13,17 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CnirpDisplayColsConstants;
-import com.pig4cloud.pigx.admin.constants.CnirpExpConstants;
-import com.pig4cloud.pigx.admin.constants.DiPatentConstants;
-import com.pig4cloud.pigx.admin.constants.DiPatentLegalStatusEnum;
+import com.pig4cloud.pigx.admin.constants.*;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
+import com.pig4cloud.pigx.admin.entity.PatentDetailCacheEntity;
 import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.es.PatentEsEntity;
 import com.pig4cloud.pigx.admin.es.mapper.PatentEsMapper;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
-import com.pig4cloud.pigx.admin.service.YtService;
-import com.pig4cloud.pigx.admin.service.DataScopeService;
-import com.pig4cloud.pigx.admin.service.PatentDetailService;
-import com.pig4cloud.pigx.admin.service.PatentInfoService;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
@@ -60,6 +55,8 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
     private final DataScopeService dataScopeService;
     private final PatentEsMapper patentEsMapper;
     private final PatentDetailService patentDetailService;
+    private final PatentDetailCacheService patentDetailCacheService;
+    private final FileService fileService;
 
     @Override
     public IPage<PatentInfoResponse> pageResult(Page page, PatentPageRequest request) {
@@ -559,12 +556,9 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
 
     @Override
     public PatentDetailResponse getDetailByPid(String pid) {
-        PatentInfoEntity info = this.lambdaQuery()
-                .eq(PatentInfoEntity::getPid, pid)
-                .one();
-        PatentDetailEntity detail = patentDetailService.lambdaQuery()
-                .eq(PatentDetailEntity::getPid, pid)
-                .one();
+        PatentInfoEntity info = this.lambdaQuery().eq(PatentInfoEntity::getPid, pid).one();
+        PatentDetailEntity detail = patentDetailService.lambdaQuery().eq(PatentDetailEntity::getPid, pid).one();
+        PatentDetailCacheEntity cache = patentDetailCacheService.lambdaQuery().eq(PatentDetailCacheEntity::getPid, pid).one();
 
         PatentDetailResponse resp = new PatentDetailResponse();
         if (info != null) {
@@ -573,10 +567,88 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         if (detail != null) {
             BeanUtil.copyProperties(detail, resp);
         }
+
+        // 新建或补全缓存
+        if (cache == null) {
+            cache = new PatentDetailCacheEntity();
+            cache.setPid(pid);
+            String absUrl = ytService.absUrl(pid);
+            if (StrUtil.isNotBlank(absUrl)) {
+                cache.setDraws(fileService.uploadFileByUrl(absUrl, "abstract", FileGroupTypeEnum.IMAGE));
+            }
+            cache.setTenantId(1L);
+            cache.setStatus(0);
+            patentDetailCacheService.save(cache);
+        }
+        resp.setDraws(cache.getDraws());
+
         this.lambdaUpdate()
                 .eq(PatentInfoEntity::getPid, pid)
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
         return resp;
+    }
+
+    @Override
+    public PatentDetailResponse getDetailImgByPid(String pid) {
+        PatentDetailEntity detail = patentDetailService.lambdaQuery().eq(PatentDetailEntity::getPid, pid).one();
+        PatentDetailCacheEntity cache = patentDetailCacheService.lambdaQuery().eq(PatentDetailCacheEntity::getPid, pid).one();
+        PatentDetailResponse resp = new PatentDetailResponse();
+
+        // 新建或补全缓存
+        if (cache == null) {
+            cache = new PatentDetailCacheEntity();
+            cache.setPid(pid);
+            String absUrl = ytService.absUrl(pid);
+            if (StrUtil.isNotBlank(absUrl)) {
+                cache.setDraws(fileService.uploadFileByUrl(absUrl, "abstract", FileGroupTypeEnum.IMAGE));
+            }
+            cache.setDrawsPic(buildBatchPicUrls(pid, detail.getIncPic(), "specification", FileGroupTypeEnum.IMAGE, ytService));
+            cache.setTifDistributePath(buildBatchPicUrls(pid, detail.getDesignPic(), "design", FileGroupTypeEnum.IMAGE, ytService));
+            //cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), "pdf", FileGroupTypeEnum.FILE));
+            cache.setTenantId(1L);
+            cache.setStatus(1);
+            patentDetailCacheService.save(cache);
+        } else {
+            if (cache.getStatus() != 1) {
+                cache.setDrawsPic(buildBatchPicUrls(pid, detail.getIncPic(), "specification", FileGroupTypeEnum.IMAGE, ytService));
+                cache.setTifDistributePath(buildBatchPicUrls(pid, detail.getDesignPic(), "design", FileGroupTypeEnum.IMAGE, ytService));
+                //cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), "pdf", FileGroupTypeEnum.FILE));
+                cache.setStatus(1);
+                patentDetailCacheService.updateById(cache);
+            }
+        }
+
+        resp.setDrawsPic(StrUtil.split(cache.getDrawsPic(), ";"));
+        resp.setTifDistributePath(StrUtil.split(cache.getTifDistributePath(), ";"));
+        return resp;
+    }
+
+
+    private String buildBatchPicUrls(String pid, String picJson, String group, FileGroupTypeEnum type, YtService ytService) {
+        if (StrUtil.isBlank(picJson)) {
+            return null;
+        }
+        List<String> picList = JSONUtil.toList(JSONUtil.parseArray(picJson), String.class);
+        if (CollUtil.isEmpty(picList)) {
+            return null;
+        }
+        List<String> urlList = picList.stream()
+                .map(pic -> {
+                    if (group.equals("design")) {
+                        //外观专利格式需要处理
+                        //["立体图:000001.JPG","俯视图:000002.JPG","后视图:000003.JPG","左视图:000004.JPG","主视图:000005.JPG","右视图:000006.JPG","仰视图:000007.JPG"]
+                        pic = StrUtil.subAfter(pic, ":", true);
+                    }
+                    String url = ytService.imgUrl(pid, pic);
+                    if (StrUtil.isNotBlank(url)) {
+                        return fileService.uploadFileByUrl(url, group, type);
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(StrUtil::isNotBlank)
+                .collect(Collectors.toList());
+        return CollUtil.isEmpty(urlList) ? null : String.join(";", urlList);
     }
 }
