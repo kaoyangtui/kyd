@@ -86,6 +86,7 @@ public class PatentConsumer implements RocketMQListener<String> {
                     detailCache.setDraws(fileService.uploadFileByUrl(absUrl, "abstract", FileGroupTypeEnum.IMAGE));
                 }
                 detailCache.setStatus(0);
+                detailCache.setTenantId(1L);
                 patentDetailCacheService.save(detailCache);
             }
 
