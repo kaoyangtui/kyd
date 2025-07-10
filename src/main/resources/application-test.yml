@@ -61,12 +61,8 @@ rocketmq:
 # =========================
 # 📦 中科院专利接口配置
 # =========================
-cnipr:
-  user-account: "zhonggao_gaotu"
-  user-password: "ZhongGao1314@"
-  client-id: "F06C930529889BAC8978C141106C158D"
-  client-secret: "6635D2B036D3A7E0B55137851DC71138"
-
+yt:
+  sf1-v1-url: http://14.103.193.249:9898/admin/cnipr/page
 # =========================
 # 🐷 PigX 配置
 # =========================
