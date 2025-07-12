@@ -12,7 +12,7 @@ import java.util.List;
  * @date 2025-05-31 10:46:36
  */
 @Data
-@Schema(description = "专利认领")
+@Schema(description = "专利认领/信息补录")
 public class PatentClaimRequest {
 
     /**
@@ -26,4 +26,10 @@ public class PatentClaimRequest {
      */
     @Schema(description = "专利发明人")
     private List<PatentInventorVO> patentInventor;
+
+    /**
+     * 关联专利提案 ID
+     */
+    @Schema(description = "关联专利提案 ID")
+    private Long patentProposalId;
 }

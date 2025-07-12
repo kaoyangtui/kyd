@@ -6,6 +6,7 @@ import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
+import com.pig4cloud.pigx.admin.service.PatentShelfService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
@@ -39,6 +40,7 @@ import java.io.IOException;
 public class PatentInfoController {
 
     private final PatentInfoService patentInfoService;
+    private final PatentShelfService patentShelfService;
 
     @GetMapping("/page")
     @Operation(summary = "专利信息分页查询")
@@ -53,22 +55,10 @@ public class PatentInfoController {
         return R.ok(patentInfoService.searchList(req));
     }
 
-    @Operation(summary = "专利认领")
-    @PostMapping("/claim")
-    public R<Boolean> claim(@RequestBody PatentClaimRequest req) {
-        return R.ok();
-    }
-
-    @Operation(summary = "专利否认领")
-    @PostMapping("/unclaim")
-    public R<Boolean> unclaim() {
-        return R.ok();
-    }
-
     @PostMapping("/shelf")
     @Operation(summary = "专利上下架")
     public R<Boolean> shelf(@RequestBody PatentShelfRequest request) {
-        return R.ok();
+        return R.ok(patentShelfService.shelf(request));
     }
 
     @PostMapping("/export/fields")

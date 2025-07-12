@@ -1,5 +1,7 @@
 package com.pig4cloud.pigx.admin.dto.patent;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -12,6 +14,11 @@ import lombok.Data;
 @Data
 public class PatentInventorVO {
 
+    /**
+     * id
+     */
+    @Schema(description = "id")
+    private Long id;
 
     /**
      * 发明人顺位

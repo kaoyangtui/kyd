@@ -211,6 +211,12 @@ public class PatentProposalEntity extends Model<PatentProposalEntity> {
     private String leaderName;
 
     /**
+     * 专利 PID
+     */
+    @Schema(description = "专利 PID")
+    private String pid;
+
+    /**
      * 所属组织ID
      */
     @TableField(fill = FieldFill.INSERT)
