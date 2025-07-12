@@ -399,15 +399,16 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             this.updateById(oldPatentInfo);
             log.info("更新成功: {}", oldPatentInfo);
         } else {
+            //设置默认值
+            patentInfo.setMergeFlag("1");
             this.save(patentInfo);
             log.info("保存成功: {}", patentInfo);
         }
         //处理专利申请号合并
         this.lambdaUpdate()
                 .eq(PatentInfoEntity::getAppNumber, patentInfo.getAppNumber())
-                .eq(PatentInfoEntity::getMergeFlag, 1)
                 .ne(PatentInfoEntity::getPid, patentInfo.getPid())
-                .set(PatentInfoEntity::getMergeFlag, 0)
+                .set(PatentInfoEntity::getMergeFlag, "0")
                 .update();
     }
 
@@ -622,6 +623,32 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         resp.setDrawsPic(StrUtil.split(cache.getDrawsPic(), ";"));
         resp.setTifDistributePath(StrUtil.split(cache.getTifDistributePath(), ";"));
         return resp;
+    }
+
+    @Override
+    public String getDetailPdfByPid(String pid) {
+        PatentDetailCacheEntity cache = patentDetailCacheService.lambdaQuery().eq(PatentDetailCacheEntity::getPid, pid).one();
+
+        // 新建或补全缓存
+        if (cache == null) {
+            cache = new PatentDetailCacheEntity();
+            cache.setPid(pid);
+            String absUrl = ytService.absUrl(pid);
+            if (StrUtil.isNotBlank(absUrl)) {
+                cache.setDraws(fileService.uploadFileByUrl(absUrl, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE));
+            }
+            cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), PatentFileTypeEnum.PDF.getCode(), FileGroupTypeEnum.FILE));
+            cache.setTenantId(1L);
+            cache.setStatus(0);
+            patentDetailCacheService.save(cache);
+        } else {
+            if (cache.getStatus() != 1) {
+                cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), PatentFileTypeEnum.PDF.getCode(), FileGroupTypeEnum.FILE));
+                cache.setStatus(1);
+                patentDetailCacheService.updateById(cache);
+            }
+        }
+        return cache.getPdf();
     }
 
 

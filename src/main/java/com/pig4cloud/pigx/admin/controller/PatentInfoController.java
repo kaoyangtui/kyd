@@ -40,14 +40,6 @@ public class PatentInfoController {
 
     private final PatentInfoService patentInfoService;
 
-    /**
-     * ES专利分页检索
-     */
-    //@PostMapping("/es/page")
-    //public R<IPage<PatentEsPageResponse>> esPage(@RequestBody PatentEsPageRequest request) {
-    //    return R.ok(patentInfoService.esPage(request));
-    //}
-
     @GetMapping("/page")
     @Operation(summary = "专利信息分页查询")
     public R<IPage<PatentInfoResponse>> page(@ParameterObject PageRequest pageRequest,
@@ -138,5 +130,11 @@ public class PatentInfoController {
     @Operation(summary = "专利信息详情附图")
     public R<PatentDetailResponse> detailImg(@RequestParam String pid) {
         return R.ok(patentInfoService.getDetailImgByPid(pid));
+    }
+
+    @GetMapping("/detail/pdf")
+    @Operation(summary = "专利PDF")
+    public R<String> detailPdf(@RequestParam String pid) {
+        return R.ok(patentInfoService.getDetailPdfByPid(pid));
     }
 }
