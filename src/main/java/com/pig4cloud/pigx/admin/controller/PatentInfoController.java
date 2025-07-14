@@ -1,11 +1,13 @@
 package com.pig4cloud.pigx.admin.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
+import com.pig4cloud.pigx.admin.service.PatentInventorService;
 import com.pig4cloud.pigx.admin.service.PatentShelfService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
@@ -25,6 +27,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 专利信息表
@@ -41,6 +44,7 @@ public class PatentInfoController {
 
     private final PatentInfoService patentInfoService;
     private final PatentShelfService patentShelfService;
+    private final PatentInventorService patentInventorService;
 
     @GetMapping("/page")
     @Operation(summary = "专利信息分页查询")
@@ -126,5 +130,15 @@ public class PatentInfoController {
     @Operation(summary = "专利PDF")
     public R<String> detailPdf(@RequestParam String pid) {
         return R.ok(patentInfoService.getDetailPdfByPid(pid));
+    }
+
+    @GetMapping("/inventor/list")
+    @Operation(summary = "查询专利发明人列表")
+    public R<List<PatentInventorVO>> getPatentInventors(@RequestParam("pid") String pid) {
+        if (StrUtil.isBlank(pid)) {
+            return R.failed("专利PID不能为空");
+        }
+        List<PatentInventorVO> list = patentInventorService.listByPid(pid);
+        return R.ok(list);
     }
 }
