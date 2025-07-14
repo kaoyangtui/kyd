@@ -1,7 +1,7 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import cn.hutool.core.util.StrUtil;
-import com.pig4cloud.pigx.admin.dto.patent.PatentClaimRequest;
+import com.pig4cloud.pigx.admin.dto.patent.PatentClaimCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInventorVO;
 import com.pig4cloud.pigx.admin.dto.patent.PatentUnClaimRequest;
 import com.pig4cloud.pigx.common.core.util.R;
@@ -30,7 +30,6 @@ public class PatentInventorController {
 
     private final  PatentInventorService patentInventorService;
 
-
     @GetMapping("/list")
     @Operation(summary = "查询专利发明人列表")
     public R<List<PatentInventorVO>> getPatentInventors(@RequestParam("pid") String pid) {
@@ -41,17 +40,4 @@ public class PatentInventorController {
         return R.ok(list);
     }
 
-
-
-    @Operation(summary = "专利认领")
-    @PostMapping("/claim")
-    public R<Boolean> claim(@RequestBody PatentClaimRequest req) {
-        return R.ok(patentInventorService.claim(req));
-    }
-
-    @Operation(summary = "专利否认领")
-    @PostMapping("/unclaim")
-    public R<Boolean> unclaim(@RequestBody PatentUnClaimRequest req) {
-        return R.ok(patentInventorService.unClaim(req));
-    }
 }

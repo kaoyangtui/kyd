@@ -37,7 +37,6 @@ public class PatentShelfServiceImpl extends ServiceImpl<PatentShelfMapper, Paten
         if (old == null) {
             // 新增
             PatentShelfEntity entity = new PatentShelfEntity();
-            entity.setId(IdUtil.getSnowflakeNextId()); // 用你的ID生成器
             entity.setPid(req.getPid());
             entity.setShelfStatus(req.getShelfStatus());
             entity.setShelfTime(req.getShelfTime() != null ? req.getShelfTime() : LocalDateTime.now());

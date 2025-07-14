@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @Schema(description = "专利认领/信息补录")
-public class PatentClaimRequest {
+public class PatentClaimCreateRequest {
 
     /**
      * 专利PID
