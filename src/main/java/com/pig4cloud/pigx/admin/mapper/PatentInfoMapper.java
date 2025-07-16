@@ -23,6 +23,8 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
                 and t2.shelf_status = 1 
                 and MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key)
                 AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
+                ${ipcWhere}
+                ${cooperationModeWhere}
             ${orderBy}
             LIMIT #{offset}, #{pageSize}
             """)
@@ -30,7 +32,9 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
             @Param("keyword") String keyword,
             @Param("offset") int offset,
             @Param("pageSize") int pageSize,
-            @Param("orderBy") String orderBy
+            @Param("orderBy") String orderBy,
+            @Param("ipcWhere") String ipcWhere,
+            @Param("cooperationModeWhere") String cooperationModeWhere
     );
 
 

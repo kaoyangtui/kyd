@@ -16,18 +16,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.*;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
-import com.pig4cloud.pigx.admin.entity.*;
-import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.entity.PatentDetailCacheEntity;
+import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
+import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
+import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,9 +63,14 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         } else {
             if (StrUtil.isNotBlank(request.getKeyword())) {
                 wrapper.and(w -> w
-                        .like(PatentInfoEntity::getTitle, request.getKeyword())
+                        .like(PatentInfoEntity::getTitleKey, request.getKeyword())
                         .or()
-                        .like(PatentInfoEntity::getAppNumber, request.getKeyword()));
+                        .like(PatentInfoEntity::getAppNumber, request.getKeyword())
+                        .or()
+                        .like(PatentInfoEntity::getPubNumber, request.getKeyword())
+                        .or()
+                        .like(PatentInfoEntity::getPatentWords, request.getKeyword())
+                );
             }
             wrapper.eq(StrUtil.isNotBlank(request.getPatType()), PatentInfoEntity::getPatType, request.getPatType());
             wrapper.eq(StrUtil.isNotBlank(request.getLegalStatus()), PatentInfoEntity::getLegalStatus, request.getLegalStatus());
@@ -142,12 +147,29 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 orderBy = "ORDER BY " + String.join(", ", items);
             }
         }
+        //ipcWhere
+        String ipcWhere = "";
+        if (CollUtil.isNotEmpty(request.getTechArea())) {
+            String regex = "(^|;)(" + CollUtil.join(request.getTechArea(), "|") + ")";
+            ipcWhere = "AND t1.ipc REGEXP '" + regex + "' ";
+        }
+
+        // cooperationModeWhere
+        String cooperationModeWhere = "";
+        if (CollUtil.isNotEmpty(request.getCooperationMode())) {
+            String inStr = request.getCooperationMode().stream()
+                    .map(s -> "'" + s + "'")
+                    .collect(Collectors.joining(","));
+            cooperationModeWhere = "AND t2.cooperation_mode IN (" + inStr + ") ";
+        }
 
         List<PatentSearchResponse> records = baseMapper.searchPatent(
                 request.getKeyword(),
                 offset,
                 (int) page.getSize(),
-                orderBy
+                orderBy,
+                ipcWhere,
+                cooperationModeWhere
         );
         int total = baseMapper.countSearch(request.getKeyword());
         page.setRecords(records);

@@ -17,7 +17,6 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.ResearchTeamEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
@@ -166,12 +165,15 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ResultEntity::getCreateTime, request.getEndTime());
 
             if (CollUtil.isNotEmpty(request.getTechArea())) {
-                wrapper.and(w -> request.getTechArea().forEach(val -> w.or().like(ResultEntity::getTechArea, val)));
+                String regex = "(^|;)(" + CollUtil.join(request.getTechArea(), "|") + ")";
+                wrapper.apply("techArea REGEXP {0}", regex);
             }
             if (CollUtil.isNotEmpty(request.getTransWay())) {
-                wrapper.and(w -> request.getTransWay().forEach(val -> w.or().like(ResultEntity::getTransWay, val)));
+                wrapper.in(ResultEntity::getTransWay, request.getTransWay());
             }
-            wrapper.eq(StrUtil.isNotBlank(request.getMaturity()), ResultEntity::getMaturity, request.getMaturity());
+            if (CollUtil.isNotEmpty(request.getMaturity())) {
+                wrapper.in(ResultEntity::getMaturity, request.getMaturity());
+            }
         }
 
         if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {

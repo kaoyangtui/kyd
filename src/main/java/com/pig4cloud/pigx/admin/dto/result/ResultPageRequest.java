@@ -49,7 +49,7 @@ public class ResultPageRequest extends BasePageQuery {
     private String endTime;
 
     @Schema(description = "技术成熟度")
-    private String maturity;
+    private List<String> maturity;
 
     @Schema(description = "领域技术")
     private List<String> techArea;

@@ -22,5 +22,6 @@ public class PatentSearchRequest {
     private List<String> techArea;
 
     @Schema(description = "合作方式")
-    private String cooperationMode;
+    private List<String> cooperationMode;
+
 }

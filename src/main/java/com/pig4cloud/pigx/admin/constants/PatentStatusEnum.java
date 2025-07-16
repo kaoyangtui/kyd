@@ -8,7 +8,7 @@ import lombok.Getter;
  * @author zhaoliang
  */
 @Getter
-public enum PatentStatus {
+public enum PatentStatusEnum {
     VALID(10, "有效专利"),
     EXPIRED(20, "失效专利"),
     EXPIRATION(21, "专利权届满的专利"),
@@ -18,7 +18,7 @@ public enum PatentStatus {
     private final int code;
     private final String description;
 
-    PatentStatus(int code, String description) {
+    PatentStatusEnum(int code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -29,8 +29,8 @@ public enum PatentStatus {
      * @param code 状态码
      * @return 对应的枚举值，如果未找到则返回 null
      */
-    public static PatentStatus getByCode(int code) {
-        for (PatentStatus status : PatentStatus.values()) {
+    public static PatentStatusEnum getByCode(int code) {
+        for (PatentStatusEnum status : PatentStatusEnum.values()) {
             if (status.getCode() == code) {
                 return status;
             }

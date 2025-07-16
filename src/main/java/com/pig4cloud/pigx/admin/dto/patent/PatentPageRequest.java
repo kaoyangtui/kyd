@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * @author zhaoliang
  */
@@ -61,4 +63,6 @@ public class PatentPageRequest extends BasePageQuery {
     @Schema(description = "上架标识,1已上架")
     private String shelfFlag;
 
+    @Schema(description = "技术领域")
+    private List<String> ipcPrefixes;
 }
