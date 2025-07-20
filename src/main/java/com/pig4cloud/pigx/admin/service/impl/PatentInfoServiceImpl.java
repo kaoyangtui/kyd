@@ -417,6 +417,9 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         } else {
             //设置默认值
             patentInfo.setMergeFlag("1");
+            patentInfo.setClaimFlag("0");
+            patentInfo.setShelfFlag("0");
+            patentInfo.setViewCount(0L);
             this.save(patentInfo);
             log.info("保存成功: {}", patentInfo);
         }
