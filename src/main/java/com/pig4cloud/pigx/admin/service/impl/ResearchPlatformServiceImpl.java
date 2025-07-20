@@ -18,7 +18,6 @@ import com.pig4cloud.pigx.admin.entity.ResearchPlatformEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchPlatformMapper;
 import com.pig4cloud.pigx.admin.service.ResearchPlatformService;
-import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -109,7 +108,7 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
             page.setCurrent(1);
         }
 
-        IPage<ResearchPlatformEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<ResearchPlatformEntity> entityPage = baseMapper.selectPage(page, wrapper);
 
         return entityPage.convert(entity -> {
             ResearchPlatformResponse response = BeanUtil.copyProperties(entity, ResearchPlatformResponse.class);

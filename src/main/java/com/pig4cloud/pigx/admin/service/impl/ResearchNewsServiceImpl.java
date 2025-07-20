@@ -108,7 +108,7 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
             page.setCurrent(1);
         }
 
-        IPage<ResearchNewsEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<ResearchNewsEntity> entityPage = baseMapper.selectPage(page, wrapper);
         return entityPage.convert(this::convertToResponse);
     }
 

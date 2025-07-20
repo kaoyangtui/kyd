@@ -69,7 +69,7 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
             page.setCurrent(1);
         }
 
-        IPage<ResearchTeamEntity> result = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<ResearchTeamEntity> result = baseMapper.selectPage(page, wrapper);
         return result.convert(entity -> {
             ResearchTeamResponse response = BeanUtil.copyProperties(entity, ResearchTeamResponse.class);
             response.setResearchTags(StrUtil.split(entity.getResearchTags(), ";"));
