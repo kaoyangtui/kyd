@@ -171,7 +171,10 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 ipcWhere,
                 cooperationModeWhere
         );
-        int total = baseMapper.countSearch(request.getKeyword());
+        int total = baseMapper.countSearch(
+                request.getKeyword(),
+                ipcWhere,
+                cooperationModeWhere);
         page.setRecords(records);
         page.setTotal(total);
         return page;

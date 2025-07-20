@@ -54,4 +54,4 @@ yt:
 # =========================
 pigx:
   mybatis:
-    show-sql: false
+    show-sql: true
