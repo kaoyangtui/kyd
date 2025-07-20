@@ -31,6 +31,7 @@ import com.pig4cloud.pigx.admin.dto.result.ResultPageRequest;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCasePageRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
+import com.pig4cloud.pigx.admin.entity.WebFooterInfoEntity;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
@@ -62,6 +63,7 @@ public class PcController {
     private final ExpertService expertService;
     private final ResearchPlatformService researchPlatformService;
     private final ResearchTeamService researchTeamService;
+    private final WebFooterInfoService webFooterInfoService;
 
 
     @GetMapping("/portal/statistic")
@@ -219,6 +221,16 @@ public class PcController {
     @Operation(summary = "增加浏览量")
     public R<Boolean> increaseViewCount(@RequestBody ViewCountIncreaseRequest request) {
         return R.ok(pcService.increaseViewCount(request.getBizCode(), request.getBizId()));
+    }
+
+    @Operation(summary = "网站底部信息", description = "网站底部信息")
+    @GetMapping("/webFooterInfo")
+    public R<WebFooterInfoEntity> getById() {
+        WebFooterInfoEntity entity = webFooterInfoService.lambdaQuery()
+                .last("limit 1")
+                .orderByDesc(WebFooterInfoEntity::getCreateTime)
+                .one();
+        return R.ok(entity);
     }
 
 }
