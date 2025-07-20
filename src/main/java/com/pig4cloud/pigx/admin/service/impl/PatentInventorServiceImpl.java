@@ -40,8 +40,6 @@ public class PatentInventorServiceImpl extends ServiceImpl<PatentInventorMapper,
 
     private final SysUserService sysUserService;
     private final ExpertService expertService;
-    private final PatentInfoService patentInfoService;
-    private final PatentProposalService patentProposalService;
 
     @Override
     public void create(String pid, List<String> inventorNames) {
