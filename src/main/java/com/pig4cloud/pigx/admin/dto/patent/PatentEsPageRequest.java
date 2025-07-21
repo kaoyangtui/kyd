@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.patent;
 
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -23,16 +24,16 @@ public class PatentEsPageRequest {
     private List<String> legalStatuses;
 
     @Schema(description = "申请日-开始")
-    private LocalDate appDateStart;
+    private String appDateStart;
 
     @Schema(description = "申请日-结束")
-    private LocalDate appDateEnd;
+    private String appDateEnd;
 
     @Schema(description = "公告日-开始")
-    private LocalDate pubDateStart;
+    private String pubDateStart;
 
     @Schema(description = "公告日-结束")
-    private LocalDate pubDateEnd;
+    private String pubDateEnd;
 
     @Schema(description = "申请人（关键词搜索）")
     private String applicantName;
@@ -61,15 +62,12 @@ public class PatentEsPageRequest {
     @Schema(description = "区域级别（如：省、市、区）")
     private String regionLevel;
 
-    @Schema(description = "排序字段（如：appDate、pubDate）")
-    private String orderField;
-
-    @Schema(description = "排序方向（asc / desc）")
-    private String orderType;
-
     @Schema(description = "页码，从1开始")
     private long current = 1;
 
     @Schema(description = "每页条数")
     private long size = 10;
+
+    @Schema(description = "排序")
+    private List<OrderItem> orders;
 }

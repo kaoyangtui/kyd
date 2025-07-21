@@ -8,7 +8,7 @@ import lombok.Getter;
  * @author zhaoliang
  */
 @Getter
-public enum PatentType {
+public enum PatentTypeEnum {
     INVENTION(1, "发明专利"),
     UTILITY_MODEL(2, "实用新型"),
     DESIGN(3, "外观专利"),
@@ -18,7 +18,7 @@ public enum PatentType {
     private final int code;
     private final String description;
 
-    PatentType(int code, String description) {
+    PatentTypeEnum(int code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -29,8 +29,8 @@ public enum PatentType {
      * @param code 状态码
      * @return 对应的枚举值，如果未找到则返回 null
      */
-    public static PatentType getByCode(int code) {
-        for (PatentType type : PatentType.values()) {
+    public static PatentTypeEnum getByCode(int code) {
+        for (PatentTypeEnum type : PatentTypeEnum.values()) {
             if (type.getCode() == code) {
                 return type;
             }

@@ -19,6 +19,8 @@ public interface PatentInfoService extends IService<PatentInfoEntity> {
 
     void create(PatentInfoEntity patentInfo, String message);
 
+    IPage<PatentEsPageResponse> esPage(PatentEsPageRequest request);
+
     PatentDetailResponse getDetailByPid(String pid);
 
     PatentDetailResponse getDetailImgByPid(String pid);
