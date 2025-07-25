@@ -174,6 +174,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             if (CollUtil.isNotEmpty(request.getMaturity())) {
                 wrapper.in(ResultEntity::getMaturity, request.getMaturity());
             }
+            if (StrUtil.isNotBlank(request.getCompleterNo())) {
+                wrapper.apply("exists (select 0 from t_completer " +
+                        "where code = t_result.code and completer_no = {0})", request.getCompleterNo());
+            }
         }
 
         if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {

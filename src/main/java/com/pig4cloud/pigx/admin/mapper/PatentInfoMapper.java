@@ -27,6 +27,7 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
                   </if>
                   ${ipcWhere}
                   ${cooperationModeWhere}
+                  ${inventorCodeWhere}
                   ${orderBy}
                 LIMIT #{offset}, #{pageSize}
                 </script>
@@ -37,7 +38,8 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
             @Param("pageSize") int pageSize,
             @Param("orderBy") String orderBy,
             @Param("ipcWhere") String ipcWhere,
-            @Param("cooperationModeWhere") String cooperationModeWhere
+            @Param("cooperationModeWhere") String cooperationModeWhere,
+            @Param("inventorCodeWhere") String inventorCodeWhere
     );
 
     @Select("""
@@ -55,10 +57,14 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
                   </if>
                   ${ipcWhere}
                   ${cooperationModeWhere}
+                  ${inventorCodeWhere}
                 </script>
             """)
     int countSearch(@Param("keyword") String keyword,
                     @Param("ipcWhere") String ipcWhere,
-                    @Param("cooperationModeWhere") String cooperationModeWhere);
+                    @Param("cooperationModeWhere") String cooperationModeWhere,
+                    @Param("inventorCodeWhere") String inventorCodeWhere
+
+    );
 
 }

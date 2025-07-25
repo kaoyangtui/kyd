@@ -96,28 +96,35 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             DataScope dataScope = DataScope.of();
             if (!dataScopeService.calcScope(dataScope)) {
                 List<Long> deptIds = dataScope.getDeptList();
-                String deptIn = CollUtil.join(deptIds, ",");
                 String name = dataScope.getUsername();
                 // 1.无数据权限限制，则直接返回 0 条数据
                 if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(name)) {
                     return null;
                 }
-                // 2.如果为本人权限 + 部门权限控制
+
+                // 部门ID转字符串拼接（数字类型）
+                String deptIn = deptIds.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(","));
+
+                // 2.本人 + 部门权限
                 if (StrUtil.isNotBlank(name) && CollUtil.isNotEmpty(deptIds)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and (name = {0} or dept_id in (" + deptIn + ")))", name);
                 }
-                // 3. 如果为本人
+                // 3.本人权限
                 else if (StrUtil.isNotBlank(name)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and name = {0})", name);
                 }
-                // 4.部门权限控制
+                // 4.部门权限
                 else {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and dept_id in (" + deptIn + "))");
                 }
             }
+
+
         }
 
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
@@ -168,18 +175,25 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             cooperationModeWhere = "AND t2.cooperation_mode IN (" + inStr + ") ";
         }
 
+        String inventorCodeWhere = "";
+        if (StrUtil.isNotBlank(request.getInventorCode())) {
+            inventorCodeWhere = StrUtil.format("and exists (select 0 from t_patent_inventor where pid = t1.pid and code = '{}')", request.getInventorCode());
+        }
+
         List<PatentSearchResponse> records = baseMapper.searchPatent(
                 request.getKeyword(),
                 offset,
                 (int) page.getSize(),
                 orderBy,
                 ipcWhere,
-                cooperationModeWhere
+                cooperationModeWhere,
+                inventorCodeWhere
         );
         int total = baseMapper.countSearch(
                 request.getKeyword(),
                 ipcWhere,
-                cooperationModeWhere);
+                cooperationModeWhere,
+                inventorCodeWhere);
         records.forEach(patent -> {
             patent.setPatTypeName(PatentTypeEnum.getByCode(Integer.parseInt(patent.getPatType())).getDescription());
         });

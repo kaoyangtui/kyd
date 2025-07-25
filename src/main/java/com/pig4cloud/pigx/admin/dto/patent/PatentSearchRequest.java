@@ -18,6 +18,9 @@ public class PatentSearchRequest {
     @Schema(description = "专利类型")
     private String patType;
 
+    @Schema(description = "发明人")
+    private String inventorCode;
+
     @Schema(description = "技术领域")
     private List<String> techArea;
 
