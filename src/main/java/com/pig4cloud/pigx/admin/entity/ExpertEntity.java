@@ -67,6 +67,12 @@ public class ExpertEntity extends Model<ExpertEntity> {
     private String position;
 
     /**
+     * 研究方向
+     */
+    @Schema(description = "研究方向")
+    private String researchDirection;
+
+    /**
      * 办公室电话
      */
     @Schema(description = "办公室电话")

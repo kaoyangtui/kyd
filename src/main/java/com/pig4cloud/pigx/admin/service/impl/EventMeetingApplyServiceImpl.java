@@ -18,6 +18,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -49,6 +50,7 @@ public class EventMeetingApplyServiceImpl extends ServiceImpl<EventMeetingApplyM
     @Transactional(rollbackFor = Exception.class)
     public boolean createApply(EventMeetingApplyCreateRequest request) {
         EventMeetingApplyEntity entity = BeanUtil.copyProperties(request, EventMeetingApplyEntity.class);
+        entity.setApplyTime(LocalDateTime.now());
         return this.save(entity);
     }
 

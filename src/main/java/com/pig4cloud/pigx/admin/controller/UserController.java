@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.consult.ConsultCreateRequest;
@@ -17,10 +18,8 @@ import com.pig4cloud.pigx.admin.dto.patent.PatentInfoResponse;
 import com.pig4cloud.pigx.admin.dto.patent.PatentPageRequest;
 import com.pig4cloud.pigx.admin.dto.result.ResultPageRequest;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
-import com.pig4cloud.pigx.admin.dto.user.ResetPwdStep1Request;
-import com.pig4cloud.pigx.admin.dto.user.ResetPwdStep2Request;
-import com.pig4cloud.pigx.admin.dto.user.UserProfileUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.user.UserRegisterRequest;
+import com.pig4cloud.pigx.admin.dto.user.*;
+import com.pig4cloud.pigx.admin.entity.UserEntity;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
@@ -52,6 +51,13 @@ public class UserController {
     private final ConsultService consultService;
     private final EventMeetingService eventMeetingService;
     private final EventMeetingApplyService eventMeetingApplyService;
+
+    @GetMapping("/profile/info")
+    @Operation(summary = "个人信息")
+    public R<UserProfileRequest> getProfile() {
+        UserEntity user = userService.getById(SecurityUtils.getUser().getId());
+        return R.ok(BeanUtil.toBean(user, UserProfileRequest.class));
+    }
 
     @PostMapping("/profile/update")
     @Operation(summary = "修改个人信息")

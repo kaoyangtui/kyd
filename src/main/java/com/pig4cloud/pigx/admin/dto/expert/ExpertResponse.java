@@ -25,6 +25,9 @@ public class ExpertResponse extends BaseResponse {
     @Schema(description = "专家职称")
     private String title;
 
+    @Schema(description = "研究方向")
+    private String researchDirection;
+
     @Schema(description = "所在单位")
     private String orgName;
 
