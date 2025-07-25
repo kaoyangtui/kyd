@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
@@ -195,7 +196,12 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 cooperationModeWhere,
                 inventorCodeWhere);
         records.forEach(patent -> {
-            patent.setPatTypeName(PatentTypeEnum.getByCode(Integer.parseInt(patent.getPatType())).getDescription());
+            if (StrUtil.isNotBlank(patent.getPatType()) && NumberUtil.isNumber(patent.getPatType())) {
+                PatentTypeEnum typeEnum = PatentTypeEnum.getByCode(Integer.parseInt(patent.getPatType()));
+                if (typeEnum != null) {
+                    patent.setPatTypeName(typeEnum.getDescription());
+                }
+            }
         });
         page.setRecords(records);
         page.setTotal(total);
