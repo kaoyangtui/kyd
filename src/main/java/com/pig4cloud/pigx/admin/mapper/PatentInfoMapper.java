@@ -19,7 +19,7 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
                 FROM
                     t_patent_info t1
                 INNER JOIN t_patent_shelf t2 ON t1.pid = t2.pid 
-                left  join t_patent_detail_cache t3 on t1.pid=t3=pid
+                left  join t_patent_detail_cache t3 on t1.pid=t3.pid
                 WHERE t1.del_flag = 0
                   AND t2.shelf_status = 1
                   <if test='keyword != null and keyword != ""'>
