@@ -21,8 +21,6 @@ import com.pig4cloud.pigx.admin.entity.PatentDetailCacheEntity;
 import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
-import com.pig4cloud.pigx.admin.es.PatentEsEntity;
-import com.pig4cloud.pigx.admin.es.mapper.PatentEsMapper;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
@@ -30,9 +28,6 @@ import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.easyes.core.biz.EsPageInfo;
-import org.dromara.easyes.core.conditions.select.LambdaEsQueryWrapper;
-import org.dromara.easyes.core.kernel.EsWrappers;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -53,7 +48,6 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
 
     private final YtService ytService;
     private final DataScopeService dataScopeService;
-    private final PatentEsMapper patentEsMapper;
     private final PatentDetailService patentDetailService;
     private final PatentDetailCacheService patentDetailCacheService;
     private final FileService fileService;
@@ -462,77 +456,6 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 .update();
     }
 
-    @Override
-    public Page<PatentEsPageResponse> esPage(PatentEsPageRequest req) {
-        LambdaEsQueryWrapper<PatentEsEntity> wrapper = EsWrappers.lambdaQuery(PatentEsEntity.class);
-
-        // 关键词搜索
-        if (StrUtil.isNotBlank(req.getKeyword())) {
-            wrapper
-                    .should(sq -> sq.match(PatentEsEntity::getTitle, req.getKeyword()))
-                    .should(sq -> sq.match(PatentEsEntity::getAppNumber, req.getKeyword()))
-                    .should(sq -> sq.match(PatentEsEntity::getApplicantName, req.getKeyword()))
-                    .should(sq -> sq.match(PatentEsEntity::getInventorName, req.getKeyword()))
-                    .should(sq -> sq.match(PatentEsEntity::getPatentee, req.getKeyword()));
-        }
-
-        // 专利类型
-        if (CollUtil.isNotEmpty(req.getPatentTypes())) {
-            wrapper.in(PatentEsEntity::getPatType, req.getPatentTypes());
-        }
-        // 法律状态
-        if (CollUtil.isNotEmpty(req.getLegalStatuses())) {
-            wrapper.in(PatentEsEntity::getLegalStatus, req.getLegalStatuses());
-        }
-        // 申请人
-        if (StrUtil.isNotBlank(req.getApplicantName())) {
-            wrapper.match(PatentEsEntity::getApplicantName, req.getApplicantName());
-        }
-        // 发明人
-        if (StrUtil.isNotBlank(req.getInventorName())) {
-            wrapper.match(PatentEsEntity::getInventorName, req.getInventorName());
-        }
-        // IPC 分类
-        if (CollUtil.isNotEmpty(req.getIpc())) {
-            wrapper.in(PatentEsEntity::getIpc, req.getIpc());
-        }
-        // 申请日范围
-        if (req.getAppDateStart() != null || req.getAppDateEnd() != null) {
-            wrapper.between(PatentEsEntity::getAppDate, req.getAppDateStart(), req.getAppDateEnd());
-        }
-        // 公告日范围
-        if (req.getPubDateStart() != null || req.getPubDateEnd() != null) {
-            wrapper.between(PatentEsEntity::getPubDate, req.getPubDateStart(), req.getPubDateEnd());
-        }
-        // 排序
-        if (CollUtil.isNotEmpty(req.getOrders())) {
-            req.getOrders().forEach(orderItem -> {
-                wrapper.orderBy(true, orderItem.isAsc(), orderItem.getColumn());
-            });
-        } else {
-            wrapper.orderByDesc("pub_date");
-        }
-
-        // 分页
-        int pageNo = (int) (req.getCurrent() > 0 ? req.getCurrent() : 1);
-        int pageSize = (int) (req.getSize() > 0 ? req.getSize() : 10);
-
-        EsPageInfo<PatentEsEntity> esPage = patentEsMapper.pageQuery(wrapper, pageNo, pageSize);
-
-        Page<PatentEsPageResponse> result = new Page<>(pageNo, pageSize, esPage.getTotal());
-        result.setRecords(new ArrayList<>());
-
-        if (CollUtil.isNotEmpty(esPage.getList())) {
-            for (PatentEsEntity entity : esPage.getList()) {
-                PatentEsPageResponse resp = new PatentEsPageResponse();
-                BeanUtil.copyProperties(entity, resp);
-                resp.setPatTypeName(PatentTypeEnum.getByCode(Integer.parseInt(entity.getPatType())).getDescription());
-                result.getRecords().add(resp);
-            }
-        }
-        return result;
-    }
-
     private String calcTransferFlag(String applicantName, String patentee) {
         List<String> applicants = StrUtil.splitTrim(applicantName, ";");
         List<String> patentees = StrUtil.splitTrim(patentee, ";");
@@ -568,7 +491,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             cache.setStatus(0);
             patentDetailCacheService.save(cache);
         }
-        resp.setDraws(cache.getDraws());
+        resp.setCover(cache.getDraws());
 
         this.lambdaUpdate()
                 .eq(PatentInfoEntity::getPid, pid)

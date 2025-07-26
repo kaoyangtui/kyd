@@ -19,7 +19,6 @@ package com.pig4cloud.pigx;
 import com.pig4cloud.pigx.common.security.annotation.EnablePigxResourceServer;
 import com.pig4cloud.pigx.common.swagger.annotation.EnableOpenApi;
 import org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration;
-import org.dromara.easyes.spring.annotation.EsMapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
@@ -35,7 +34,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableScheduling
 @EnableTransactionManagement  // 启用事务管理
 @Import(RocketMQAutoConfiguration.class)
-@EsMapperScan("com.pig4cloud.pigx.admin.es.mapper")
 public class App {
 
     public static void main(String[] args) {
