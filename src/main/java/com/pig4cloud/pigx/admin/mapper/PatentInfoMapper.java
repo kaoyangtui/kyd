@@ -15,10 +15,11 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
     @Select("""
                 <script>
                 SELECT
-                    t1.*, t2.cooperation_mode, t2.cooperation_amount
+                    t1.*, t2.cooperation_mode, t2.cooperation_amount,t3.draws as cover
                 FROM
                     t_patent_info t1
                 INNER JOIN t_patent_shelf t2 ON t1.pid = t2.pid 
+                left  join t_patent_detail_cache t3 on t1.pid=t3=pid
                 WHERE t1.del_flag = 0
                   AND t2.shelf_status = 1
                   <if test='keyword != null and keyword != ""'>

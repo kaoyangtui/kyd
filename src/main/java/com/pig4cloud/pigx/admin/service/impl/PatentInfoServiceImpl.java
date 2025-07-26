@@ -78,7 +78,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                         .like(PatentInfoEntity::getPatentWords, request.getKeyword())
                 );
             }
-            wrapper.eq(StrUtil.isNotBlank(request.getPatType()), PatentInfoEntity::getPatType, request.getPatType());
+            wrapper.eq(CollUtil.isNotEmpty(request.getPatType()), PatentInfoEntity::getPatType, request.getPatType());
             wrapper.eq(StrUtil.isNotBlank(request.getLegalStatus()), PatentInfoEntity::getLegalStatus, request.getLegalStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getApplicantName()), PatentInfoEntity::getApplicantName, request.getApplicantName());
             wrapper.eq(StrUtil.isNotBlank(request.getInventorName()), PatentInfoEntity::getInventorName, request.getInventorName());
@@ -550,10 +550,10 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
 
         PatentDetailResponse resp = new PatentDetailResponse();
         if (info != null) {
-            BeanUtil.copyProperties(info, resp);
+            BeanUtil.copyProperties(info, resp, CopyOptions.create().ignoreError());
         }
         if (detail != null) {
-            BeanUtil.copyProperties(detail, resp);
+            BeanUtil.copyProperties(detail, resp, CopyOptions.create().ignoreError());
         }
 
         // 新建或补全缓存

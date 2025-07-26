@@ -19,7 +19,7 @@ public class PatentPageRequest extends BasePageQuery {
     private String keyword;
 
     @Schema(description = "专利类型")
-    private String patType;
+    private List<String> patType;
 
     @Schema(description = "法律状态")
     private String legalStatus;

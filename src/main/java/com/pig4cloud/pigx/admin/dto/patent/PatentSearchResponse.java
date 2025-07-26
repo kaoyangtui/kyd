@@ -30,10 +30,10 @@ public class PatentSearchResponse {
     private String title;
 
     /**
-     * 摘要附图URL
+     * 封面图
      */
-    @Schema(description = "摘要附图URL")
-    private String draws;
+    @Schema(description = "封面图")
+    private String cover;
 
     /**
      * 摘要
