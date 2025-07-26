@@ -22,7 +22,7 @@ public class DemandPageRequest extends BasePageQuery {
     private Integer category;
 
     @Schema(description = "需求类型")
-    private String type;
+    private List<String> type;
 
     @Schema(description = "技术领域")
     private List<String> field;

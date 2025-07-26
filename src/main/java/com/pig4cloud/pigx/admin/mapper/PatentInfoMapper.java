@@ -15,33 +15,23 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
     @Select("""
                 <script>
                 SELECT
-                    t1.*, t2.cooperation_mode, t2.cooperation_amount,t3.draws as cover
+                    t1.*, t2.cooperation_mode, t2.cooperation_amount, t3.draws as cover
                 FROM
                     t_patent_info t1
                 INNER JOIN t_patent_shelf t2 ON t1.pid = t2.pid 
-                left  join t_patent_detail_cache t3 on t1.pid=t3.pid
-                WHERE t1.del_flag = 0
-                  AND t2.shelf_status = 1
-                  <if test='keyword != null and keyword != ""'>
-                    AND MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key)
-                    AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
-                  </if>
-                  ${ipcWhere}
-                  ${cooperationModeWhere}
-                  ${inventorCodeWhere}
-                  ${orderBy}
+                LEFT JOIN t_patent_detail_cache t3 ON t1.pid = t3.pid
+                WHERE ${whereSql}
+                ${orderBy}
                 LIMIT #{offset}, #{pageSize}
                 </script>
             """)
     List<PatentSearchResponse> searchPatent(
-            @Param("keyword") String keyword,
+            @Param("whereSql") String whereSql,
             @Param("offset") int offset,
             @Param("pageSize") int pageSize,
-            @Param("orderBy") String orderBy,
-            @Param("ipcWhere") String ipcWhere,
-            @Param("cooperationModeWhere") String cooperationModeWhere,
-            @Param("inventorCodeWhere") String inventorCodeWhere
+            @Param("orderBy") String orderBy
     );
+
 
     @Select("""
                 <script>
@@ -50,22 +40,10 @@ public interface PatentInfoMapper extends PigxBaseMapper<PatentInfoEntity> {
                 FROM
                     t_patent_info t1
                 INNER JOIN t_patent_shelf t2 ON t1.pid = t2.pid 
-                WHERE t1.del_flag=0 
-                  and t2.shelf_status = 1 
-                  <if test='keyword != null and keyword != ""'>
-                    AND MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key)
-                    AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
-                  </if>
-                  ${ipcWhere}
-                  ${cooperationModeWhere}
-                  ${inventorCodeWhere}
+                LEFT JOIN t_patent_detail_cache t3 ON t1.pid = t3.pid
+                WHERE ${whereSql}
                 </script>
             """)
-    int countSearch(@Param("keyword") String keyword,
-                    @Param("ipcWhere") String ipcWhere,
-                    @Param("cooperationModeWhere") String cooperationModeWhere,
-                    @Param("inventorCodeWhere") String inventorCodeWhere
-
-    );
+    int countSearch(@Param("whereSql") String whereSql);
 
 }

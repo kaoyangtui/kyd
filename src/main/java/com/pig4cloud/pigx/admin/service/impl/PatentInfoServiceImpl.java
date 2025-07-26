@@ -154,41 +154,41 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 orderBy = "ORDER BY " + String.join(", ", items);
             }
         }
-        //ipcWhere
-        String ipcWhere = "";
+        StringBuilder whereSql = new StringBuilder();
+        whereSql.append("t1.del_flag = 0 AND t2.shelf_status = 1 ");
+
+        if (StrUtil.isNotBlank(request.getKeyword())) {
+            whereSql.append("AND MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key) ");
+            whereSql.append("AGAINST('").append(request.getKeyword()).append("' IN NATURAL LANGUAGE MODE) ");
+        }
         if (CollUtil.isNotEmpty(request.getTechArea())) {
             String regex = "(^|;)(" + CollUtil.join(request.getTechArea(), "|") + ")";
-            ipcWhere = "AND t1.ipc REGEXP '" + regex + "' ";
+            whereSql.append("AND t1.ipc REGEXP '").append(regex).append("' ");
         }
-
-        // cooperationModeWhere
-        String cooperationModeWhere = "";
         if (CollUtil.isNotEmpty(request.getCooperationMode())) {
             String inStr = request.getCooperationMode().stream()
                     .map(s -> "'" + s + "'")
                     .collect(Collectors.joining(","));
-            cooperationModeWhere = "AND t2.cooperation_mode IN (" + inStr + ") ";
+            whereSql.append("AND t2.cooperation_mode IN (").append(inStr).append(") ");
         }
-
-        String inventorCodeWhere = "";
         if (StrUtil.isNotBlank(request.getInventorCode())) {
-            inventorCodeWhere = StrUtil.format("and exists (select 0 from t_patent_inventor where pid = t1.pid and code = '{}')", request.getInventorCode());
+            whereSql.append(StrUtil.format("AND EXISTS (SELECT 0 FROM t_patent_inventor WHERE pid = t1.pid AND code = '{}') ", request.getInventorCode()));
+        }
+        if (CollUtil.isNotEmpty(request.getPatType())) {
+            String inStr = request.getPatType().stream()
+                    .map(s -> "'" + s + "'")
+                    .collect(Collectors.joining(","));
+            whereSql.append("AND t1.pat_type IN (").append(inStr).append(") ");
         }
 
         List<PatentSearchResponse> records = baseMapper.searchPatent(
-                request.getKeyword(),
+                whereSql.toString(),
                 offset,
                 (int) page.getSize(),
-                orderBy,
-                ipcWhere,
-                cooperationModeWhere,
-                inventorCodeWhere
+                orderBy
         );
-        int total = baseMapper.countSearch(
-                request.getKeyword(),
-                ipcWhere,
-                cooperationModeWhere,
-                inventorCodeWhere);
+
+        int total = baseMapper.countSearch(whereSql.toString());
         records.forEach(patent -> {
             if (StrUtil.isNotBlank(patent.getPatType()) && NumberUtil.isNumber(patent.getPatType())) {
                 PatentTypeEnum typeEnum = PatentTypeEnum.getByCode(Integer.parseInt(patent.getPatType()));

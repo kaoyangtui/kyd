@@ -16,7 +16,7 @@ public class PatentSearchRequest {
     private String keyword;
 
     @Schema(description = "专利类型")
-    private String patType;
+    private List<String> patType;
 
     @Schema(description = "发明人")
     private String inventorCode;

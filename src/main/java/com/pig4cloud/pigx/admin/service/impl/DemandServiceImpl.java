@@ -90,7 +90,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
                                 .like(DemandEntity::getTags, request.getKeyword())
                 );
             }
-            wrapper.eq(StrUtil.isNotBlank(request.getType()), DemandEntity::getType, request.getType());
+            wrapper.in(CollUtil.isNotEmpty(request.getType()), DemandEntity::getType, request.getType());
             if (CollUtil.isNotEmpty(request.getField())) {
                 wrapper.and(q -> request.getField().forEach(o -> q.or().like(DemandEntity::getField, o)));
             }
