@@ -31,13 +31,18 @@ import java.util.List;
  * @date 2025-05-31 10:47:14
  */
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, PatentMonitorEntity> implements PatentMonitorService {
 
-    @Lazy
     private final PatentMonitorUserService patentMonitorUserService;
     private final SysMessageService sysMessageService;
+
+    public PatentMonitorServiceImpl(@Lazy SysMessageService sysMessageService,
+                                    @Lazy PatentMonitorUserService patentMonitorUserService) {
+        this.sysMessageService = sysMessageService;
+        this.patentMonitorUserService = patentMonitorUserService;
+    }
+
     @Override
     public void create(String message) {
         PatentMonitorEntity patentMonitor = JSONUtil.toBean(message, PatentMonitorEntity.class);
