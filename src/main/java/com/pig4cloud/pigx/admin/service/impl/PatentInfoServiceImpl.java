@@ -163,7 +163,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         }
         if (CollUtil.isNotEmpty(request.getTechArea())) {
             String regex = "(^|;)(" + CollUtil.join(request.getTechArea(), "|") + ")";
-            whereSql.append("AND t1.ipc REGEXP '").append(regex).append("' ");
+            whereSql.append("AND t1.nec REGEXP '").append(regex).append("' ");
         }
         if (CollUtil.isNotEmpty(request.getCooperationMode())) {
             String inStr = request.getCooperationMode().stream()

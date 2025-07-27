@@ -31,17 +31,18 @@ public class PatentDetailResponse extends PatentInfoResponse {
     @Schema(description = "封面图")
     private String cover;
 
-    @Schema(description = "外观专利图URL")
-    private List<String> tifDistributePath;
-
-    @Schema(description = "说明书附图")
-    private List<String> drawsPic;
-
     /**
      * 权利要求书
      */
     @Schema(description = "权利要求书")
     private String claimsPath;
+
+    /**
+     * 说明书
+     */
+    @Schema(description = "说明书")
+    private String instrPath;
+
     /**
      * 法律信息
      */
@@ -58,4 +59,15 @@ public class PatentDetailResponse extends PatentInfoResponse {
     @Schema(description = "上架信息")
     private PatentShelfRequest patentShelf;
 
+    /**
+     * 说明书附图URL
+     */
+    @Schema(description = "说明书附图URL")
+    private List<String> drawsPic;
+
+    /**
+     * 外观专利图
+     */
+    @Schema(description = "外观专利图")
+    private List<String> tifDistributePath;
 }

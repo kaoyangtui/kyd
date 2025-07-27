@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.pig4cloud.pigx.common.core.util.TenantTable;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -52,6 +54,12 @@ public class PatentMonitorUserEntity extends Model<PatentMonitorUserEntity> {
      */
     @Schema(description = "申请号 (数组)")
     private String appNumber;
+
+    /**
+     * 事件日期
+     */
+    @Schema(description = "事件日期")
+    private LocalDate eventTime;
 
 	/**
 	* 所属院系
