@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.service.PatentMonitorUserService;
 import com.pig4cloud.pigx.admin.service.SysMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ import java.util.List;
 @Service
 public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, PatentMonitorEntity> implements PatentMonitorService {
 
+    @Lazy
     private final PatentMonitorUserService patentMonitorUserService;
     private final SysMessageService sysMessageService;
     @Override

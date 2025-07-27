@@ -62,7 +62,7 @@ public class PigxTocUserDetailsServiceImpl implements PigxUserDetailsService {
      */
     @Override
     public int getOrder() {
-        return 10;
+        return 1;
     }
 
 }
