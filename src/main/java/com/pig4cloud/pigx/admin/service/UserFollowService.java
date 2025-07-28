@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface UserFollowService extends IService<UserFollowEntity> {
     List<Long> getFollowIds(String followType);
+    Boolean follow(Long userId, String followType, Long followId);
+    Boolean unfollow(Long userId, String followType, Long followId);
+    Boolean isFollowed(Long userId, String followType, Long followId);
 }

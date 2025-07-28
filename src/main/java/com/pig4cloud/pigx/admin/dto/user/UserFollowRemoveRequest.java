@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class UserFollowCreateRequest {
-    @Schema(description = "关注类型，如USER、PROJECT、ARTICLE等")
+public class UserFollowRemoveRequest {
+    @Schema(description = "关注类型")
     private String followType;
     @Schema(description = "关注对象主键ID")
     private Long followId;
