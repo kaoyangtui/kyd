@@ -12,10 +12,9 @@ public enum MessageTemplateEnum {
     FLOW_REMINDER("您提交的【{}】流程已{}，请关注后续进展。", "流程提醒"),
 
     /**
-     * 专利监控-法律状态变化
-     * 示例：监控的专利【风力发电机】法律状态信息发生变更，请知悉。
+     * 专利监控提醒
      */
-    PATENT_MONITOR_STATUS_CHANGE("监控的专利【{}】法律状态信息发生变更，请知悉。", "专利监控-法律状态"),
+    PATENT_MONITOR_STATUS_CHANGE("监控的专利【{}】法律状态信息发生变更，请知悉。", "专利监控提醒"),
 
     /**
      * 专利监控-详细变更
@@ -24,10 +23,9 @@ public enum MessageTemplateEnum {
     PATENT_MONITOR_STATUS_DETAIL("监控的专利【{}】法律状态变更为【{}】，请知悉。", "专利监控提醒"),
 
     /**
-     * 转化专利监控
-     * 示例：转化专利【风力发电机】权利人信息已变更为【新能源公司】，请知悉。
+     * 转化专利监控提醒
      */
-    TRANSFER_MONITOR_CHANGE("转化专利【{}】权利人信息已变更为【{}】，请知悉。", "转化专利监控"),
+    TRANSFER_MONITOR_CHANGE("转化项目的专利【{}】法律状态信息发生变更，请知悉。", "转化专利监控提醒"),
 
     /**
      * 需求接收提醒

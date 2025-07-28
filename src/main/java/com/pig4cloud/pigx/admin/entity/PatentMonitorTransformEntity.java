@@ -6,22 +6,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.pig4cloud.pigx.common.core.util.TenantTable;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * 专利用户监控表
+ * 专利转化监控表
  *
  * @author pigx
- * @date 2025-07-25 08:57:20
+ * @date 2025-07-28 16:09:48
  */
 @Data
 @TenantTable
-@TableName("t_patent_monitor_user")
+@TableName("t_patent_monitor_transform")
 @EqualsAndHashCode(callSuper = true)
-@Schema(description = "专利用户监控表")
-public class PatentMonitorUserEntity extends Model<PatentMonitorUserEntity> {
+@Schema(description = "专利转化监控表")
+public class PatentMonitorTransformEntity extends Model<PatentMonitorTransformEntity> {
 
 
 	/**
@@ -37,29 +36,53 @@ public class PatentMonitorUserEntity extends Model<PatentMonitorUserEntity> {
     @Schema(description="专利唯一ID")
     private String pid;
 
-    /**
-     * 名称
-     */
-    @Schema(description = "名称")
-    private String title;
-
-    /**
-     * 专利类型
-     */
-    @Schema(description = "专利类型")
-    private String patType;
-
-    /**
-     * 申请号 (数组)
-     */
-    @Schema(description = "申请号 (数组)")
+	/**
+	* 申请号
+	*/
+    @Schema(description="申请号")
     private String appNumber;
 
-    /**
-     * 事件日期
-     */
-    @Schema(description = "事件日期")
+	/**
+	* 专利名称
+	*/
+    @Schema(description="专利名称")
+    private String title;
+
+	/**
+	* 转化code
+	*/
+    @Schema(description="转化code")
+    private String code;
+
+	/**
+	* 转化名称
+	*/
+    @Schema(description="转化名称")
+    private String name;
+
+	/**
+	* 专利类型
+	*/
+    @Schema(description="专利类型")
+    private String patType;
+
+	/**
+	* 事件日期
+	*/
+    @Schema(description="事件日期")
     private LocalDate eventTime;
+
+	/**
+	* 合同签订时间
+	*/
+    @Schema(description="合同签订时间")
+    private LocalDate signDate;
+
+	/**
+	* 合同到期时间
+	*/
+    @Schema(description="合同到期时间")
+    private LocalDate expireDate;
 
 	/**
 	* 所属院系
@@ -112,8 +135,4 @@ public class PatentMonitorUserEntity extends Model<PatentMonitorUserEntity> {
     @TableField(fill = FieldFill.INSERT)
     @Schema(description = "创建人ID")
     private Long createUserId;
-
-    @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建人姓名")
-    private String createUserName;
 }
