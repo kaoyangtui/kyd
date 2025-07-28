@@ -129,7 +129,9 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             page.setSize(request.getIds().size());
             page.setCurrent(1);
         }
-
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(PatentInfoEntity::getPubDate);
+        }
         IPage<PatentInfoEntity> entityPage = this.page(page, wrapper);
 
         // 1. 获取所有PID
