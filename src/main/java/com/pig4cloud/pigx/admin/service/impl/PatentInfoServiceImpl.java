@@ -132,7 +132,32 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
 
         IPage<PatentInfoEntity> entityPage = this.page(page, wrapper);
 
-        return entityPage.convert(entity -> BeanUtil.copyProperties(entity, PatentInfoResponse.class));
+        // 1. 获取所有PID
+        List<String> pidList = entityPage.getRecords().stream()
+                .map(PatentInfoEntity::getPid)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 2. 一次性查出所有对应的 detailCache
+        List<PatentDetailCacheEntity> cacheList = patentDetailCacheService.lambdaQuery()
+                .in(PatentDetailCacheEntity::getPid, pidList)
+                .list();
+
+        // 3. 构建 PID -> Cache 映射
+        Map<String, PatentDetailCacheEntity> cacheMap = cacheList.stream()
+                .collect(Collectors.toMap(PatentDetailCacheEntity::getPid, e -> e, (a, b) -> a));
+
+        // 4. 批量转换、批量赋值
+        return entityPage.convert(entity -> {
+            PatentInfoResponse response = BeanUtil.copyProperties(entity, PatentInfoResponse.class);
+            PatentDetailCacheEntity detailCacheEntity = cacheMap.get(entity.getPid());
+            if (detailCacheEntity != null) {
+                response.setDraws(detailCacheEntity.getDraws());
+            }
+            response.setPatTypeName(PatentTypeEnum.getByCode(Integer.parseInt(entity.getPatType())).getDescription());
+            return response;
+        });
+
     }
 
     @Override

@@ -46,6 +46,12 @@ public class PatentInfoResponse {
     private String patType;
 
     /**
+     * 专利类型名称
+     */
+    @Schema(description = "专利类型名称")
+    private String patTypeName;
+
+    /**
      * 专利权状态
      */
     @Schema(description = "专利权状态")
