@@ -79,6 +79,12 @@ public class ConsultEntity extends Model<ConsultEntity> {
     private Integer status;
 
     /**
+     * 咨询回复状态（0 待回复 1 已回复）
+     */
+    @Schema(description = "咨询回复状态（0 待回复 1 已回复）")
+    private Integer replyStatus;
+
+    /**
      * 咨询回复人
      */
     @Schema(description = "咨询回复人")

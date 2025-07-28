@@ -14,11 +14,13 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ConsultMapper;
 import com.pig4cloud.pigx.admin.service.ConsultService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,6 +32,7 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
     public Boolean create(ConsultCreateRequest request) {
         ConsultEntity entity = BeanUtil.copyProperties(request, ConsultEntity.class);
         entity.setStatus(0);
+        entity.setReplyStatus(0);
         return this.save(entity);
     }
 
@@ -55,8 +58,10 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        entity.setReplyBy(SecurityUtils.getUser().getNickname());
+        entity.setReplyTime(LocalDateTime.now());
         entity.setReplyContent(request.getReplyContent());
-        entity.setStatus(1);
+        entity.setReplyStatus(1);
         return this.updateById(entity);
     }
 
@@ -86,6 +91,7 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
             wrapper.like(StrUtil.isNotBlank(request.getKeyword()), ConsultEntity::getContent, request.getKeyword());
             wrapper.eq(StrUtil.isNotBlank(request.getType()), ConsultEntity::getType, request.getType());
             wrapper.eq(ObjectUtil.isNotNull(request.getStatus()), ConsultEntity::getStatus, request.getStatus());
+            wrapper.eq(ObjectUtil.isNotNull(request.getReplyStatus()), ConsultEntity::getReplyStatus, request.getReplyStatus());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), ConsultEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), ConsultEntity::getCreateTime, request.getEndTime());
         }
@@ -100,5 +106,21 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
 
         IPage<ConsultEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
         return entityPage.convert(e -> BeanUtil.copyProperties(e, ConsultResponse.class));
+    }
+
+    @SneakyThrows
+    @Override
+    public ConsultResponse getDetailRead(Long id) {
+        ConsultEntity entity = this.getById(id);
+        if (ObjectUtil.isNull(entity)) {
+            throw new BizException("数据不存在");
+        }
+        if (null == entity.getStatus() || entity.getStatus() == 0) {
+            this.lambdaUpdate()
+                    .eq(ConsultEntity::getId, id)
+                    .set(ConsultEntity::getStatus, 1)
+                    .update();
+        }
+        return BeanUtil.copyProperties(entity, ConsultResponse.class);
     }
 }

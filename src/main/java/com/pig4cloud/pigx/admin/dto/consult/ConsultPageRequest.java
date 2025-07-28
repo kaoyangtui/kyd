@@ -19,6 +19,9 @@ public class ConsultPageRequest extends BasePageQuery {
     @Schema(description = "状态（0未读 1已读）")
     private Integer status;
 
+    @Schema(description = "咨询回复状态（0 待回复 1 已回复）")
+    private Integer replyStatus;
+
     @Schema(description = "创建时间起")
     private String beginTime;
 

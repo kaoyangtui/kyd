@@ -103,8 +103,8 @@ public class UserController {
 
     @GetMapping("/consult/page")
     @Operation(summary = "我的咨询")
-    public R<IPage<ConsultResponse>> consultPage(@ParameterObject PageRequest pageRequest) {
-        ConsultPageRequest request = new ConsultPageRequest();
+    public R<IPage<ConsultResponse>> consultPage(@ParameterObject PageRequest pageRequest,
+                                                 @ParameterObject ConsultPageRequest request) {
         request.setUserId(SecurityUtils.getUser().getId());
         return R.ok(consultService.pageResult(PageUtil.toPage(pageRequest), request));
     }

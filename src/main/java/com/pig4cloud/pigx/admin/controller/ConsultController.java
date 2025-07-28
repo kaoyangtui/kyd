@@ -66,6 +66,12 @@ public class ConsultController {
         return R.ok(consultService.getDetail(request.getId()));
     }
 
+    @PostMapping("/detail/read")
+    @Operation(summary = "获取咨询详情-改为已读")
+    public R<ConsultResponse> detailRead(@RequestBody IdRequest request) {
+        return R.ok(consultService.getDetailRead(request.getId()));
+    }
+
     @PostMapping("/remove")
     @Operation(summary = "批量删除咨询信息")
     public R<Boolean> remove(@RequestBody IdListRequest request) {

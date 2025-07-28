@@ -21,4 +21,6 @@ public interface ConsultService extends IService<ConsultEntity> {
     Boolean removeByIds(List<Long> ids);
 
     IPage<ConsultResponse> pageResult(Page page, ConsultPageRequest request);
+
+    ConsultResponse getDetailRead(Long id);
 }
