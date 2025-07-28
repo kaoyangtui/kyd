@@ -4,10 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.dto.user.ResetPwdStep1Request;
-import com.pig4cloud.pigx.admin.dto.user.ResetPwdStep2Request;
-import com.pig4cloud.pigx.admin.dto.user.UserProfileUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.user.UserRegisterRequest;
+import com.pig4cloud.pigx.admin.dto.user.*;
 import com.pig4cloud.pigx.admin.entity.UserEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.UserMapper;
@@ -132,6 +129,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         entity.setAddress(request.getAddress());
         entity.setUpdateTime(LocalDateTime.now());
         this.updateById(entity);
+    }
+
+
+    @SneakyThrows
+    @Override
+    @Transactional
+    public Boolean updatePassword(UpdatePasswordRequest request) {
+        if (!StrUtil.equals(request.getNewPassword(), request.getConfirmPassword())) {
+            throw new BizException("两次输入密码不一致");
+        }
+
+        UserEntity user = userMapper.selectById(SecurityUtils.getUser().getId());
+        if (user == null) {
+            throw new BizException("用户不存在");
+        }
+        if (!StrUtil.equalsIgnoreCase(user.getPassword(), SecureUtil.md5(request.getOldPassword()))) {
+            throw new BizException("原密码不正确");
+        }
+
+        user.setPassword(SecureUtil.md5(request.getNewPassword()));
+        user.setUpdateTime(LocalDateTime.now());
+        userMapper.updateById(user);
+        return true;
     }
 
 }

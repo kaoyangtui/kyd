@@ -12,12 +12,6 @@ import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingApplyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
-import com.pig4cloud.pigx.admin.dto.expert.ExpertPageRequest;
-import com.pig4cloud.pigx.admin.dto.expert.ExpertResponse;
-import com.pig4cloud.pigx.admin.dto.patent.PatentInfoResponse;
-import com.pig4cloud.pigx.admin.dto.patent.PatentPageRequest;
-import com.pig4cloud.pigx.admin.dto.result.ResultPageRequest;
-import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.dto.user.*;
 import com.pig4cloud.pigx.admin.entity.UserEntity;
 import com.pig4cloud.pigx.admin.service.*;
@@ -30,8 +24,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @author zhaoliang
@@ -87,10 +79,17 @@ public class UserController {
         return R.ok(userService.resetPwdStep2(request));
     }
 
+    @PostMapping("/resetPwd/login")
+    @Operation(summary = "重置密码-登录状态")
+    public R<Boolean> updatePassword(@RequestBody UpdatePasswordRequest request) {
+        return R.ok(userService.updatePassword(request));
+    }
+
+
     @PostMapping("/demand/page")
     @Operation(summary = "我的需求")
-    public R<IPage<DemandResponse>> demandPage(@ParameterObject PageRequest pageRequest) {
-        DemandPageRequest request = new DemandPageRequest();
+    public R<IPage<DemandResponse>> demandPage(@ParameterObject PageRequest pageRequest,
+                                               @ParameterObject DemandPageRequest request) {
         request.setUserId(SecurityUtils.getUser().getId());
         return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request));
     }
