@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandPageRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertPageRequest;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertResponse;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoResponse;
@@ -37,6 +39,7 @@ public class UserFollowController {
     private final PatentInfoService patentInfoService;
     private final ResultService resultService;
     private final DemandService demandService;
+    private final DemandInService demandInService;
     private final ExpertService expertService;
 
 
@@ -84,6 +87,15 @@ public class UserFollowController {
         DemandPageRequest request = new DemandPageRequest();
         request.setIds(followIds);
         return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+    @PostMapping("/demandIn/page")
+    @Operation(summary = "我的关注-校内需求")
+    public R<IPage<DemandInResponse>> followDemandInPage(@ParameterObject PageRequest pageRequest) {
+        List<Long> followIds = userFollowService.getFollowIds(DemandInResponse.BIZ_CODE);
+        DemandInPageRequest request = new DemandInPageRequest();
+        request.setIds(followIds);
+        return R.ok(demandInService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
 
