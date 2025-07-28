@@ -125,8 +125,8 @@ public class UserController {
 
     @GetMapping("/eventMeeting/page")
     @Operation(summary = "活动会议我的报名")
-    public R<IPage<EventMeetingResponse>> page(@ParameterObject PageRequest pageRequest) {
-        EventMeetingPageRequest request = new EventMeetingPageRequest();
+    public R<IPage<EventMeetingResponse>> page(@ParameterObject PageRequest pageRequest,
+                                               @ParameterObject EventMeetingPageRequest request) {
         request.setUserId(SecurityUtils.getUser().getId());
         return R.ok(eventMeetingService.pageResult(PageUtil.toPage(pageRequest), request));
     }
