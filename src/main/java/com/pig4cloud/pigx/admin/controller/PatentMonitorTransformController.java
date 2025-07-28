@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.net.HttpHeaders;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.patentMonitor.PatentMonitorTransformExportWrapperRequest;
@@ -15,6 +16,8 @@ import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +33,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/patentMonitorTransform")
 @RequiredArgsConstructor
+@Tag(description = "转化专利监控管理", name = "转化专利监控管理")
+@SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
 public class PatentMonitorTransformController {
 
     private final PatentMonitorTransformService patentMonitorTransformService;

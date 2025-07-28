@@ -44,11 +44,13 @@ public class PatentMonitorTransformServiceImpl extends ServiceImpl<PatentMonitor
         LambdaQueryWrapper<PatentMonitorTransformEntity> qw = new LambdaQueryWrapper<>();
         qw.eq(PatentMonitorTransformEntity::getDelFlag, "0");
         if (StrUtil.isNotBlank(request.getTransformKeyword())) {
-            qw.and(w -> w.like(PatentMonitorTransformEntity::getName, request.getTransformKeyword())
+            qw.and(w ->
+                    w.like(PatentMonitorTransformEntity::getName, request.getTransformKeyword())
                     .or().like(PatentMonitorTransformEntity::getCode, request.getTransformKeyword()));
         }
         if (StrUtil.isNotBlank(request.getPatentKeyword())) {
-            qw.and(w -> w.like(PatentMonitorTransformEntity::getTitle, request.getPatentKeyword())
+            qw.and(w ->
+                    w.like(PatentMonitorTransformEntity::getTitle, request.getPatentKeyword())
                     .or().like(PatentMonitorTransformEntity::getAppNumber, request.getPatentKeyword()));
         }
         qw.orderByDesc(PatentMonitorTransformEntity::getUpdateTime, PatentMonitorTransformEntity::getCreateTime);
