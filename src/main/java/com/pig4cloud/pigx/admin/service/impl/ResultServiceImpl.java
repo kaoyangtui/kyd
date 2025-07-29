@@ -17,9 +17,10 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -52,6 +53,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     private final FileService fileService;
     private final RunFlowService runFlowService;
     private final CompleterService completerService;
+    private final ResearchProjectMapper researchProjectMapper;
 
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
@@ -241,6 +243,9 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
+        ResearchProjectEntity researchProject = researchProjectMapper.selectById(entity.getResearchProjectId());
+        response.setResearchProjectType(researchProject.getProjectType());
+        response.setResearchProjectName(researchProject.getProjectName());
         return response;
     }
 }

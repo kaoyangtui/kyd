@@ -92,16 +92,10 @@ public class ResultEntity extends Model<ResultEntity> {
     private Integer fromProj;
 
     /**
-     * 项目类型
+     * 项目ID
      */
-    @Schema(description = "项目类型")
-    private String projType;
-
-    /**
-     * 项目名称
-     */
-    @Schema(description = "项目名称")
-    private String projName;
+    @Schema(description = "项目ID")
+    private Long researchProjectId;
 
     /**
      * 成果简介

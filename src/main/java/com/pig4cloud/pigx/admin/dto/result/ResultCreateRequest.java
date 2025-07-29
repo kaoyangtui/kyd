@@ -29,11 +29,8 @@ public class ResultCreateRequest {
     @Schema(description = "是否依托项目，0否1是")
     private Integer fromProj;
 
-    @Schema(description = "项目类型")
-    private String projType;
-
-    @Schema(description = "项目名称")
-    private String projName;
+    @Schema(description = "项目ID")
+    private Long researchProjectId;
 
     @Schema(description = "成果简介")
     private String intro;

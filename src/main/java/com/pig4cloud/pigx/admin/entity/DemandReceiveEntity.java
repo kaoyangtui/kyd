@@ -137,13 +137,6 @@ public class DemandReceiveEntity extends Model<DemandReceiveEntity> {
     private String createBy;
 
 	/**
-	* 更新人
-	*/
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description="更新人")
-    private String updateBy;
-
-	/**
 	* 删除标识
 	*/
     @TableLogic

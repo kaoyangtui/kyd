@@ -87,17 +87,21 @@ public class ResultResponse extends BaseResponse {
     @Schema(description = "是否依托项目，0否1是")
     private Integer fromProj;
 
+
+    @Schema(description = "项目ID")
+    private Long researchProjectId;
+
     /**
      * 项目类型
      */
     @Schema(description = "项目类型")
-    private String projType;
+    private String researchProjectType;
 
     /**
      * 项目名称
      */
     @Schema(description = "项目名称")
-    private String projName;
+    private String researchProjectName;
 
     /**
      * 成果简介
