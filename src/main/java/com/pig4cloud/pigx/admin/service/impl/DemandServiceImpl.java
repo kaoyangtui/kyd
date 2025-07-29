@@ -10,17 +10,18 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.demand.*;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
-import com.pig4cloud.pigx.admin.entity.AssetPolicyEntity;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
+import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
+import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.DemandMapper;
+import com.pig4cloud.pigx.admin.service.DemandReceiveService;
 import com.pig4cloud.pigx.admin.service.DemandService;
+import com.pig4cloud.pigx.admin.service.DemandSignupService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
@@ -38,6 +39,8 @@ import java.util.List;
 public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> implements DemandService {
 
     private final FileService fileService;
+    private final DemandReceiveService demandReceiveService;
+    private final DemandSignupService demandSignupService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -64,11 +67,20 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
+        List<DemandReceiveEntity> demandReceiveList = demandReceiveService.lambdaQuery()
+                .eq(DemandReceiveEntity::getDemandId, entity.getId())
+                .list();
+        List<DemandSignupEntity> demandSignupList = demandSignupService.lambdaQuery()
+                .eq(DemandSignupEntity::getDemandId, entity.getId())
+                .list();
         this.lambdaUpdate()
                 .eq(DemandEntity::getId, id)
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
-        return convertToResponse(entity);
+        DemandResponse demandResponse = convertToResponse(entity);
+        demandResponse.setDemandSignupList(demandSignupList);
+        demandResponse.setDemandReceiveList(demandReceiveList);
+        return demandResponse;
     }
 
     @Override

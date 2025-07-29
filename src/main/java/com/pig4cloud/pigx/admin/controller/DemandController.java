@@ -7,6 +7,7 @@ import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.demand.*;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.service.DemandReceiveService;
 import com.pig4cloud.pigx.admin.service.DemandService;
 import com.pig4cloud.pigx.admin.service.DemandSignupService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
@@ -41,6 +42,7 @@ public class DemandController {
 
     private final DemandService demandService;
     private final DemandSignupService demandSignupService;
+    private final DemandReceiveService demandReceiveService;
 
     @PostMapping("/create")
     @Operation(summary = "新增企业需求")
@@ -137,6 +139,12 @@ public class DemandController {
     @Operation(summary = "提交企业需求报名")
     public R<Boolean> signup(@RequestBody DemandSignupRequest request) {
         return R.ok(demandSignupService.signup(request));
+    }
+
+    @PostMapping("/receive")
+    @Operation(summary = "企业推送")
+    public R<Boolean> receive(@RequestBody DemandReceiveRequest request) {
+        return R.ok(demandReceiveService.receive(request));
     }
 
 }

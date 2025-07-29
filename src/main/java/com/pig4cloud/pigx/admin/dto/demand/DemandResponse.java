@@ -1,6 +1,8 @@
 package com.pig4cloud.pigx.admin.dto.demand;
 
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
+import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
+import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -62,4 +64,8 @@ public class DemandResponse extends BaseResponse {
     private Integer shelfStatus;
     @Schema(description = "上下架时间")
     private LocalDateTime shelfTime;
+    @Schema(description = "需求报名信息")
+    private List<DemandSignupEntity> demandSignupList;
+    @Schema(description = "需求推送信息")
+    private List<DemandReceiveEntity> demandReceiveList;
 }
