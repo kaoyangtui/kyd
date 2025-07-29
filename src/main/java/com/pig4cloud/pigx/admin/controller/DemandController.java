@@ -147,4 +147,12 @@ public class DemandController {
         return R.ok(demandReceiveService.receive(request));
     }
 
+    @GetMapping("/receive/page")
+    @Operation(summary = "分页查询需求接收信息")
+    public R<IPage<DemandReceiveResponse>> receivePage(@ParameterObject PageRequest pageRequest,
+                                                       @ParameterObject DemandReceivePageRequest request) {
+        return R.ok(demandReceiveService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+
 }

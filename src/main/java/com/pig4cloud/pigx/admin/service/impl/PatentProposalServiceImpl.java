@@ -19,6 +19,7 @@ import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
 import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PatentProposalMapper;
@@ -77,6 +78,10 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             reqPage.setSize(request.getIds().size());
             reqPage.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(reqPage.orders())) {
+            wrapper.orderByDesc(PatentProposalEntity::getCreateTime);
         }
 
         Page<PatentProposalEntity> resPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());

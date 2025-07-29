@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutPageRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.ExpertEntity;
 import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
@@ -99,6 +100,10 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(IcLayoutEntity::getCreateTime);
         }
 
         IPage<IcLayoutEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());

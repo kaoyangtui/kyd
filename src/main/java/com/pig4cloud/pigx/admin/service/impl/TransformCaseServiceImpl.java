@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.dto.transformCase.TransformCasePageRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
+import com.pig4cloud.pigx.admin.entity.StandardEntity;
 import com.pig4cloud.pigx.admin.entity.TransformCaseEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.TransformCaseMapper;
@@ -94,6 +95,10 @@ public class TransformCaseServiceImpl extends ServiceImpl<TransformCaseMapper, T
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(TransformCaseEntity::getCreateTime);
         }
 
         IPage<TransformCaseEntity> entityPage = this.page(page, wrapper);

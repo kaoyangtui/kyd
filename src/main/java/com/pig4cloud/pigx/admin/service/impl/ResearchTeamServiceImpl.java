@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamResponse;
 import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchNewsEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchTeamEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchTeamMapper;
@@ -67,6 +68,10 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(ResearchTeamEntity::getCreateTime);
         }
 
         IPage<ResearchTeamEntity> result = baseMapper.selectPage(page, wrapper);

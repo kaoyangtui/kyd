@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.dto.researchProject.*;
+import com.pig4cloud.pigx.admin.entity.ResearchPlatformEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
@@ -45,6 +46,11 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
             page.setSize(request.getIds().size());
             page.setCurrent(1);
         }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(ResearchProjectEntity::getCreateTime);
+        }
+
         IPage<ResearchProjectEntity> resultPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
         return resultPage.convert(entity -> BeanUtil.copyProperties(entity, ResearchProjectResponse.class));
     }

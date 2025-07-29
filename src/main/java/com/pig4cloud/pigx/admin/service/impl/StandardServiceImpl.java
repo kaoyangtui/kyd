@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.dto.standard.StandardResponse;
 import com.pig4cloud.pigx.admin.dto.standard.StandardUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
 import com.pig4cloud.pigx.admin.entity.StandardEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.StandardMapper;
@@ -138,6 +139,10 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(StandardEntity::getCreateTime);
         }
 
         IPage<StandardEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());

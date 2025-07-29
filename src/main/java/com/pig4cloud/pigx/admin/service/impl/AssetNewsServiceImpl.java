@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsPageRequest;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsResponse;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
+import com.pig4cloud.pigx.admin.entity.TransformCaseEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.AssetNewsMapper;
 import com.pig4cloud.pigx.admin.service.AssetNewsService;
@@ -55,6 +56,10 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(AssetNewsEntity::getCreateTime);
         }
 
         IPage<AssetNewsEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());

@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
+import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
@@ -99,6 +100,10 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(IpTransformEntity::getCreateTime);
         }
 
         IPage<IpTransformEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());

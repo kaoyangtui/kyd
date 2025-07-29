@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
@@ -187,7 +188,9 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             reqPage.setSize(request.getIds().size());
             reqPage.setCurrent(1);
         }
-
+        if (CollUtil.isEmpty(reqPage.orders())) {
+            wrapper.orderByDesc(ResultEntity::getCreateTime);
+        }
         IPage<ResultEntity> entityPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
         return entityPage.convert(this::convertToResponse);
     }

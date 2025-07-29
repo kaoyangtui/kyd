@@ -13,6 +13,7 @@ import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadCreateRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadPageRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadResponse;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.AssetPolicyEntity;
 import com.pig4cloud.pigx.admin.entity.CommonDownloadEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.CommonDownloadMapper;
@@ -53,6 +54,10 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(CommonDownloadEntity::getCreateTime);
         }
 
         IPage<CommonDownloadEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());

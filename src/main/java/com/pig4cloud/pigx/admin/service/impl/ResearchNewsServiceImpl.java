@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsResponse;
 import com.pig4cloud.pigx.admin.dto.researchNews.ResearchNewsUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
+import com.pig4cloud.pigx.admin.entity.PlatformInfoEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchNewsEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchNewsMapper;
@@ -106,6 +107,10 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(ResearchNewsEntity::getCreateTime);
         }
 
         IPage<ResearchNewsEntity> entityPage = baseMapper.selectPage(page, wrapper);

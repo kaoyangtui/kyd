@@ -61,6 +61,10 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
             page.setCurrent(1);
         }
 
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(AssetPolicyEntity::getCreateTime);
+        }
+
         IPage<AssetPolicyEntity> resultPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
         return resultPage.convert(this::convertToResponse);
     }

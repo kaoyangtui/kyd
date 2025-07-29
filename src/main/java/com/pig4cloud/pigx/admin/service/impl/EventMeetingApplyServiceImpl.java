@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -9,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingApplyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingApplyPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingApplyResponse;
+import com.pig4cloud.pigx.admin.entity.DemandEntity;
 import com.pig4cloud.pigx.admin.entity.EventMeetingApplyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.EventMeetingApplyMapper;
@@ -33,6 +35,9 @@ public class EventMeetingApplyServiceImpl extends ServiceImpl<EventMeetingApplyM
         }
         wrapper.like(StrUtil.isNotBlank(request.getName()), EventMeetingApplyEntity::getName, request.getName());
         wrapper.like(StrUtil.isNotBlank(request.getPhone()), EventMeetingApplyEntity::getPhone, request.getPhone());
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(EventMeetingApplyEntity::getCreateTime);
+        }
         return this.page(page, wrapper).convert(entity -> BeanUtil.copyProperties(entity, EventMeetingApplyResponse.class));
     }
 

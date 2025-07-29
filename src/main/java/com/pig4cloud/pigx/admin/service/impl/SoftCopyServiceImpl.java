@@ -20,6 +20,7 @@ import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
+import com.pig4cloud.pigx.admin.entity.SoftCopyRegEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.SoftCopyMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
@@ -139,6 +140,10 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             reqPage.setSize(request.getIds().size());
             reqPage.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(reqPage.orders())) {
+            wrapper.orderByDesc(SoftCopyEntity::getCreateTime);
         }
 
         IPage<SoftCopyEntity> page = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());

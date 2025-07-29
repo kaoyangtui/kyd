@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
+import com.pig4cloud.pigx.admin.entity.EventMeetingApplyEntity;
 import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.EventMeetingMapper;
@@ -61,6 +62,10 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(EventMeetingEntity::getCreateTime);
         }
 
         IPage<EventMeetingEntity> entityPage = this.page(page, wrapper);

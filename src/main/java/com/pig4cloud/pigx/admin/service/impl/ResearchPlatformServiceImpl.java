@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformCreateReque
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformResponse;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.ResearchNewsEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchPlatformEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchPlatformMapper;
@@ -106,6 +107,10 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(ResearchPlatformEntity::getCreateTime);
         }
 
         IPage<ResearchPlatformEntity> entityPage = baseMapper.selectPage(page, wrapper);

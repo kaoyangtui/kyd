@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import com.pig4cloud.pigx.common.core.util.TenantTable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * 企业需求接收表
@@ -89,6 +90,20 @@ public class DemandReceiveEntity extends Model<DemandReceiveEntity> {
 	*/
     @Schema(description="需求摘要")
     private String description;
+
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
+
+    /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @Schema(description = "更新人")
+    private String updateBy;
 
 	/**
 	* 所属院系

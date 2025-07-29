@@ -12,6 +12,7 @@ import com.pig4cloud.pigx.admin.dto.platformInfo.PlatformInfoCreateRequest;
 import com.pig4cloud.pigx.admin.dto.platformInfo.PlatformInfoPageRequest;
 import com.pig4cloud.pigx.admin.dto.platformInfo.PlatformInfoResponse;
 import com.pig4cloud.pigx.admin.dto.platformInfo.PlatformInfoUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.PlantVarietyEntity;
 import com.pig4cloud.pigx.admin.entity.PlatformInfoEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PlatformInfoMapper;
@@ -50,6 +51,10 @@ public class PlatformInfoServiceImpl extends ServiceImpl<PlatformInfoMapper, Pla
         } else if (request.getIds() != null && !request.getIds().isEmpty()) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(PlatformInfoEntity::getCreateTime);
         }
 
         IPage<PlatformInfoEntity> entityPage = this.page(page, wrapper);

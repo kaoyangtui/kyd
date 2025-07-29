@@ -11,10 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.dto.patent.*;
-import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
-import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
-import com.pig4cloud.pigx.admin.entity.PatentInventorEntity;
-import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PatentClaimMapper;
 import com.pig4cloud.pigx.admin.service.*;
@@ -66,6 +63,10 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
         } else if (request.getIds() != null && !request.getIds().isEmpty()) {
             reqPage.setSize(request.getIds().size());
             reqPage.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(reqPage.orders())) {
+            wrapper.orderByDesc(PatentClaimEntity::getCreateTime);
         }
 
         IPage<PatentClaimEntity> page = this.page(reqPage, wrapper);

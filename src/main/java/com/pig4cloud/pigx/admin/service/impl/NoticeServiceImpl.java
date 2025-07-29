@@ -13,6 +13,7 @@ import com.pig4cloud.pigx.admin.dto.notice.NoticeCreateRequest;
 import com.pig4cloud.pigx.admin.dto.notice.NoticePageRequest;
 import com.pig4cloud.pigx.admin.dto.notice.NoticeResponse;
 import com.pig4cloud.pigx.admin.dto.notice.NoticeUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.entity.NoticeEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.NoticeMapper;
@@ -87,6 +88,10 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(NoticeEntity::getCreateTime);
         }
 
         IPage<NoticeEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());

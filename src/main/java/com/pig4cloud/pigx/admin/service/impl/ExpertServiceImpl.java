@@ -13,6 +13,7 @@ import com.pig4cloud.pigx.admin.dto.expert.ExpertCreateRequest;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertPageRequest;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertResponse;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
 import com.pig4cloud.pigx.admin.entity.ExpertEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ExpertMapper;
@@ -61,6 +62,10 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
         } else if (CollUtil.isNotEmpty(request.getIds())) {
             page.setSize(request.getIds().size());
             page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(ExpertEntity::getCreateTime);
         }
 
         IPage<ExpertEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
