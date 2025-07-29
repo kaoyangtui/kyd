@@ -15,6 +15,8 @@ public class PatentInfoResponse {
 
     public static final String BIZ_CODE = "PATENT";
 
+    @Schema(description = "id")
+    private Long id;
     /**
      * 专利唯一ID
      */

@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.dto.researchProject.*;
-import com.pig4cloud.pigx.admin.entity.ResearchPlatformEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
@@ -36,6 +35,11 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
             if (StrUtil.isNotBlank(request.getKeyword())) {
                 wrapper.and(w ->
                         w.like(ResearchProjectEntity::getProjectName, request.getKeyword())
+                );
+            }
+            if (StrUtil.isNotBlank(request.getProjectType())) {
+                wrapper.and(w ->
+                        w.eq(ResearchProjectEntity::getProjectType, request.getProjectType())
                 );
             }
         }

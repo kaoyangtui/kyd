@@ -43,18 +43,6 @@ public class ResearchProjectEntity extends Model<ResearchProjectEntity> {
     private String projectType;
 
     /**
-     * 关联提案数
-     */
-    @Schema(description = "关联提案数")
-    private Integer proposalCount;
-
-    /**
-     * 关联成果数
-     */
-    @Schema(description = "关联成果数")
-    private Integer resultCount;
-
-    /**
      * 所属组织ID
      */
     @TableField(fill = FieldFill.INSERT)

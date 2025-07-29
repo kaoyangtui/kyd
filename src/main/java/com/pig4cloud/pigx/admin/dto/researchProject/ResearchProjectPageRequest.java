@@ -13,4 +13,6 @@ public class ResearchProjectPageRequest extends BasePageQuery {
     @Schema(description = "关键词（项目名称模糊匹配）")
     private String keyword;
 
+    @Schema(description = "项目类型")
+    private String projectType;
 }
