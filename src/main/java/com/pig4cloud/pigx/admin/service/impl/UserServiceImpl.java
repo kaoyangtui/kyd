@@ -64,7 +64,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         entity.setUsername(request.getMobile());
         entity.setMobile(request.getMobile());
         entity.setContactInfo(request.getMobile());
-        entity.setPassword(SecureUtil.md5(request.getPassword()));
+        entity.setPassword(request.getPassword());
         entity.setCreateTime(LocalDateTime.now());
         userMapper.insert(entity);
         // 5. 验证码失效
