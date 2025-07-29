@@ -97,7 +97,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         if (user == null) {
             throw new BizException("用户不存在");
         }
-        user.setPassword(SecureUtil.md5(request.getPassword()));
+        user.setPassword(request.getPassword());
         user.setUpdateTime(LocalDateTime.now());
         userMapper.updateById(user);
         return true;
