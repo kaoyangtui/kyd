@@ -37,11 +37,8 @@ public class PatentProposalCreateRequest {
     @Schema(description = "是否快速预审")
     private Integer isFastTrack;
 
-    @Schema(description = "项目类型")
-    private String projectType;
-
-    @Schema(description = "项目名称")
-    private String projectName;
+    @Schema(description = "项目ID")
+    private Long researchProjectId;
 
     @Schema(description = "申请人信息")
     private List<OwnerEntity> owners;

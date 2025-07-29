@@ -10,9 +10,12 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.dto.researchProject.*;
+import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
+import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
+import com.pig4cloud.pigx.admin.service.PatentProposalService;
 import com.pig4cloud.pigx.admin.service.ResearchProjectService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMapper, ResearchProjectEntity> implements ResearchProjectService {
+
+    private final ResultServiceImpl resultService;
+    private final PatentProposalService patentProposalService;
 
     @Override
     public IPage<ResearchProjectResponse> pageResult(Page page, ResearchProjectPageRequest request) {
@@ -56,7 +62,9 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
         }
 
         IPage<ResearchProjectEntity> resultPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return resultPage.convert(entity -> BeanUtil.copyProperties(entity, ResearchProjectResponse.class));
+        return resultPage.convert(entity ->
+                extracted(entity)
+        );
     }
 
     @SneakyThrows
@@ -66,7 +74,20 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
         if (entity == null) {
             throw new BizException("科研项目不存在");
         }
-        return BeanUtil.copyProperties(entity, ResearchProjectResponse.class);
+        return extracted(entity);
+    }
+
+    private ResearchProjectResponse extracted(ResearchProjectEntity entity) {
+        ResearchProjectResponse researchProjectResponse = BeanUtil.copyProperties(entity, ResearchProjectResponse.class);
+        Long resultCount = resultService.lambdaQuery()
+                .eq(ResultEntity::getResearchProjectId, entity.getId())
+                .count();
+        researchProjectResponse.setResultCount(resultCount.intValue());
+        Long proposalCount = patentProposalService.lambdaQuery()
+                .eq(PatentProposalEntity::getResearchProjectId, entity.getId())
+                .count();
+        researchProjectResponse.setProposalCount(proposalCount.intValue());
+        return researchProjectResponse;
     }
 
     @Override

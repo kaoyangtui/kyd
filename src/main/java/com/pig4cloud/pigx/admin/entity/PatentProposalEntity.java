@@ -109,16 +109,10 @@ public class PatentProposalEntity extends Model<PatentProposalEntity> {
     private Integer isFastTrack;
 
     /**
-     * 项目类型
+     * 项目ID
      */
-    @Schema(description = "项目类型")
-    private String projectType;
-
-    /**
-     * 项目名称
-     */
-    @Schema(description = "项目名称")
-    private String projectName;
+    @Schema(description = "项目ID")
+    private Long researchProjectId;
 
     /**
      * 发明人（校外），最多10个，分号隔开

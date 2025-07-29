@@ -17,12 +17,10 @@ import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.OwnerEntity;
-import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
-import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PatentProposalMapper;
+import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.OwnerService;
@@ -50,6 +48,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
     private final FileService fileService;
     private final CompleterService completerService;
     private final OwnerService ownerService;
+    private final ResearchProjectMapper researchProjectMapper;
 
     @Override
     public IPage<PatentProposalResponse> pageResult(Page reqPage, PatentProposalPageRequest request) {
@@ -188,6 +187,9 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         response.setDescFigureFile(StrUtil.split(entity.getDescFigureFile(), ";"));
         response.setAbstractFile(StrUtil.split(entity.getAbstractFile(), ";"));
         response.setAbstractFigureFile(StrUtil.split(entity.getAbstractFigureFile(), ";"));
+        ResearchProjectEntity researchProject = researchProjectMapper.selectById(entity.getResearchProjectId());
+        response.setResearchProjectType(researchProject.getProjectType());
+        response.setResearchProjectName(researchProject.getProjectName());
         return response;
     }
 }
