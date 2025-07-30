@@ -1,10 +1,12 @@
 package com.pig4cloud.pigx.admin.dto.ipTransform;
 
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
+import com.pig4cloud.pigx.admin.dto.patent.PatentInfoSimpleVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -41,5 +43,33 @@ public class IpTransformResponse extends BaseResponse {
     private List<String> consentFileUrl;
     @Schema(description = "专利转化承诺书附件URL")
     private List<String> promiseFileUrl;
+    @Schema(description = "是否备案（0否 1是）")
+    private Integer hasRecord;
 
+    @Schema(description = "火炬中心备案文件")
+    private List<String> recordFileUrl;
+
+    @Schema(description = "确认转化金额（万元）")
+    private BigDecimal transPrice;
+
+    @Schema(description = "合同签订时间")
+    private LocalDate contractSignTime;
+
+    @Schema(description = "合同到期时间")
+    private LocalDate contractExpireTime;
+
+    @Schema(description = "专利转化合同文件URL")
+    private List<String> contractFileUrl;
+
+    @Schema(description = "专利转化收入奖励的申请文件URL")
+    private List<String> rewardApplyFileUrl;
+
+    @Schema(description = "专利转化收入分配方案文件URL")
+    private List<String> allocationPlanFileUrl;
+
+    @Schema(description = "专利转化收入分配方案")
+    private List<IpTransformPlanVO> ipTransformPlanVOS;
+
+    @Schema(description = "专利信息")
+    private List<PatentInfoSimpleVO> patentInfoSimpleVOS;
 }

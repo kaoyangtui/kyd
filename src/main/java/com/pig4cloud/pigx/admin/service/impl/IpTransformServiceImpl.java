@@ -11,18 +11,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformCreateRequest;
-import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformPageRequest;
-import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
-import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
+import com.pig4cloud.pigx.admin.dto.ipTransform.*;
+import com.pig4cloud.pigx.admin.dto.patent.PatentInfoSimpleVO;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformPlanEntity;
+import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IpTransformPlanService;
 import com.pig4cloud.pigx.admin.service.IpTransformService;
+import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +38,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
 
     private final FileService fileService;
     private final IpTransformPlanService ipTransformPlanService;
+    private final PatentInfoService patentInfoService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -69,7 +69,18 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
                 .eq(IpTransformEntity::getId, id)
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
-        return convertToResponse(entity);
+        IpTransformResponse response = convertToResponse(entity);
+        List<IpTransformPlanEntity> plans = ipTransformPlanService.lambdaQuery()
+                .eq(IpTransformPlanEntity::getTransformId, entity.getId()).list();
+        if (CollUtil.isNotEmpty(plans)) {
+            response.setIpTransformPlanVOS(BeanUtil.copyToList(plans, IpTransformPlanVO.class));
+        }
+        List<PatentInfoEntity> patentInfos = patentInfoService.lambdaQuery()
+                .in(PatentInfoEntity::getPid, response.getIpCode()).list();
+        if (CollUtil.isNotEmpty(patentInfos)) {
+            response.setPatentInfoSimpleVOS(BeanUtil.copyToList(patentInfos, PatentInfoSimpleVO.class));
+        }
+        return response;
     }
 
     @Override
@@ -206,6 +217,10 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         response.setIpCode(StrUtil.split(entity.getIpCode(), ";"));
         response.setConsentFileUrl(StrUtil.split(entity.getConsentFileUrl(), ";"));
         response.setPromiseFileUrl(StrUtil.split(entity.getPromiseFileUrl(), ";"));
+        response.setContractFileUrl(StrUtil.split(entity.getContractFileUrl(), ";"));
+        response.setRewardApplyFileUrl(StrUtil.split(entity.getRewardApplyFileUrl(), ";"));
+        response.setAllocationPlanFileUrl(StrUtil.split(entity.getAllocationPlanFileUrl(), ";"));
+        response.setRecordFileUrl(StrUtil.split(entity.getRecordFileUrl(), ";"));
         return response;
     }
 }
