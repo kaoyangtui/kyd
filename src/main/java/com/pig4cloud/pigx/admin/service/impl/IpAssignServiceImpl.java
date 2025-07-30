@@ -8,14 +8,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.IpAssignMapper;
@@ -131,8 +129,8 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
                         fileName,
                         entity.getCode(),
                         IpAssignResponse.BIZ_CODE,
-                        "赋权",
-                        FileBizTypeEnum.INVENTOR_CONSENT.getValue()));
+                        FileBizTypeEnum.IP_ASSIGN_PROOF.getBizName(),
+                        FileBizTypeEnum.IP_ASSIGN_PROOF.getValue()));
             });
         }
 
@@ -142,8 +140,8 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
                         fileName,
                         entity.getCode(),
                         IpAssignResponse.BIZ_CODE,
-                        "赋权",
-                        FileBizTypeEnum.ASSIGNMENT_REQUEST.getValue()));
+                        FileBizTypeEnum.IP_ASSIGN_ATTACH.getBizName(),
+                        FileBizTypeEnum.IP_ASSIGN_ATTACH.getValue()));
             });
         }
 

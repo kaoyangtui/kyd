@@ -142,8 +142,9 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
             request.getCertFileUrl().forEach(fileName -> {
                 FileCreateRequest file = fileService.getFileCreateRequest(
                         fileName, entity.getCode(),
-                        IcLayoutResponse.BIZ_CODE, entity.getName(),
-                        FileBizTypeEnum.CERTIFICATE.getValue()
+                        IcLayoutResponse.BIZ_CODE,
+                        entity.getName(),
+                        FileBizTypeEnum.IC_LAYOUT_CERT.getValue()
                 );
                 fileList.add(file);
             });

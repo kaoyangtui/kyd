@@ -8,15 +8,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
-import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
@@ -128,14 +125,14 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             request.getConsentFileUrl().forEach(fileName ->
                     fileList.add(fileService.getFileCreateRequest(fileName, entity.getCode(),
                             IpTransformResponse.BIZ_CODE, entity.getName(),
-                            FileBizTypeEnum.INVENTOR_CONSENT.getValue())));
+                            FileBizTypeEnum.IP_TRANSFORM_CONSENT.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getPromiseFileUrl())) {
             request.getPromiseFileUrl().forEach(fileName ->
                     fileList.add(fileService.getFileCreateRequest(fileName, entity.getCode(),
                             IpTransformResponse.BIZ_CODE, entity.getName(),
-                            FileBizTypeEnum.TRANSFORM_COMMITMENT.getValue())));
+                            FileBizTypeEnum.IP_TRANSFORM_PROMISE.getValue())));
         }
 
         if (!fileList.isEmpty()) {

@@ -81,7 +81,7 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
                         entity.getCode(),
                         SoftCopyRegResponse.BIZ_CODE,
                         entity.getName(),
-                        FileBizTypeEnum.CERTIFICATE.getValue()
+                        FileBizTypeEnum.SOFT_COPY_CERT.getValue()
                 );
                 fileList.add(file);
             });

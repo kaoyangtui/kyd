@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
@@ -134,17 +133,17 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
 
         if (CollUtil.isNotEmpty(request.getClaimsFile())) {
             entity.setClaimsFile(StrUtil.join(";", request.getClaimsFile()));
-            request.getClaimsFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.CLAIMS.getValue())));
+            request.getClaimsFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_CLAIMS.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getDescriptionFile())) {
             entity.setDescriptionFile(StrUtil.join(";", request.getDescriptionFile()));
-            request.getDescriptionFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.DESCRIPTION.getValue())));
+            request.getDescriptionFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_DESCRIPTION.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getAbstractFile())) {
             entity.setAbstractFile(StrUtil.join(";", request.getAbstractFile()));
-            request.getAbstractFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.ABSTRACT.getValue())));
+            request.getAbstractFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_ABSTRACT.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getDescFigureFile())) {
