@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -14,12 +15,14 @@ import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignUpdateRequest;
+import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
 import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.IpAssignMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IpAssignService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -153,6 +156,7 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setCode(ParamResolver.getStr(IpAssignResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
         }
     }

@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutCreateRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutPageRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutUpdateRequest;
+import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.ExpertEntity;
 import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
@@ -156,6 +157,7 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setCode(ParamResolver.getStr(IcLayoutResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
         }
 

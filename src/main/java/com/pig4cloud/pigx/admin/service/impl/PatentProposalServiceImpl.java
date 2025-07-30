@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
@@ -125,9 +126,6 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
 
     private void doSaveOrUpdate(PatentProposalCreateRequest request, boolean isCreate) {
         PatentProposalEntity entity = BeanUtil.copyProperties(request, PatentProposalEntity.class);
-        if (isCreate) {
-            entity.setCode(ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
-        }
 
         List<FileCreateRequest> fileList = Lists.newArrayList();
 
@@ -172,6 +170,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setCode(ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
         }
 

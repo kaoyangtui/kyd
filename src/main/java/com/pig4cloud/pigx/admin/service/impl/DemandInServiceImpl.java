@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,6 +16,7 @@ import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
 import com.pig4cloud.pigx.admin.entity.ConsultEntity;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
@@ -23,6 +25,7 @@ import com.pig4cloud.pigx.admin.mapper.DemandInMapper;
 import com.pig4cloud.pigx.admin.service.DemandInService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.Lists;
@@ -150,6 +153,7 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setCode(ParamResolver.getStr(DemandInResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
         }
     }

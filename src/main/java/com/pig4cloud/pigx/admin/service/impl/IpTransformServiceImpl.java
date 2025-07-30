@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -14,12 +15,16 @@ import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformUpdateRequest;
+import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
+import com.pig4cloud.pigx.admin.entity.IpTransformPlanEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
+import com.pig4cloud.pigx.admin.service.IpTransformPlanService;
 import com.pig4cloud.pigx.admin.service.IpTransformService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.Lists;
@@ -33,6 +38,7 @@ import java.util.List;
 public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTransformEntity> implements IpTransformService {
 
     private final FileService fileService;
+    private final IpTransformPlanService ipTransformPlanService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -111,28 +117,66 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         IpTransformEntity entity = BeanUtil.copyProperties(request, IpTransformEntity.class);
         entity.setIpCode(StrUtil.join(";", request.getIpCode()));
 
-        if (CollUtil.isNotEmpty(request.getConsentFileUrl())) {
-            entity.setConsentFileUrl(StrUtil.join(";", request.getConsentFileUrl()));
-        }
-
-        if (CollUtil.isNotEmpty(request.getPromiseFileUrl())) {
-            entity.setPromiseFileUrl(StrUtil.join(";", request.getPromiseFileUrl()));
-        }
-
         List<FileCreateRequest> fileList = Lists.newArrayList();
 
         if (CollUtil.isNotEmpty(request.getConsentFileUrl())) {
+            entity.setConsentFileUrl(StrUtil.join(";", request.getConsentFileUrl()));
             request.getConsentFileUrl().forEach(fileName ->
-                    fileList.add(fileService.getFileCreateRequest(fileName, entity.getCode(),
-                            IpTransformResponse.BIZ_CODE, entity.getName(),
+                    fileList.add(fileService.getFileCreateRequest(fileName,
+                            entity.getCode(),
+                            IpTransformResponse.BIZ_CODE,
+                            entity.getName(),
                             FileBizTypeEnum.IP_TRANSFORM_CONSENT.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getPromiseFileUrl())) {
+            entity.setPromiseFileUrl(StrUtil.join(";", request.getPromiseFileUrl()));
             request.getPromiseFileUrl().forEach(fileName ->
-                    fileList.add(fileService.getFileCreateRequest(fileName, entity.getCode(),
-                            IpTransformResponse.BIZ_CODE, entity.getName(),
+                    fileList.add(fileService.getFileCreateRequest(fileName,
+                            entity.getCode(),
+                            IpTransformResponse.BIZ_CODE,
+                            entity.getName(),
                             FileBizTypeEnum.IP_TRANSFORM_PROMISE.getValue())));
+        }
+
+        if (CollUtil.isNotEmpty(request.getRecordFileUrl())) {
+            entity.setRecordFileUrl(StrUtil.join(";", request.getRecordFileUrl()));
+            request.getRecordFileUrl().forEach(fileName ->
+                    fileList.add(fileService.getFileCreateRequest(fileName,
+                            entity.getCode(),
+                            IpTransformResponse.BIZ_CODE,
+                            entity.getName(),
+                            FileBizTypeEnum.IP_TRANSFORM_RECORD.getValue())));
+        }
+
+        if (CollUtil.isNotEmpty(request.getContractFileUrl())) {
+            entity.setContractFileUrl(StrUtil.join(";", request.getContractFileUrl()));
+            request.getContractFileUrl().forEach(fileName ->
+                    fileList.add(fileService.getFileCreateRequest(fileName,
+                            entity.getCode(),
+                            IpTransformResponse.BIZ_CODE,
+                            entity.getName(),
+                            FileBizTypeEnum.IP_TRANSFORM_CONTRACT.getValue())));
+        }
+
+        if (CollUtil.isNotEmpty(request.getRewardApplyFileUrl())) {
+            entity.setRewardApplyFileUrl(StrUtil.join(";", request.getRewardApplyFileUrl()));
+            request.getRewardApplyFileUrl().forEach(fileName ->
+                    fileList.add(fileService.getFileCreateRequest(fileName,
+                            entity.getCode(),
+                            IpTransformResponse.BIZ_CODE,
+                            entity.getName(),
+                            FileBizTypeEnum.IP_TRANSFORM_REWARD_APPLY.getValue())));
+        }
+
+        if (CollUtil.isNotEmpty(request.getAllocationPlanFileUrl())) {
+            entity.setAllocationPlanFileUrl(StrUtil.join(";", request.getAllocationPlanFileUrl()));
+            request.getAllocationPlanFileUrl().forEach(fileName ->
+                    fileList.add(fileService.getFileCreateRequest(fileName,
+                            entity.getCode(),
+                            IpTransformResponse.BIZ_CODE,
+                            entity.getName(),
+                            FileBizTypeEnum.IP_TRANSFORM_ALLOCATION_PLAN.getValue())));
         }
 
         if (!fileList.isEmpty()) {
@@ -143,7 +187,17 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setCode(ParamResolver.getStr(IpTransformResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
+        }
+
+        if (CollUtil.isNotEmpty(request.getIpTransformPlanVOS())) {
+            List<IpTransformPlanEntity> planList = BeanUtil.copyToList(request.getIpTransformPlanVOS(), IpTransformPlanEntity.class);
+            planList.forEach(plan -> {
+                plan.setTransformId(entity.getId());
+                plan.setTransformCode(entity.getCode());
+            });
+            ipTransformPlanService.saveBatch(planList);
         }
     }
 
