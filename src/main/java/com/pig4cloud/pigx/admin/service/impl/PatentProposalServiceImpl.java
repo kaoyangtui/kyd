@@ -186,8 +186,10 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         response.setAbstractFile(StrUtil.split(entity.getAbstractFile(), ";"));
         response.setAbstractFigureFile(StrUtil.split(entity.getAbstractFigureFile(), ";"));
         ResearchProjectEntity researchProject = researchProjectMapper.selectById(entity.getResearchProjectId());
-        response.setResearchProjectType(researchProject.getProjectType());
-        response.setResearchProjectName(researchProject.getProjectName());
+        if (researchProject != null) {
+            response.setResearchProjectType(researchProject.getProjectType());
+            response.setResearchProjectName(researchProject.getProjectName());
+        }
         return response;
     }
 }

@@ -244,8 +244,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
         ResearchProjectEntity researchProject = researchProjectMapper.selectById(entity.getResearchProjectId());
-        response.setResearchProjectType(researchProject.getProjectType());
-        response.setResearchProjectName(researchProject.getProjectName());
+        if (researchProject != null) {
+            response.setResearchProjectType(researchProject.getProjectType());
+            response.setResearchProjectName(researchProject.getProjectName());
+        }
         return response;
     }
 }
