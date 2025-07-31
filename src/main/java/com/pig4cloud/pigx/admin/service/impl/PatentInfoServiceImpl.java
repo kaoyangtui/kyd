@@ -133,6 +133,10 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         }
         IPage<PatentInfoEntity> entityPage = this.page(page, wrapper);
 
+        if (entityPage == null || CollUtil.isEmpty(entityPage.getRecords())) {
+            return null;
+        }
+
         // 1. 获取所有PID
         List<String> pidList = entityPage.getRecords().stream()
                 .map(PatentInfoEntity::getPid)
@@ -518,6 +522,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             patentDetailCacheService.save(cache);
         }
         resp.setCover(cache.getDraws());
+        resp.setId(info.getId());
 
         this.lambdaUpdate()
                 .eq(PatentInfoEntity::getPid, pid)
