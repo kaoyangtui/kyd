@@ -25,6 +25,9 @@ public class IpTransformPageRequest extends BasePageQuery {
     @Schema(description = "所属院系")
     private String createByDept;
 
+    @Schema(description = "提交人用户名")
+    private String createBy;
+
     @Schema(description = "提交时间-起")
     private String beginTime;
 

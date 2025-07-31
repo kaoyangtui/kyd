@@ -164,6 +164,12 @@ public class IpTransformEntity extends Model<IpTransformEntity> {
     private Integer hasRecord;
 
 	/**
+	* 是否到款（0否 1是）
+	*/
+    @Schema(description="是否到款（0否 1是）")
+    private Integer hasReceivedPayment;
+
+	/**
 	* 所属院系
 	*/
     @Schema(description="所属院系")

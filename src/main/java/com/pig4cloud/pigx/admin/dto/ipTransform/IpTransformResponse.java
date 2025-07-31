@@ -45,6 +45,8 @@ public class IpTransformResponse extends BaseResponse {
     private List<String> promiseFileUrl;
     @Schema(description = "是否备案（0否 1是）")
     private Integer hasRecord;
+    @Schema(description="是否到款（0否 1是）")
+    private Integer hasReceivedPayment;
 
     @Schema(description = "火炬中心备案文件")
     private List<String> recordFileUrl;

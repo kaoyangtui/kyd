@@ -68,7 +68,8 @@ public class IpTransformController {
     @GetMapping("/page")
     @Operation(summary = "分页查询")
     //@PreAuthorize("@pms.hasPermission('ip_transform_view')")
-    public R<IPage<IpTransformResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject IpTransformPageRequest request) {
+    public R<IPage<IpTransformResponse>> page(@ParameterObject PageRequest pageRequest,
+                                              @ParameterObject IpTransformPageRequest request) {
         return R.ok(ipTransformService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
