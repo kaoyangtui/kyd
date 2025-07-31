@@ -39,7 +39,7 @@ public class ResultPageRequest extends BasePageQuery {
     @Schema(description = "上下架状态（0 下架，1 上架）")
     private Integer shelfStatus;
 
-    @Schema(description = "流程状态（-1未开始，0办理中，1结束，2驳回中，3跳过，9被驳回）")
+    @Schema(description = "流程状态")
     private Integer flowStatus;
 
     @Schema(description = "当前流程节点名称")

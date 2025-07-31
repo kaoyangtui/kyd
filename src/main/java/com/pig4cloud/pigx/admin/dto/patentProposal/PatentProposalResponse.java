@@ -23,6 +23,9 @@ public class PatentProposalResponse extends BaseResponse {
     @Schema(description = "主键")
     private Long id;
 
+    @Schema(description = "业务编码")
+    private String code;
+
     @Schema(description = "拟申请专利名称")
     private String title;
 
