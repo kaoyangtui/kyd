@@ -80,9 +80,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String legalStatus;
 
     /**
-     * 申请号 (数组)
+     * 申请号
      */
-    @Schema(description = "申请号 (数组)")
+    @Schema(description = "申请号")
     private String appNumber;
 
     /**
@@ -92,9 +92,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String appDate;
 
     /**
-     * 公开（公告）号 (数组)
+     * 公开（公告）号
      */
-    @Schema(description = "公开（公告）号 (数组)")
+    @Schema(description = "公开（公告）号")
     private String pubNumber;
 
     /**
@@ -140,9 +140,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String applicantName;
 
     /**
-     * 申请人类型 (Set<String>)
+     * 申请人类型
      */
-    @Schema(description = "申请人类型 (Set<String>)")
+    @Schema(description = "申请人类型")
     private String applicantType;
 
     /**
@@ -176,33 +176,33 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String ipc;
 
     /**
-     * 分类号部 (Set<String>)
+     * 分类号部
      */
-    @Schema(description = "分类号部 (Set<String>)")
+    @Schema(description = "分类号部")
     private String ipcSection;
 
     /**
-     * 分类号大类 (Set<String>)
+     * 分类号大类
      */
-    @Schema(description = "分类号大类 (Set<String>)")
+    @Schema(description = "分类号大类")
     private String ipcClass;
 
     /**
-     * 分类号小类 (Set<String>)
+     * 分类号小类
      */
-    @Schema(description = "分类号小类 (Set<String>)")
+    @Schema(description = "分类号小类")
     private String ipcSubClass;
 
     /**
-     * 分类号大组 (Set<String>)
+     * 分类号大组
      */
-    @Schema(description = "分类号大组 (Set<String>)")
+    @Schema(description = "分类号大组")
     private String ipcGroup;
 
     /**
-     * 分类号小组 (Set<String>)
+     * 分类号小组
      */
-    @Schema(description = "分类号小组 (Set<String>)")
+    @Schema(description = "分类号小组")
     private String ipcSubGroup;
 
     /**
@@ -212,33 +212,33 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String cpc;
 
     /**
-     * 联合分类部 (Set<String>)
+     * 联合分类部
      */
-    @Schema(description = "联合分类部 (Set<String>)")
+    @Schema(description = "联合分类部")
     private String cpcSection;
 
     /**
-     * 联合分类大类 (Set<String>)
+     * 联合分类大类
      */
-    @Schema(description = "联合分类大类 (Set<String>)")
+    @Schema(description = "联合分类大类")
     private String cpcClass;
 
     /**
-     * 联合分类小类 (Set<String>)
+     * 联合分类小类
      */
-    @Schema(description = "联合分类小类 (Set<String>)")
+    @Schema(description = "联合分类小类")
     private String cpcSubClass;
 
     /**
-     * 联合分类大组 (Set<String>)
+     * 联合分类大组
      */
-    @Schema(description = "联合分类大组 (Set<String>)")
+    @Schema(description = "联合分类大组")
     private String cpcGroup;
 
     /**
-     * 联合分类小组 (Set<String>)
+     * 联合分类小组
      */
-    @Schema(description = "联合分类小组 (Set<String>)")
+    @Schema(description = "联合分类小组")
     private String cpcSubGroup;
 
     /**
@@ -464,9 +464,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String courtDecisionQuantity;
 
     /**
-     * 同日申请 (数组)
+     * 同日申请
      */
-    @Schema(description = "同日申请 (数组)")
+    @Schema(description = "同日申请")
     private String sameApp;
 
     /**
@@ -512,9 +512,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String declassifiedPublicationDate;
 
     /**
-     * 国际申请号 (数组)
+     * 国际申请号
      */
-    @Schema(description = "国际申请号 (数组)")
+    @Schema(description = "国际申请号")
     private String iappNo;
 
     /**
@@ -524,9 +524,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String iappDate;
 
     /**
-     * 国际公布号 (数组)
+     * 国际公布号
      */
-    @Schema(description = "国际公布号 (数组)")
+    @Schema(description = "国际公布号")
     private String ipubNo;
 
     /**
@@ -671,9 +671,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String createUserName;
 
     /**
-     * 专利权人类型 (Set<String>)
+     * 专利权人类型
      */
-    @Schema(description = "专利权人类型 (Set<String>)")
+    @Schema(description = "专利权人类型")
     private String patenteType;
 
     /**
@@ -742,9 +742,9 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String divideInitAppDate;
 
     /**
-     * 分案原申请号 (数组)
+     * 分案原申请号
      */
-    @Schema(description = "分案原申请号 (数组)")
+    @Schema(description = "分案原申请号")
     private String divideInitAppNo;
 
     /**

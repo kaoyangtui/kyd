@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pigx.admin.mapper.SupplyDemandMatchResultMapper">
+
+  <resultMap id="supplyDemandMatchResultMap" type="com.pig4cloud.pigx.admin.entity.SupplyDemandMatchResultEntity">
+        <id property="id" column="id"/>
+        <result property="demandCode" column="demand_code"/>
+        <result property="demandType" column="demand_type"/>
+        <result property="demandContent" column="demand_content"/>
+        <result property="supplyCode" column="supply_code"/>
+        <result property="supplyType" column="supply_type"/>
+        <result property="supplyContent" column="supply_content"/>
+        <result property="matchScore" column="match_score"/>
+        <result property="matchReason" column="match_reason"/>
+        <result property="supplySummary" column="supply_summary"/>
+        <result property="demandSummary" column="demand_summary"/>
+        <result property="relatedKeywords" column="related_keywords"/>
+        <result property="advice" column="advice"/>
+        <result property="matchStatus" column="match_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+  </resultMap>
+</mapper>
