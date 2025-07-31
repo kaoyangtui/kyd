@@ -25,4 +25,7 @@ public class ResearchProjectResponse extends BaseResponse {
     @Schema(description = "关联成果数")
     private Integer resultCount;
 
+    @Schema(description = "关联报销专利数")
+    private Integer patentFeeReimburseCount;
+
 }
