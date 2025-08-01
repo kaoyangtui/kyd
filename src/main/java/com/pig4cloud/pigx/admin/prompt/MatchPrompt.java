@@ -6,7 +6,7 @@ public class MatchPrompt {
             "\n" +
             "请输出标准 JSON，包含如下字段：\n" +
             "- match_score：匹配度分数，int，0~100\n" +
-            "- match_reason：详细匹配说明（基于供需双方内容，逻辑清晰，体现打分依据）\n" +
+            "- match_result：详细匹配说明（基于供需双方内容，逻辑清晰，体现打分依据）\n" +
             "- supply_summary：对供给信息的简要总结\n" +
             "- demand_summary：对需求信息的简要总结\n" +
             "- related_keywords：主要的相关关键词数组\n" +

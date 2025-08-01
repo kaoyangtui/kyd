@@ -6,6 +6,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.ModelBizNameEnum;
 import com.pig4cloud.pigx.admin.constants.ModelVolcEnum;
+import com.pig4cloud.pigx.admin.entity.ModelLogEntity;
 import com.pig4cloud.pigx.admin.entity.SupplyDemandMatchResultEntity;
 import com.pig4cloud.pigx.admin.mapper.SupplyDemandMatchResultMapper;
 import com.pig4cloud.pigx.admin.prompt.MatchPrompt;
@@ -31,10 +32,28 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
 
     @Override
     public SupplyDemandMatchResultEntity match(String demandType, String demandCode, String demandContent, String supplyType, String supplyCode, String supplyContent) {
+        // 1. 查重（按需求/供给类型、编码、状态）
+        SupplyDemandMatchResultEntity existed = this.lambdaQuery()
+                .eq(SupplyDemandMatchResultEntity::getDemandType, demandType)
+                .eq(SupplyDemandMatchResultEntity::getDemandCode, demandCode)
+                .eq(SupplyDemandMatchResultEntity::getSupplyType, supplyType)
+                .eq(SupplyDemandMatchResultEntity::getSupplyCode, supplyCode)
+                .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue()) // 只查已成功匹配的
+                .last("limit 1")
+                .one();
+        if (existed != null) {
+            return existed;
+        }
+
+        // 2. 未查到则继续走模型流程
         String code = IdUtil.getSnowflakeNextIdStr();
         String content = StrUtil.format(MatchPrompt.VALUE, supplyContent, demandContent);
-        String modelResult = modelLogService.modelVolcCall(ModelBizNameEnum.MATCH, ModelVolcEnum.DEEP_SEEK_R1, code, 0L, content);
-        SupplyDemandMatchResultEntity entity = JSONUtil.toBean(modelResult, SupplyDemandMatchResultEntity.class);
+
+        ModelLogEntity modelLog = modelLogService.modelVolcCall(
+                ModelBizNameEnum.MATCH, ModelVolcEnum.DEEP_SEEK_R1, code, 0L, content
+        );
+
+        SupplyDemandMatchResultEntity entity = JSONUtil.toBean(modelLog.getOutputContent(), SupplyDemandMatchResultEntity.class);
         entity.setCode(code);
         entity.setDemandCode(demandCode);
         entity.setDemandType(demandType);
@@ -43,7 +62,11 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
         entity.setSupplyType(supplyType);
         entity.setSupplyContent(supplyContent);
         entity.setMatchStatus(ModelStatusEnum.SUCCESS.getValue());
+        entity.setMatchReasoning(modelLog.getInferenceContent());
+
         this.save(entity);
         return entity;
     }
+
+
 }

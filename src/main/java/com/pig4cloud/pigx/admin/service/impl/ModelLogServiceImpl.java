@@ -32,22 +32,22 @@ public class ModelLogServiceImpl extends ServiceImpl<ModelLogMapper, ModelLogEnt
 
 
     @Override
-    public String modelAliCall(ModelBizNameEnum modelBizNameEnum, ModelAliEnum model, String code, Long userId, String inputContent) {
+    public ModelLogEntity modelAliCall(ModelBizNameEnum modelBizNameEnum, ModelAliEnum model, String code, Long userId, String inputContent) {
         return modelCall(modelBizNameEnum, model.getValue(), code, userId, inputContent, null, "ali");
     }
 
     @Override
-    public String modelVolcCall(ModelBizNameEnum modelBizNameEnum, ModelVolcEnum model, String code, Long userId, String inputContent) {
+    public ModelLogEntity modelVolcCall(ModelBizNameEnum modelBizNameEnum, ModelVolcEnum model, String code, Long userId, String inputContent) {
         return modelVolcCall(modelBizNameEnum, model, code, userId, inputContent, null);
     }
 
     @Override
-    public String modelVolcCall(ModelBizNameEnum modelBizNameEnum, ModelVolcEnum model, String code, Long userId, String inputContent, List<String> inputImg) {
+    public ModelLogEntity modelVolcCall(ModelBizNameEnum modelBizNameEnum, ModelVolcEnum model, String code, Long userId, String inputContent, List<String> inputImg) {
         return modelCall(modelBizNameEnum, model.getValue(), code, userId, inputContent, inputImg, "volc");
     }
 
     @Nullable
-    private String modelCall(ModelBizNameEnum modelBizNameEnum, String model, String code, Long userId, String inputContent, List<String> inputImg, String source) {
+    private ModelLogEntity modelCall(ModelBizNameEnum modelBizNameEnum, String model, String code, Long userId, String inputContent, List<String> inputImg, String source) {
         try {
             LocalDateTime startTime = LocalDateTime.now();
             Map<String, Object> map;
@@ -85,7 +85,7 @@ public class ModelLogServiceImpl extends ServiceImpl<ModelLogMapper, ModelLogEnt
             modelLogEntity.setInputTokens(totalInputTokens);
             modelLogEntity.setOutputTokens(totalOutputTokens);
             this.save(modelLogEntity);
-            return result;
+            return modelLogEntity;
         } catch (Exception exception) {
             log.error("{} 模型调用失败", modelBizNameEnum.getValue(), exception);
             return null;

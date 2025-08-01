@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface ModelLogService extends IService<ModelLogEntity> {
 
-    String modelAliCall(ModelBizNameEnum bizNameEnum, ModelAliEnum model, String code, Long userId, String inputContent);
+    ModelLogEntity modelAliCall(ModelBizNameEnum bizNameEnum, ModelAliEnum model, String code, Long userId, String inputContent);
 
-    String modelVolcCall(ModelBizNameEnum bizNameEnum, ModelVolcEnum model, String code, Long userId, String inputContent);
+    ModelLogEntity modelVolcCall(ModelBizNameEnum bizNameEnum, ModelVolcEnum model, String code, Long userId, String inputContent);
 
-    String modelVolcCall(ModelBizNameEnum bizNameEnum, ModelVolcEnum model, String code, Long userId, String inputContent, List<String> inputImg);
+    ModelLogEntity modelVolcCall(ModelBizNameEnum bizNameEnum, ModelVolcEnum model, String code, Long userId, String inputContent, List<String> inputImg);
 }

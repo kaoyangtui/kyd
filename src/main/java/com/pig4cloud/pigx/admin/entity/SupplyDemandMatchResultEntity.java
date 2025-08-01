@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import java.time.LocalDateTime;
 
 /**
@@ -76,10 +77,16 @@ public class SupplyDemandMatchResultEntity extends Model<SupplyDemandMatchResult
     private Integer matchScore;
 
 	/**
-	* 详细匹配说明
+     * 匹配结果说明
 	*/
-    @Schema(description="详细匹配说明")
-    private String matchReason;
+    @Schema(description = "匹配结果说明")
+    private String matchResult;
+
+    /**
+     * 匹配过程说明
+     */
+    @Schema(description = "匹配过程说明")
+    private String matchReasoning;
 
 	/**
 	* 供给信息简要总结
