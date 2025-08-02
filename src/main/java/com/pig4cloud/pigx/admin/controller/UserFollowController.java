@@ -63,7 +63,7 @@ public class UserFollowController {
 
     @PostMapping("/patent/page")
     @Operation(summary = "我的关注-专利")
-    public R<IPage<PatentInfoResponse>> resetPwdStep2(@ParameterObject PageRequest pageRequest) {
+    public R<IPage<PatentInfoResponse>> followPatentPage(@ParameterObject PageRequest pageRequest) {
         List<Long> followIds = userFollowService.getFollowIds(PatentInfoResponse.BIZ_CODE);
         PatentPageRequest request = new PatentPageRequest();
         request.setIds(followIds);

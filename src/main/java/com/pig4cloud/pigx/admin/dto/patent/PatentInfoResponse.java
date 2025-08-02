@@ -787,4 +787,10 @@ public class PatentInfoResponse {
      */
     @Schema(description = "负责人姓名")
     private String leaderName;
+
+    /**
+     * 匹配度分数 0-100
+     */
+    @Schema(description="匹配度分数 0-100")
+    private Integer matchScore;
 }

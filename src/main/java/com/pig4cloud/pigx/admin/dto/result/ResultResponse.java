@@ -183,4 +183,7 @@ public class ResultResponse extends BaseResponse {
 
     @Schema(description = "完成人信息列表")
     private List<CompleterEntity> completers;
+
+    @Schema(description="匹配度分数 0-100")
+    private Integer matchScore;
 }

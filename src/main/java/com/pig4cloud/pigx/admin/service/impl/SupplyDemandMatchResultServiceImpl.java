@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 /**
  * 供需匹配结果表
  *
@@ -31,14 +34,19 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
     private final ModelLogService modelLogService;
 
     @Override
-    public SupplyDemandMatchResultEntity match(String demandType, String demandCode, String demandContent, String supplyType, String supplyCode, String supplyContent) {
+    public SupplyDemandMatchResultEntity match(String demandType,
+                                               Long demandId,
+                                               String demandContent,
+                                               String supplyType,
+                                               Long supplyId,
+                                               String supplyContent) {
         // 1. 查重（按需求/供给类型、编码、状态）
         SupplyDemandMatchResultEntity existed = this.lambdaQuery()
                 .eq(SupplyDemandMatchResultEntity::getDemandType, demandType)
-                .eq(SupplyDemandMatchResultEntity::getDemandCode, demandCode)
+                .eq(SupplyDemandMatchResultEntity::getDemandId, demandId)
                 .eq(SupplyDemandMatchResultEntity::getSupplyType, supplyType)
-                .eq(SupplyDemandMatchResultEntity::getSupplyCode, supplyCode)
-                .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue()) // 只查已成功匹配的
+                .eq(SupplyDemandMatchResultEntity::getSupplyId, supplyId)
+                .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue())
                 .last("limit 1")
                 .one();
         if (existed != null) {
@@ -55,10 +63,11 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
 
         SupplyDemandMatchResultEntity entity = JSONUtil.toBean(modelLog.getOutputContent(), SupplyDemandMatchResultEntity.class);
         entity.setCode(code);
-        entity.setDemandCode(demandCode);
+        entity.setMatchDate(LocalDate.now());
+        entity.setDemandId(demandId);
         entity.setDemandType(demandType);
         entity.setDemandContent(demandContent);
-        entity.setSupplyCode(supplyCode);
+        entity.setSupplyId(supplyId);
         entity.setSupplyType(supplyType);
         entity.setSupplyContent(supplyContent);
         entity.setMatchStatus(ModelStatusEnum.SUCCESS.getValue());
@@ -68,5 +77,17 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
         return entity;
     }
 
+    @Override
+    public List<SupplyDemandMatchResultEntity> getMatchIds(String demandType,
+                                                           Long demandId,
+                                                           String supplyType) {
+        return this.lambdaQuery()
+                .eq(SupplyDemandMatchResultEntity::getDemandType, demandType)
+                .eq(SupplyDemandMatchResultEntity::getDemandId, demandId)
+                .eq(SupplyDemandMatchResultEntity::getSupplyType, supplyType)
+                .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue())
+                .orderByDesc(SupplyDemandMatchResultEntity::getMatchScore)
+                .list();
+    }
 
 }

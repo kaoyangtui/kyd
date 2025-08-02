@@ -3,13 +3,19 @@ package com.pig4cloud.pigx.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.SupplyDemandMatchResultEntity;
 
+import java.util.List;
+
 public interface SupplyDemandMatchResultService extends IService<SupplyDemandMatchResultEntity> {
 
     SupplyDemandMatchResultEntity match(String demandType,
-                                        String demandCode,
+                                        Long demandId,
                                         String demandContent,
                                         String supplyType,
-                                        String supplyCode,
+                                        Long supplyId,
                                         String supplyContent
     );
+
+    List<SupplyDemandMatchResultEntity> getMatchIds(String demandType,
+                                                    Long demandId,
+                                                    String supplyType);
 }
