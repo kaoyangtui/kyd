@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 供需匹配结果表
@@ -78,9 +79,9 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
     }
 
     @Override
-    public List<SupplyDemandMatchResultEntity> getMatchIds(String demandType,
-                                                           Long demandId,
-                                                           String supplyType) {
+    public List<SupplyDemandMatchResultEntity> getMatchEntity(String demandType,
+                                                              Long demandId,
+                                                              String supplyType) {
         return this.lambdaQuery()
                 .eq(SupplyDemandMatchResultEntity::getDemandType, demandType)
                 .eq(SupplyDemandMatchResultEntity::getDemandId, demandId)
@@ -88,6 +89,18 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
                 .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue())
                 .orderByDesc(SupplyDemandMatchResultEntity::getMatchScore)
                 .list();
+    }
+
+    @Override
+    public List<Long> getMatchId(String supplyType) {
+        return this.lambdaQuery()
+                .eq(SupplyDemandMatchResultEntity::getSupplyType, supplyType)
+                .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue())
+                .orderByDesc(SupplyDemandMatchResultEntity::getMatchScore)
+                .list()
+                .stream()
+                .map(SupplyDemandMatchResultEntity::getSupplyId)
+                .collect(Collectors.toList());
     }
 
 }

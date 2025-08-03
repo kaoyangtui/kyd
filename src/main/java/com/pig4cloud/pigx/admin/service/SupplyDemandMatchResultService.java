@@ -15,7 +15,9 @@ public interface SupplyDemandMatchResultService extends IService<SupplyDemandMat
                                         String supplyContent
     );
 
-    List<SupplyDemandMatchResultEntity> getMatchIds(String demandType,
-                                                    Long demandId,
-                                                    String supplyType);
+    List<SupplyDemandMatchResultEntity> getMatchEntity(String demandType,
+                                                       Long demandId,
+                                                       String supplyType);
+
+    List<Long> getMatchId(String supplyType);
 }

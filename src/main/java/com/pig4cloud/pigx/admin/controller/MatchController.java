@@ -55,7 +55,7 @@ public class MatchController {
     public R<IPage<PatentInfoResponse>> listMatchedPatentsForDemand(@ParameterObject PageRequest pageRequest,
                                                                     @RequestParam(name = "demandId") Long demandId) {
         List<SupplyDemandMatchResultEntity> matchResultList = supplyDemandMatchResultService
-                .getMatchIds(DemandResponse.BIZ_CODE, demandId, PatentInfoResponse.BIZ_CODE);
+                .getMatchEntity(DemandResponse.BIZ_CODE, demandId, PatentInfoResponse.BIZ_CODE);
 
         List<Long> ids = matchResultList.stream()
                 .map(SupplyDemandMatchResultEntity::getSupplyId)
@@ -83,7 +83,7 @@ public class MatchController {
     public R<IPage<ResultResponse>> listMatchedResultsForDemand(@ParameterObject PageRequest pageRequest,
                                                                 @RequestParam(name = "demandId") Long demandId) {
         List<SupplyDemandMatchResultEntity> matchResultList = supplyDemandMatchResultService
-                .getMatchIds(DemandResponse.BIZ_CODE, demandId, ResultResponse.BIZ_CODE);
+                .getMatchEntity(DemandResponse.BIZ_CODE, demandId, ResultResponse.BIZ_CODE);
 
         List<Long> ids = matchResultList.stream()
                 .map(SupplyDemandMatchResultEntity::getSupplyId)
@@ -106,6 +106,23 @@ public class MatchController {
         return R.ok(page);
     }
 
+    @PostMapping("/patent")
+    @Operation(summary = "专利列表")
+    public R<IPage<PatentInfoResponse>> patentPage(@ParameterObject PageRequest pageRequest) {
+        List<Long> ids = supplyDemandMatchResultService.getMatchId(PatentInfoResponse.BIZ_CODE);
+        PatentPageRequest request = new PatentPageRequest();
+        request.setIds(ids);
+        return R.ok(patentInfoService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
+
+    @PostMapping("/result")
+    @Operation(summary = "成果列表")
+    public R<IPage<ResultResponse>> resultPage(@ParameterObject PageRequest pageRequest) {
+        List<Long> ids = supplyDemandMatchResultService.getMatchId(ResultResponse.BIZ_CODE);
+        ResultPageRequest request = new ResultPageRequest();
+        request.setIds(ids);
+        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
+    }
     /**
      * 构建匹配分数字典
      */
