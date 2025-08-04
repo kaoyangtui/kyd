@@ -820,6 +820,12 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private String awardFlag;
 
     /**
+     * 获奖详情
+     */
+    @Schema(description = "获奖详情")
+    private String awardInfo;
+
+    /**
      * 申请号合并标识
      */
     @Schema(description = "申请号合并标识,1已合并")
