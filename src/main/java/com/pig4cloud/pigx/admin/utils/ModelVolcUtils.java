@@ -178,7 +178,7 @@ public class ModelVolcUtils {
         String patentStr = JSON.toJSONString(patentInfoMatchDTO, true);
         DemandMatchDTO dto = new DemandMatchDTO();
         dto.setName("基于纺织品定制化生产智能排产系统研发应用");
-        dto.setField("其他产业用纺织制成品制造;纺织专用设备制造");
+        dto.setNec("其他产业用纺织制成品制造;纺织专用设备制造");
         dto.setDescription("1. 提升生产效率和灵活性\n" +
                 "APS排产系统能够根据订单需求和生产能力灵活调整生产顺序，优化车间资源配置，减少停机时间，提升生产效率。对于粘扣工厂而言，APS系统可以实现按需生产，提高生产线利用率，减少资源浪费，从而显著提升整体生产效率。此外，APS系统还能够快速响应市场变化，缩短交货周期，提高客户满意度。\n" +
                 "2. 降低生产成本和库存积压\n" +
