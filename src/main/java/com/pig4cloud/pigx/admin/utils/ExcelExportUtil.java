@@ -1,6 +1,6 @@
 package com.pig4cloud.pigx.admin.utils;
 
-import com.alibaba.excel.EasyExcel;
+import cn.idev.excel.EasyExcel;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
