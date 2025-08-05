@@ -2,8 +2,12 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -21,13 +25,24 @@ import com.pig4cloud.pigx.admin.mapper.FileMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.SysFileGroupService;
 import com.pig4cloud.pigx.admin.service.SysFileService;
+import com.pig4cloud.pigx.common.core.util.WebUtils;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.file.core.FileProperties;
+import com.pig4cloud.pigx.common.file.core.FileTemplate;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +50,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
     private final SysFileService sysFileService;
     private final SysFileGroupService sysFileGroupService;
+    private final FileTemplate fileTemplate;
+    private final FileProperties properties;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -165,7 +182,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
                 sysFileGroup.setName("系统专利资源组");
                 sysFileGroupService.save(sysFileGroup);
             }
-            Map<String, String> map = sysFileService.uploadFileByUrl(url, dir, sysFileGroup.getId(), String.valueOf(sysFileGroup.getType()));
+            Map<String, String> map = uploadFileByUrl(url, dir, sysFileGroup.getId(), String.valueOf(sysFileGroup.getType()));
             String mapUrl = StrUtil.EMPTY;
             if (null != map) {
                 mapUrl = map.get("url");
@@ -175,5 +192,57 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
             log.error("上传文件异常", e);
         }
         return null;
+    }
+
+    /**
+     * 通过文件URL上传文件
+     *
+     * @param url     文件的下载地址
+     * @param dir     文件夹
+     * @param groupId 分组ID
+     * @param type    类型
+     * @return
+     */
+    public Map<String, String> uploadFileByUrl(String url, String dir, Long groupId, String type) {
+        // 1. 解析文件名和后缀
+        String path = URLUtil.getPath(url);                         // e.g. /dir/a.png
+        String originFileName = FileUtil.getName(path);             // e.g. a.png
+        String ext = FileUtil.extName(originFileName);              // e.g. png
+        String fileName = IdUtil.simpleUUID() + (StrUtil.isBlank(ext) ? "" : StrUtil.DOT + ext);    // 拼接随机文件名
+
+
+        Map<String, String> resultMap = new HashMap<>(4);
+        resultMap.put("bucketName", properties.getBucketName());
+        resultMap.put("fileName", fileName);
+        resultMap.put("url", String.format("/admin/sys-file/oss/file?fileName=%s", fileName));
+
+        try (InputStream inputStream = URLUtil.getStream(new URL(url))) {
+            String contentType = FileUtil.getMimeType(fileName);
+            fileTemplate.putObject(properties.getBucketName(), dir, fileName, inputStream, contentType);
+
+            // 获取文件大小
+            URLConnection connection = new URL(url).openConnection();
+            long fileSize = connection.getContentLengthLong();
+
+            fileLog(dir, fileName, groupId, type, originFileName, fileSize);
+        } catch (Exception e) {
+            log.error("URL上传失败", e);
+            return null;
+        }
+        return resultMap;
+    }
+
+    // 用于 URL 上传（不需要 MultipartFile）
+    private void fileLog(String dir, String fileName, Long groupId, String type, String originFileName, long fileSize) {
+        SysFile sysFile = new SysFile();
+        sysFile.setFileName(fileName);
+        sysFile.setDir(dir);
+        sysFile.setOriginal(originFileName);
+        sysFile.setFileSize(fileSize);
+        sysFile.setBucketName(properties.getBucketName());
+        sysFile.setType(type);
+        sysFile.setGroupId(groupId);
+        // 这里没有 hash，可选
+        sysFileService.save(sysFile);
     }
 }
