@@ -21,15 +21,6 @@ spring:
       username: root
       password: c45540d049692a9c
       url: jdbc:mysql://14.103.193.249:3306/kyd?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
-#  elasticsearch:
-#    uris: 14.103.193.249:9200
-#    username: elastic
-#    password: COwkX393BF
-
-#easy-es:
-#  address: ${spring.elasticsearch.uris}
-#  username: ${spring.elasticsearch.username}
-#  password: ${spring.elasticsearch.password}
 
 rocketmq:
   name-server: 14.103.193.249:9876
