@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.constants.YesNoEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
@@ -101,5 +102,20 @@ public class ResearchProjectController {
                 ResearchProjectResponse.class
         );
     }
+
+    @PostMapping("/enable")
+    @Operation(summary = "启用科研项目")
+    @SysLog("启用科研项目")
+    public R<Boolean> enable(@RequestBody IdRequest request) {
+        return R.ok(researchProjectService.changeStatus(request.getId(), YesNoEnum.YES.getValue()));
+    }
+
+    @PostMapping("/disable")
+    @Operation(summary = "停用科研项目")
+    @SysLog("停用科研项目")
+    public R<Boolean> disable(@RequestBody IdRequest request) {
+        return R.ok(researchProjectService.changeStatus(request.getId(), YesNoEnum.NO.getValue()));
+    }
+
 
 }

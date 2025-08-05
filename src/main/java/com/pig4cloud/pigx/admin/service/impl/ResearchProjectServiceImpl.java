@@ -52,6 +52,9 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
                         w.eq(ResearchProjectEntity::getProjectType, request.getProjectType())
                 );
             }
+            if (request.getStatus() != null) {
+                wrapper.eq(ResearchProjectEntity::getStatus, request.getStatus());
+            }
         }
         if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
             page.setSize(request.getEndNo() - request.getStartNo() + 1);
@@ -165,5 +168,15 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
                 .toList();
     }
 
+    @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean changeStatus(Long id, Integer status) {
+        ResearchProjectEntity entity = this.getById(id);
+        if (entity == null)
+            throw new BizException("科研项目不存在");
+        entity.setStatus(status);
+        return this.updateById(entity);
+    }
 
 }

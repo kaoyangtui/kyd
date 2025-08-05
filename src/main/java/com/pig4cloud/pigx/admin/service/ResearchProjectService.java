@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.dto.researchProject.*;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
+import lombok.SneakyThrows;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,4 +27,7 @@ public interface ResearchProjectService extends IService<ResearchProjectEntity> 
 
     List<String> projectNameOptions(ProjectNameSearchRequest request);
 
+    @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
+    Boolean changeStatus(Long id, Integer status);
 }

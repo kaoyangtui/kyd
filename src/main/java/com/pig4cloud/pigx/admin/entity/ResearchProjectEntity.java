@@ -43,6 +43,12 @@ public class ResearchProjectEntity extends Model<ResearchProjectEntity> {
     private String projectType;
 
     /**
+     * 状态，0停用 1启用
+     */
+    @Schema(description = "状态，0停用 1启用")
+    private Integer status;
+
+    /**
      * 所属组织ID
      */
     @TableField(fill = FieldFill.INSERT)

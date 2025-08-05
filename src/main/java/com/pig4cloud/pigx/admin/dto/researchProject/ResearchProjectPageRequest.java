@@ -15,4 +15,7 @@ public class ResearchProjectPageRequest extends BasePageQuery {
 
     @Schema(description = "项目类型")
     private String projectType;
+
+    @Schema(description = "状态，0停用 1启用")
+    private Integer status;
 }

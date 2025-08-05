@@ -19,6 +19,9 @@ public class ResearchProjectResponse extends BaseResponse {
     @Schema(description = "项目类型")
     private String projectType;
 
+    @Schema(description = "状态，0停用 1启用")
+    private Integer status;
+
     @Schema(description = "关联提案数")
     private Integer proposalCount;
 
