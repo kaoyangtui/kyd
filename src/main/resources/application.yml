@@ -15,16 +15,17 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
   cloud:
+    discovery:
+      enabled: false
     nacos:
-      config:
-        enabled: false
-      discovery:
-        enabled: false
+      config.enabled: false
+      discovery.enabled: false
     gateway:
-      enabled: false
-      redis.enabled: false
-    sentinel:
-      enabled: false
+      server.webflux:
+        enabled: false
+        redis.enabled: false
+    sentinel.enabled: false
+    openfeign.okhttp.enabled: true
   freemarker: # freemarker 配置，授权码模式页面渲染使用
     suffix: .ftl
     template-loader-path: classpath:/templates/
@@ -36,7 +37,6 @@ spring:
 
 ## spring security 对外暴露接口设置
 security:
-  # 登录报文加密根密钥 ，必须是16位
   encodeKey: pigxpigxpigxpigx
   micro: false
   oauth2:
