@@ -54,7 +54,7 @@ public class ResultCreateRequest {
     private List<String> imgUrl;
 
     @Schema(description = "成果附件路径")
-    private List<String> fileNames;
+    private List<String> fileUrl;
 
     @Schema(description = "完成人信息列表")
     private List<CompleterEntity> completers;

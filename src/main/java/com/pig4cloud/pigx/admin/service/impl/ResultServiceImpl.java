@@ -91,9 +91,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         entity.setTransWay(StrUtil.join(";", request.getTransWay()));
         entity.setImgUrl(StrUtil.join(";", request.getImgUrl()));
 
-        if (CollUtil.isNotEmpty(request.getFileNames())) {
+        if (CollUtil.isNotEmpty(request.getFileUrl())) {
+            entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
             List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
-            request.getFileNames().forEach(fileName -> {
+            request.getFileUrl().forEach(fileName -> {
                 FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
                         fileName,
                         entity.getCode(),
@@ -106,7 +107,6 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
                 }
             });
             fileService.batchCreate(fileCreateRequestList);
-            entity.setFileUrl(StrUtil.join(";", request.getFileNames()));
         }
 
         if (CollUtil.isNotEmpty(request.getCompleters())) {
