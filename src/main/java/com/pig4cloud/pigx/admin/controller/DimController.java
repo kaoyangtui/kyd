@@ -61,7 +61,7 @@ public class DimController {
         List<SysUser> userList = sysUserService.list(Wrappers.<SysUser>lambdaQuery()
                 .like(StrUtil.isNotBlank(key), SysUser::getUsername, key)
                 .or()
-                .like(StrUtil.isNotBlank(key), SysUser::getCode, key)
+                .like(StrUtil.isNotBlank(key), SysUser::getName, key)
         );
         return R.ok(userList);
     }
