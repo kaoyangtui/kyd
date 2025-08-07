@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -12,19 +13,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
+import com.pig4cloud.pigx.admin.dto.patentEvaluation.PatentEvaluationCommitRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PatentProposalMapper;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
-import com.pig4cloud.pigx.admin.service.CompleterService;
-import com.pig4cloud.pigx.admin.service.FileService;
-import com.pig4cloud.pigx.admin.service.OwnerService;
-import com.pig4cloud.pigx.admin.service.PatentProposalService;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
     private final CompleterService completerService;
     private final OwnerService ownerService;
     private final ResearchProjectMapper researchProjectMapper;
+    private final PatentEvaluationService PatentEvaluationService;
 
     @Override
     public IPage<PatentProposalResponse> pageResult(Page reqPage, PatentProposalPageRequest request) {
@@ -172,6 +174,21 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         } else {
             entity.setCode(ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
+            //提交申请前评估
+            PatentEvaluationCommitRequest pecRequest = new PatentEvaluationCommitRequest();
+            pecRequest.setSysBizId(entity.getId().toString());
+            pecRequest.setTitle(entity.getTitle());
+            request.getOwners().stream()
+                    .filter(c -> ObjectUtil.equal(c.getOwnerType(), 1))
+                    .findFirst()
+                    .ifPresent(leader -> {
+                        pecRequest.setApplicant(leader.getOwnerName());
+                    });
+            pecRequest.setAppDate(DateUtil.format(DateUtil.date(), "yyyyMMdd"));
+            pecRequest.setAbstractText(entity.getAbstractText());
+            pecRequest.setClaimText(entity.getClaimsText());
+            pecRequest.setDescriptionText(entity.getDescriptionText());
+            PatentEvaluationService.commit(pecRequest);
         }
 
         completerService.replaceCompleters(entity.getCode(), request.getCompleters());

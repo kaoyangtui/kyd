@@ -452,6 +452,8 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                     patentInfo.setLegalStatus(DiPatentLegalStatusEnum.EFFECTIVE.getDesc());
                     break;
                 case "20":
+                case "21":
+                case "22":
                     patentInfo.setLegalStatus(DiPatentLegalStatusEnum.UNEFFECTIVE.getDesc());
                     break;
             }

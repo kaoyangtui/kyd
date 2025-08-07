@@ -1,4 +1,4 @@
-package com.pig4cloud.pigx.admin.dto.patentProposal;
+package com.pig4cloud.pigx.admin.dto.patentEvaluation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
  */
 @Data
 @Schema(description = "专利评估结果")
-public class PatentEvaluationResultDTO {
+public class PatentEvaluationResponse {
 
     @Schema(description = "报告出具时间")
     private LocalDate reportTime;
