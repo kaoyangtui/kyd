@@ -123,7 +123,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean removeProposals(List<Long> ids) {
-        return this.removeBatchByIds(ids);
+        return (Boolean) this.removeBatchByIds(ids);
     }
 
     private void doSaveOrUpdate(PatentProposalCreateRequest request, boolean isCreate) {
@@ -160,7 +160,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
 
         if (CollUtil.isNotEmpty(request.getCompleters())) {
             request.getCompleters().stream()
-                    .filter(c -> ObjectUtil.equal(c.getCompleterLeader(), 1))
+                    .filter(c -> c.getCompleterLeader() == 1)
                     .findFirst()
                     .ifPresent(leader -> {
                         entity.setLeaderCode(leader.getCompleterNo());
@@ -179,7 +179,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             pecRequest.setSysBizId(entity.getId().toString());
             pecRequest.setTitle(entity.getTitle());
             request.getOwners().stream()
-                    .filter(c -> ObjectUtil.equal(c.getOwnerType(), 1))
+                    .filter(c -> c.getOwnerType() == 1)
                     .findFirst()
                     .ifPresent(leader -> {
                         pecRequest.setApplicant(leader.getOwnerName());
