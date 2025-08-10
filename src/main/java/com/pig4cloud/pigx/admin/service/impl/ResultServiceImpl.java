@@ -20,6 +20,7 @@ import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
@@ -27,6 +28,7 @@ import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.ResultService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.jsonflow.api.vo.RunNodeVO;
 import com.pig4cloud.pigx.jsonflow.service.RunFlowService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -48,7 +50,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> implements ResultService {
+public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> implements ResultService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final RunFlowService runFlowService;
@@ -249,5 +251,19 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             response.setResearchProjectName(researchProject.getProjectName());
         }
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return ResultResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(RunNodeVO runNodeVO) {
+        this.lambdaUpdate()
+                .eq(ResultEntity::getFlowInstId, runNodeVO.getFlowInstId())
+                .set(ResultEntity::getFlowStatus, runNodeVO.getFlowStatus())
+                .set(ResultEntity::getCurrentNodeName, runNodeVO.getNodeName())
+                .update();
     }
 }
