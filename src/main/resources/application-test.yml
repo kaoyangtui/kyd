@@ -77,4 +77,4 @@ model:
 # =========================
 pigx:
   mybatis:
-    show-sql: true
+    show-sql: false

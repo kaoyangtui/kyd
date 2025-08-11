@@ -13,6 +13,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.constants.FlowNodeTypeEnum;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
@@ -260,9 +262,18 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
 
     @Override
     public void update(RunNodeVO runNodeVO) {
+        Integer flowStatus = null;
+        switch (FlowNodeTypeEnum.fromCode(runNodeVO.getNodeType())) {
+            case START:
+                flowStatus = FlowStatusEnum.RUNNING.getValue();
+                break;
+            case END:
+                flowStatus = FlowStatusEnum.COMPLETE.getValue();
+                break;
+        }
         this.lambdaUpdate()
                 .eq(ResultEntity::getFlowInstId, runNodeVO.getFlowInstId())
-                .set(ResultEntity::getFlowStatus, runNodeVO.getFlowStatus())
+                .set(null != flowStatus, ResultEntity::getFlowStatus, flowStatus)
                 .set(ResultEntity::getCurrentNodeName, runNodeVO.getNodeName())
                 .update();
     }
