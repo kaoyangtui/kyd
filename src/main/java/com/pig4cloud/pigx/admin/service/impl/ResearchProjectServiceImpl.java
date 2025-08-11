@@ -88,18 +88,18 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
         ResearchProjectResponse researchProjectResponse = BeanUtil.copyProperties(entity, ResearchProjectResponse.class);
         Long resultCount = resultService.lambdaQuery()
                 .eq(ResultEntity::getResearchProjectId, entity.getId())
-                .eq(ResultEntity::getFlowStatus, FlowStatusEnum.COMPLETE.getValue())
+                .eq(ResultEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .count();
         researchProjectResponse.setResultCount(resultCount.intValue());
         Long proposalCount = patentProposalService.lambdaQuery()
                 .eq(PatentProposalEntity::getResearchProjectId, entity.getId())
-                .eq(PatentProposalEntity::getFlowStatus, FlowStatusEnum.COMPLETE.getValue())
+                .eq(PatentProposalEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .count();
         researchProjectResponse.setProposalCount(proposalCount.intValue());
 
         Long patentFeeReimburseCount = patentFeeReimburseService.lambdaQuery()
                 .eq(PatentFeeReimburseEntity::getResearchProjectId, entity.getId())
-                .eq(PatentFeeReimburseEntity::getFlowStatus, FlowStatusEnum.COMPLETE.getValue())
+                .eq(PatentFeeReimburseEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .count();
         researchProjectResponse.setPatentFeeReimburseCount(patentFeeReimburseCount.intValue());
         return researchProjectResponse;

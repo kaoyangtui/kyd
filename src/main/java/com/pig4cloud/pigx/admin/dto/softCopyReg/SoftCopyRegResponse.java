@@ -29,7 +29,7 @@ public class SoftCopyRegResponse extends BaseResponse {
     @Schema(description = "流程 KEY")
     private String flowKey;
 
-    @Schema(description = "流程状态：-2暂存 -1运行中 0完成 1作废 2撤回")
+    @Schema(description = "流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
     private Integer flowStatus;
 
     @Schema(description = "当前流程节点名称")

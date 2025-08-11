@@ -50,13 +50,13 @@ public class MatchServiceImpl implements MatchService {
 
         // 2. 获取需求、专利、成果
         List<DemandEntity> demandList = demandService.lambdaQuery()
-                .eq(DemandEntity::getFlowStatus, FlowStatusEnum.COMPLETE.getValue())
+                .eq(DemandEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .list();
         List<PatentInfoEntity> patentList = patentInfoService.lambdaQuery()
                 .eq(PatentInfoEntity::getStatusCode, PatentStatusEnum.VALID.getCode())
                 .list();
         List<ResultEntity> resultList = resultService.lambdaQuery()
-                .eq(ResultEntity::getFlowStatus, FlowStatusEnum.COMPLETE.getValue())
+                .eq(ResultEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .list();
 
         // 3. 这里就可以直接用 necNameMap 转换，不再查数据库

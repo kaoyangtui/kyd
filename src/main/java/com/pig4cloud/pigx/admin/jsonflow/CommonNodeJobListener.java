@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.jsonflow;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.jsonflow.api.vo.RunJobVO;
 import com.pig4cloud.pigx.jsonflow.api.vo.RunNodeVO;
 import com.pig4cloud.pigx.jsonflow.listener.GlobalFlowListener;
@@ -19,13 +20,13 @@ public class CommonNodeJobListener implements GlobalFlowListener {
 
     private final FlowStatusUpdateDispatcher dispatcher;
 
-    private void handle(RunJobVO runJobVO) {
+    private void handle(RunJobVO runJobVO, Integer flowStatus) {
         FlowStatusUpdateDTO dto = new FlowStatusUpdateDTO();
         dto.setFlowInstId(String.valueOf(runJobVO.getFlowInstId()));
         dto.setFlowKey(runJobVO.getFlowKey());
         boolean ifUpdate = false;
-        if (StrUtil.isNotBlank(runJobVO.getFlowStatus())) {
-            dto.setFlowStatus(Integer.valueOf(runJobVO.getFlowStatus()));
+        if (null != flowStatus) {
+            dto.setFlowStatus(flowStatus);
             ifUpdate = true;
         }
         if (StrUtil.isNotBlank(runJobVO.getNodeName())) {
@@ -44,7 +45,7 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     @Override
     public void completeNode(RunNodeVO runNodeVO) {
         log.info("*****************CommonNodeJobListener.completeNode:{}", JSONUtil.toJsonStr(runNodeVO));
-        this.handle(runNodeVO);
+        this.handle(runNodeVO, null);
     }
 
     /**
@@ -55,7 +56,7 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     @Override
     public void initiate(RunJobVO runJobVO) {
         log.info("*****************CommonNodeJobListener.initiate:{}", JSONUtil.toJsonStr(runJobVO));
-        this.handle(runJobVO);
+        this.handle(runJobVO, FlowStatusEnum.RUN.getStatus());
     }
 
     /**
@@ -66,7 +67,7 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     @Override
     public void finish(RunJobVO runJobVO) {
         log.info("*****************CommonNodeJobListener.finish:{}", JSONUtil.toJsonStr(runJobVO));
-        this.handle(runJobVO);
+        this.handle(runJobVO, FlowStatusEnum.FINISH.getStatus());
     }
 
     /**
@@ -77,7 +78,7 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     @Override
     public void recall(RunJobVO runJobVO) {
         log.info("*****************CommonNodeJobListener.recall:{}", JSONUtil.toJsonStr(runJobVO));
-        this.handle(runJobVO);
+        this.handle(runJobVO, FlowStatusEnum.RECALL.getStatus());
     }
 
     /**
@@ -88,7 +89,7 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     @Override
     public void reset(RunJobVO runJobVO) {
         log.info("*****************CommonNodeJobListener.reset:{}", JSONUtil.toJsonStr(runJobVO));
-        this.handle(runJobVO);
+        this.handle(runJobVO, null);
     }
 
     /**
@@ -99,7 +100,7 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     @Override
     public void terminate(RunJobVO runJobVO) {
         log.info("*****************CommonNodeJobListener.terminate:{}", JSONUtil.toJsonStr(runJobVO));
-        this.handle(runJobVO);
+        this.handle(runJobVO, FlowStatusEnum.TERMINATE.getStatus());
     }
 
     /**
@@ -110,7 +111,7 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     @Override
     public void invalid(RunJobVO runJobVO) {
         log.info("*****************CommonNodeJobListener.invalid:{}", JSONUtil.toJsonStr(runJobVO));
-        this.handle(runJobVO);
+        this.handle(runJobVO, FlowStatusEnum.INVALID.getStatus());
     }
 
     /**
@@ -121,6 +122,6 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     @Override
     public void recover(RunJobVO runJobVO) {
         log.info("*****************CommonNodeJobListener.recover:{}", JSONUtil.toJsonStr(runJobVO));
-        this.handle(runJobVO);
+        this.handle(runJobVO, null);
     }
 }
