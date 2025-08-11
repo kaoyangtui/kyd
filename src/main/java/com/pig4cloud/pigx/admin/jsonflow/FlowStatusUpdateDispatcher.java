@@ -10,7 +10,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class FlowStatusUpdateDispatcher {
 
     private final Map<String, FlowStatusUpdater> updaterMap;
