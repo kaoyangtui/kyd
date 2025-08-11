@@ -11,13 +11,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
+import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.IpAssignMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IpAssignService;
@@ -33,7 +37,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEntity> implements IpAssignService {
+public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEntity> implements IpAssignService, FlowStatusUpdater {
 
     private final FileService fileService;
 
@@ -166,6 +170,20 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
         response.setProofFileUrl(StrUtil.split(entity.getProofFileUrl(), ";"));
         response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return IpAssignResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(IpAssignEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, IpAssignEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IpAssignEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }
 

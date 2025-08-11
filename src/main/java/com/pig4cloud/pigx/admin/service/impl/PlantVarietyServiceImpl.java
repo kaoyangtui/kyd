@@ -12,14 +12,18 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyPageRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.entity.PlantVarietyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.PlantVarietyMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -37,7 +41,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, PlantVarietyEntity> implements PlantVarietyService {
+public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, PlantVarietyEntity> implements PlantVarietyService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final CompleterService completerService;
@@ -158,6 +162,20 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
         PlantVarietyResponse response = BeanUtil.copyProperties(entity, PlantVarietyResponse.class);
         response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return PlantVarietyResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(PlantVarietyEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, PlantVarietyEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), PlantVarietyEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }
 

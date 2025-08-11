@@ -9,9 +9,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
 import com.pig4cloud.pigx.admin.dto.standard.StandardCreateRequest;
 import com.pig4cloud.pigx.admin.dto.standard.StandardPageRequest;
 import com.pig4cloud.pigx.admin.dto.standard.StandardResponse;
@@ -21,6 +21,8 @@ import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
 import com.pig4cloud.pigx.admin.entity.StandardEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.StandardMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -36,7 +38,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEntity> implements StandardService {
+public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEntity> implements StandardService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final OwnerService ownerService;
@@ -172,5 +174,19 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeByIds(List<Long> ids) {
         return this.removeBatchByIds(ids);
+    }
+
+    @Override
+    public String flowKey() {
+        return StandardResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(StandardEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, StandardEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), StandardEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }

@@ -13,15 +13,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegPageRequest;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.OwnerEntity;
-import com.pig4cloud.pigx.admin.entity.ResultEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyRegEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.SoftCopyRegMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -40,7 +40,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftCopyRegEntity> implements SoftCopyRegService {
+public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftCopyRegEntity> implements SoftCopyRegService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final OwnerService ownerService;
@@ -168,5 +168,19 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
     @Override
     public Boolean remove(List<Long> ids) {
         return this.removeBatchByIds(ids);
+    }
+
+    @Override
+    public String flowKey() {
+        return SoftCopyRegResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(SoftCopyRegEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, SoftCopyRegEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), SoftCopyRegEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }

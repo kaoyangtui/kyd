@@ -11,12 +11,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.*;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoSimpleVO;
+import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformPlanEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IpTransformPlanService;
@@ -34,7 +38,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTransformEntity> implements IpTransformService {
+public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTransformEntity> implements IpTransformService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final IpTransformPlanService ipTransformPlanService;
@@ -223,5 +227,19 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         response.setAllocationPlanFileUrl(StrUtil.split(entity.getAllocationPlanFileUrl(), ";"));
         response.setRecordFileUrl(StrUtil.split(entity.getRecordFileUrl(), ";"));
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return IpTransformResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(IpTransformEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, IpTransformEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IpTransformEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }

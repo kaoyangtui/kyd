@@ -13,16 +13,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
 import com.pig4cloud.pigx.admin.dto.patentEvaluation.PatentEvaluationCommitRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.OwnerEntity;
-import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
-import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.PatentProposalMapper;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.service.*;
@@ -44,7 +44,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper, PatentProposalEntity> implements PatentProposalService {
+public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper, PatentProposalEntity> implements PatentProposalService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final CompleterService completerService;
@@ -208,5 +208,19 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             response.setResearchProjectName(researchProject.getProjectName());
         }
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return PatentProposalResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(PatentProposalEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, PatentProposalEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), PatentProposalEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }

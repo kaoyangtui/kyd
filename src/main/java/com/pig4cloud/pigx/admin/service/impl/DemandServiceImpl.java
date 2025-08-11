@@ -19,6 +19,8 @@ import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.DemandMapper;
 import com.pig4cloud.pigx.admin.service.DemandReceiveService;
 import com.pig4cloud.pigx.admin.service.DemandService;
@@ -37,7 +39,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> implements DemandService {
+public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> implements DemandService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final DemandReceiveService demandReceiveService;
@@ -176,5 +178,19 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
         response.setTags(StrUtil.split(entity.getTags(), ";"));
         response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return DemandResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(DemandEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, DemandEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), DemandEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }

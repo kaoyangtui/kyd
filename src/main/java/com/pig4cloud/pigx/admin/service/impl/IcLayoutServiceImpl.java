@@ -12,17 +12,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutCreateRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutPageRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.ExpertEntity;
-import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
-import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.IcLayoutMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -40,7 +40,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEntity> implements IcLayoutService {
+public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEntity> implements IcLayoutService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final CompleterService completerService;
@@ -169,6 +169,20 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
         IcLayoutResponse response = BeanUtil.copyProperties(entity, IcLayoutResponse.class);
         response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return IcLayoutResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(IcLayoutEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, IcLayoutEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IcLayoutEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }
 

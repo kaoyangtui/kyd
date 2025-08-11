@@ -17,10 +17,14 @@ import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
+import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.ConsultEntity;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
+import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.DemandInMapper;
 import com.pig4cloud.pigx.admin.service.DemandInService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -36,7 +40,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEntity> implements DemandInService {
+public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEntity> implements DemandInService, FlowStatusUpdater {
 
     private final FileService fileService;
 
@@ -163,6 +167,20 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         response.setTags(StrUtil.split(entity.getTags(), ";"));
         response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return DemandInResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(DemandInEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, DemandInEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), DemandInEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }
 
