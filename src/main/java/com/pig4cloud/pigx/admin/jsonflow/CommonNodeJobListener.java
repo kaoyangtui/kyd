@@ -23,13 +23,18 @@ public class CommonNodeJobListener implements GlobalFlowListener {
         FlowStatusUpdateDTO dto = new FlowStatusUpdateDTO();
         dto.setFlowInstId(String.valueOf(runJobVO.getFlowInstId()));
         dto.setFlowKey(runJobVO.getFlowKey());
+        boolean ifUpdate = false;
         if (StrUtil.isNotBlank(runJobVO.getFlowStatus())) {
             dto.setFlowStatus(Integer.valueOf(runJobVO.getFlowStatus()));
+            ifUpdate = true;
         }
         if (StrUtil.isNotBlank(runJobVO.getNodeName())) {
             dto.setCurrentNodeName(runJobVO.getNodeName());
+            ifUpdate = true;
         }
-        dispatcher.dispatch(dto);
+        if (ifUpdate) {
+            dispatcher.dispatch(dto);
+        }
     }
 
     /**
