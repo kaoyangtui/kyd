@@ -9,6 +9,9 @@ import com.pig4cloud.pigx.admin.dto.researchProject.ProjectNameSearchRequest;
 import com.pig4cloud.pigx.admin.dto.researchProject.ProjectTypeSearchRequest;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.core.util.R;
+import com.pig4cloud.pigx.jsonflow.api.constant.enums.NodeTypeEnum;
+import com.pig4cloud.pigx.jsonflow.api.entity.FlowNode;
+import com.pig4cloud.pigx.jsonflow.service.FlowNodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ public class DimController {
     private final SysUserService sysUserService;
     private final DimMajorService dimMajorService;
     private final ResearchProjectService researchProjectService;
+    private final FlowNodeService flowNodeService;
 
     @Operation(summary = "所属领域")
     @PostMapping("/ec/tree")
@@ -76,5 +80,20 @@ public class DimController {
     @Operation(summary = "项目名称下拉模糊搜索")
     public R<List<String>> projectNameOptions(@RequestBody ProjectNameSearchRequest request) {
         return R.ok(researchProjectService.projectNameOptions(request));
+    }
+
+    @GetMapping("/flow/node")
+    @Operation(summary = "项目名称下拉模糊搜索")
+    public R<List<String>> flowNodeOptions(@RequestParam String flowKey) {
+        //nodeName
+        List<String> nodeNames = flowNodeService.lambdaQuery()
+                .eq(FlowNode::getFlowKey, flowKey)
+                .in(FlowNode::getNodeType, NodeTypeEnum.SERIAL.getType(), NodeTypeEnum.PARALLEL.getType())
+                .orderByAsc(FlowNode::getSort)
+                .list()
+                .stream()
+                .map(FlowNode::getNodeName)
+                .toList();
+        return R.ok(nodeNames);
     }
 }
