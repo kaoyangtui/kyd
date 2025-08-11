@@ -11,7 +11,7 @@ public class SoftCopyRegPageRequest extends BasePageQuery {
     @Schema(description = "关键字，匹配登记号、软著名称")
     private String keyword;
 
-    @Schema(description = "流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回")
+    @Schema(description = "流程状态：-2暂存 -1运行中 0完成 1作废 2撤回")
     private Integer flowStatus;
 
     @Schema(description = "流程节点名称")

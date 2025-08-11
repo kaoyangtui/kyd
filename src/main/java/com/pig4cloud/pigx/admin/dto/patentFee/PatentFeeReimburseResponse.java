@@ -20,7 +20,7 @@ public class PatentFeeReimburseResponse {
     @Schema(description = "流程KEY")
     private String flowKey;
 
-    @Schema(description = "流程状态：-1未开始 0办理中 1结束 2驳回中 3跳过 9被驳回")
+    @Schema(description = "流程状态：-2暂存 -1运行中 0完成 1作废 2撤回")
     private Integer flowStatus;
 
     @Schema(description = "当前流程节点名称")

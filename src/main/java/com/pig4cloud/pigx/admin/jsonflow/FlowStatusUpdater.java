@@ -4,5 +4,5 @@ import com.pig4cloud.pigx.jsonflow.api.vo.RunNodeVO;
 
 public interface FlowStatusUpdater {
     String flowKey();
-    void update(RunNodeVO runNodeVO);
+    void update(FlowStatusUpdateDTO flowStatusUpdateDTO);
 }

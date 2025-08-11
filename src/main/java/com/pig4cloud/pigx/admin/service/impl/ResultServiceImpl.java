@@ -13,8 +13,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.constants.FlowNodeTypeEnum;
-import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
@@ -22,6 +20,7 @@ import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
@@ -30,7 +29,6 @@ import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.ResultService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
-import com.pig4cloud.pigx.jsonflow.api.vo.RunNodeVO;
 import com.pig4cloud.pigx.jsonflow.service.RunFlowService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -261,20 +259,11 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     }
 
     @Override
-    public void update(RunNodeVO runNodeVO) {
-        Integer flowStatus = null;
-        switch (FlowNodeTypeEnum.fromCode(runNodeVO.getNodeType())) {
-            case START:
-                flowStatus = FlowStatusEnum.RUNNING.getValue();
-                break;
-            case END:
-                flowStatus = FlowStatusEnum.COMPLETE.getValue();
-                break;
-        }
+    public void update(FlowStatusUpdateDTO dto) {
         this.lambdaUpdate()
-                .eq(ResultEntity::getFlowInstId, runNodeVO.getFlowInstId())
-                .set(null != flowStatus, ResultEntity::getFlowStatus, flowStatus)
-                .set(ResultEntity::getCurrentNodeName, runNodeVO.getNodeName())
+                .eq(ResultEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, ResultEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), ResultEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
 }
