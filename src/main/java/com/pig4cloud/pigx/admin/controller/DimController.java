@@ -83,7 +83,7 @@ public class DimController {
     }
 
     @GetMapping("/flow/node")
-    @Operation(summary = "项目名称下拉模糊搜索")
+    @Operation(summary = "流程节点")
     public R<List<String>> flowNodeOptions(@RequestParam String flowKey) {
         //nodeName
         List<String> nodeNames = flowNodeService.lambdaQuery()
