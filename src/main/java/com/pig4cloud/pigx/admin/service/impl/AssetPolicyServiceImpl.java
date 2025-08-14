@@ -29,8 +29,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, AssetPolicyEntity> implements AssetPolicyService {
 
-    private final JsonFlowHandle jsonFlowHandle;
-
     @Override
     public IPage<AssetPolicyResponse> pageResult(Page page, AssetPolicyPageRequest request) {
         LambdaQueryWrapper<AssetPolicyEntity> wrapper = Wrappers.lambdaQuery();
@@ -114,8 +112,6 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
             this.save(entity);
         }
     }

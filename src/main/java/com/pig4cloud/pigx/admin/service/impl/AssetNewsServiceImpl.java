@@ -14,7 +14,6 @@ import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsResponse;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
-import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.AssetNewsMapper;
 import com.pig4cloud.pigx.admin.service.AssetNewsService;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNewsEntity> implements AssetNewsService {
-
-    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     public IPage<AssetNewsResponse> pageResult(Page page, AssetNewsPageRequest request) {
@@ -122,8 +119,6 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
             this.save(entity);
         }
     }
