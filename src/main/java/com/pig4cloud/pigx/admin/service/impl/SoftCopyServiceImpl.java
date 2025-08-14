@@ -25,6 +25,7 @@ import com.pig4cloud.pigx.admin.entity.SoftCopyRegEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.SoftCopyMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -50,6 +51,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
     private final FileService fileService;
     private final CompleterService completerService;
     private final OwnerService ownerService;
+    private final JsonFlowHandle jsonFlowHandle;
 
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
@@ -106,6 +108,8 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         }
 
         if (isCreate) {
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getSoftName());
             this.save(entity);
             if (ObjectUtil.isNull(entity.getId())) {
                 throw new BizException("软著提案保存失败，未生成 ID");

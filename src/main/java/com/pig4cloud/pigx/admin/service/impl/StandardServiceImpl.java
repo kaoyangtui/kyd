@@ -23,6 +23,7 @@ import com.pig4cloud.pigx.admin.entity.StandardEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.StandardMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -43,6 +44,7 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
     private final FileService fileService;
     private final OwnerService ownerService;
     private final CompleterService completerService;
+    private final JsonFlowHandle jsonFlowHandle;
 
     @SneakyThrows
     @Override
@@ -102,6 +104,8 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         }
 
         if (isCreate) {
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
             this.save(entity);
             if (ObjectUtil.isNull(entity.getId())) {
                 throw new BizException("标准信息保存失败，未生成 ID");

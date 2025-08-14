@@ -21,6 +21,7 @@ import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.DemandMapper;
 import com.pig4cloud.pigx.admin.service.DemandReceiveService;
 import com.pig4cloud.pigx.admin.service.DemandService;
@@ -44,6 +45,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
     private final FileService fileService;
     private final DemandReceiveService demandReceiveService;
     private final DemandSignupService demandSignupService;
+    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -169,6 +171,8 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
             this.updateById(entity);
         } else {
             entity.setCode(ParamResolver.getStr(DemandResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
             this.save(entity);
         }
     }

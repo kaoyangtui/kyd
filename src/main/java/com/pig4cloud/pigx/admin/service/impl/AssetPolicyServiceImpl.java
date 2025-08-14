@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
 import com.pig4cloud.pigx.admin.entity.AssetPolicyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.AssetPolicyMapper;
 import com.pig4cloud.pigx.admin.service.AssetPolicyService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
@@ -30,6 +31,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, AssetPolicyEntity> implements AssetPolicyService {
+
+    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     public IPage<AssetPolicyResponse> pageResult(Page page, AssetPolicyPageRequest request) {
@@ -114,6 +117,8 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
             this.save(entity);
         }
     }

@@ -89,7 +89,7 @@ public class DimController {
         List<String> nodeNames = flowNodeService.lambdaQuery()
                 .eq(FlowNode::getFlowKey, flowKey)
                 .in(FlowNode::getNodeType, NodeTypeEnum.START.getType(), NodeTypeEnum.SERIAL.getType(), NodeTypeEnum.PARALLEL.getType(), NodeTypeEnum.END.getType())
-                .orderByAsc(FlowNode::getSort)
+                .orderByAsc(FlowNode::getNodeType, FlowNode::getSort, FlowNode::getId)
                 .list()
                 .stream()
                 .map(FlowNode::getNodeName)

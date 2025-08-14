@@ -9,22 +9,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInCreateRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
-import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
-import com.pig4cloud.pigx.admin.entity.ConsultEntity;
-import com.pig4cloud.pigx.admin.entity.DemandEntity;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
-import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.DemandInMapper;
 import com.pig4cloud.pigx.admin.service.DemandInService;
 import com.pig4cloud.pigx.admin.service.FileService;
@@ -43,6 +38,7 @@ import java.util.List;
 public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEntity> implements DemandInService, FlowStatusUpdater {
 
     private final FileService fileService;
+    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -158,6 +154,8 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
             this.updateById(entity);
         } else {
             entity.setCode(ParamResolver.getStr(DemandInResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
             this.save(entity);
         }
     }

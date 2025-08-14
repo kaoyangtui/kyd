@@ -3,7 +3,6 @@ package com.pig4cloud.pigx.admin.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -22,6 +21,7 @@ import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.mapper.ResultMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
@@ -29,7 +29,6 @@ import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.ResultService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
-import com.pig4cloud.pigx.jsonflow.service.RunFlowService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 科研成果表
@@ -53,7 +51,7 @@ import java.util.Map;
 public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> implements ResultService, FlowStatusUpdater {
 
     private final FileService fileService;
-    private final RunFlowService runFlowService;
+    private final JsonFlowHandle jsonFlowHandle;
     private final CompleterService completerService;
     private final ResearchProjectMapper researchProjectMapper;
 
@@ -126,24 +124,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
             //发起流程
-            Map<String, Object> order = MapUtil.newHashMap();
-            //	 * @param order  工单数据（必须字段: id, flowInstId, flowKey或defFlowId）
-            order.put("id", entity.getId());
-            order.put("flowInstId", entity.getFlowInstId());
-            order.put("flowKey", entity.getFlowKey());
-            Map<String, Object> params = MapUtil.newHashMap();
-            params.put("flowInstId", entity.getFlowInstId());
-            params.put("code", entity.getCode());
-            params.put("flowKey", entity.getFlowKey());
-            params.put("orderName", entity.getName());
-            Boolean bl = runFlowService.startFlow(order, params);
-            if (!bl) {
-                throw new BizException("流程启动失败");
-            }
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
         } else {
             this.updateById(entity);
         }
-
         completerService.replaceCompleters(entity.getCode(), request.getCompleters());
         return convertToResponse(entity);
     }

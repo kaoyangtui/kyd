@@ -13,16 +13,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
 import com.pig4cloud.pigx.admin.dto.patentEvaluation.PatentEvaluationCommitRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.PatentProposalMapper;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.service.*;
@@ -51,6 +54,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
     private final OwnerService ownerService;
     private final ResearchProjectMapper researchProjectMapper;
     private final PatentEvaluationService PatentEvaluationService;
+    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     public IPage<PatentProposalResponse> pageResult(Page reqPage, PatentProposalPageRequest request) {
@@ -173,6 +177,8 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             this.updateById(entity);
         } else {
             entity.setCode(ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
             this.save(entity);
             //提交申请前评估
             PatentEvaluationCommitRequest pecRequest = new PatentEvaluationCommitRequest();

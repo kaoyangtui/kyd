@@ -22,6 +22,7 @@ import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.IpAssignMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IpAssignService;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEntity> implements IpAssignService, FlowStatusUpdater {
 
     private final FileService fileService;
+    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -161,6 +163,8 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
             this.updateById(entity);
         } else {
             entity.setCode(ParamResolver.getStr(IpAssignResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), "赋权");
             this.save(entity);
         }
     }

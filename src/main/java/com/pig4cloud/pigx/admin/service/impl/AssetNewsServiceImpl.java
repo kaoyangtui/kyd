@@ -8,14 +8,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsCreateRequest;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsPageRequest;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsResponse;
 import com.pig4cloud.pigx.admin.dto.assetNews.AssetNewsUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
-import com.pig4cloud.pigx.admin.entity.TransformCaseEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.AssetNewsMapper;
 import com.pig4cloud.pigx.admin.service.AssetNewsService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
@@ -29,6 +28,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNewsEntity> implements AssetNewsService {
+
+    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     public IPage<AssetNewsResponse> pageResult(Page page, AssetNewsPageRequest request) {
@@ -122,6 +123,8 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
             this.save(entity);
         }
     }
