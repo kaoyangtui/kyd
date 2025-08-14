@@ -9,18 +9,15 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyPageRequest;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyResponse;
 import com.pig4cloud.pigx.admin.dto.assetPolicy.AssetPolicyUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
 import com.pig4cloud.pigx.admin.entity.AssetPolicyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.AssetPolicyMapper;
 import com.pig4cloud.pigx.admin.service.AssetPolicyService;
-import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -68,7 +65,7 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
             wrapper.orderByDesc(AssetPolicyEntity::getCreateTime);
         }
 
-        IPage<AssetPolicyEntity> resultPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<AssetPolicyEntity> resultPage = baseMapper.selectPage(page, wrapper);
         return resultPage.convert(this::convertToResponse);
     }
 

@@ -17,7 +17,6 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.AssetNewsMapper;
 import com.pig4cloud.pigx.admin.service.AssetNewsService;
-import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -39,10 +38,10 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
             wrapper.in(AssetNewsEntity::getId, request.getIds());
         } else {
             wrapper.like(StrUtil.isNotBlank(request.getKeyword()), AssetNewsEntity::getTitle, request.getKeyword())
-                    .or(StrUtil.isNotBlank(request.getKeyword()))
-                    .like(AssetNewsEntity::getSource, request.getKeyword())
-                    .or(StrUtil.isNotBlank(request.getKeyword()))
-                    .like(AssetNewsEntity::getContent, request.getKeyword());
+                    .or()
+                    .like(StrUtil.isNotBlank(request.getKeyword()), AssetNewsEntity::getSource, request.getKeyword())
+                    .or()
+                    .like(StrUtil.isNotBlank(request.getKeyword()), AssetNewsEntity::getContent, request.getKeyword());
 
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), AssetNewsEntity::getCreateBy, request.getCreateBy());
             wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), AssetNewsEntity::getDeptId, request.getDeptId());
@@ -63,7 +62,7 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
             wrapper.orderByDesc(AssetNewsEntity::getCreateTime);
         }
 
-        IPage<AssetNewsEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<AssetNewsEntity> entityPage = baseMapper.selectPage(page, wrapper);
         return entityPage.convert(this::convertToResponse);
     }
 
