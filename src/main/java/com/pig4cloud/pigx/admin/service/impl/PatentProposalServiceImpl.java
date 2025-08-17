@@ -177,9 +177,9 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             this.updateById(entity);
         } else {
             entity.setCode(ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+            this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
-            this.save(entity);
             //提交申请前评估
             PatentEvaluationCommitRequest pecRequest = new PatentEvaluationCommitRequest();
             pecRequest.setSysBizId(entity.getId().toString());

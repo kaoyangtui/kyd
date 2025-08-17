@@ -97,9 +97,9 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
         }
 
         if (isCreate) {
+            this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
-            this.save(entity);
         } else {
             this.updateById(entity);
         }

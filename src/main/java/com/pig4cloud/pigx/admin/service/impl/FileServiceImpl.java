@@ -121,7 +121,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
             page.setCurrent(1);
         }
 
-        Page<IcLayoutEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        Page<FileEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
 
         return resPage.convert(e -> BeanUtil.copyProperties(e, FileResponse.class));
     }

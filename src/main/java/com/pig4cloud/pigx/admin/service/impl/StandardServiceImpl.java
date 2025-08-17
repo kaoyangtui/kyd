@@ -104,12 +104,12 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         }
 
         if (isCreate) {
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
             this.save(entity);
             if (ObjectUtil.isNull(entity.getId())) {
                 throw new BizException("标准信息保存失败，未生成 ID");
             }
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
         } else {
             this.updateById(entity);
         }

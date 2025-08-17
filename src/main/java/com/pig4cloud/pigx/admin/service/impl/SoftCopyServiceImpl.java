@@ -108,12 +108,12 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         }
 
         if (isCreate) {
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getSoftName());
             this.save(entity);
             if (ObjectUtil.isNull(entity.getId())) {
                 throw new BizException("软著提案保存失败，未生成 ID");
             }
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getSoftName());
         } else {
             this.updateById(entity);
         }
