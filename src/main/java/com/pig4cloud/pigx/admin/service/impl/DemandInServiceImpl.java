@@ -15,6 +15,7 @@ import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -153,10 +154,12 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setFlowKey(DemandInResponse.BIZ_CODE);
+            entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             entity.setCode(ParamResolver.getStr(DemandInResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+            this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
-            this.save(entity);
         }
     }
 

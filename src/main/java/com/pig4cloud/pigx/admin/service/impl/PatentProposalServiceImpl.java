@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentEvaluation.PatentEvaluationCommitRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
@@ -176,6 +177,8 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setFlowKey(PatentProposalResponse.BIZ_CODE);
+            entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             entity.setCode(ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
             //发起流程

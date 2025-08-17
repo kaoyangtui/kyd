@@ -170,10 +170,12 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setFlowKey(DemandResponse.BIZ_CODE);
+            entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             entity.setCode(ParamResolver.getStr(DemandResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+            this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
-            this.save(entity);
         }
     }
 

@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyPageRequest;
@@ -108,6 +109,8 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         }
 
         if (isCreate) {
+            entity.setFlowKey(SoftCopyResponse.BIZ_CODE);
+            entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
             if (ObjectUtil.isNull(entity.getId())) {
                 throw new BizException("软著提案保存失败，未生成 ID");

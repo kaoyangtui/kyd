@@ -159,10 +159,12 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
             entity.setId(updateRequest.getId());
             this.updateById(entity);
         } else {
+            entity.setFlowKey(IcLayoutResponse.BIZ_CODE);
+            entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             entity.setCode(ParamResolver.getStr(IcLayoutResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+            this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
-            this.save(entity);
         }
 
         completerService.replaceCompleters(entity.getCode(), request.getCompleters());
