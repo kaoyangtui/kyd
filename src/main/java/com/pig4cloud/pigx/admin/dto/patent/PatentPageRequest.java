@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -34,16 +35,16 @@ public class PatentPageRequest extends BasePageQuery {
     private String deptId;
 
     @Schema(description = "申请日起")
-    private String beginAppDate;
+    private LocalDate beginAppDate;
 
     @Schema(description = "申请日止")
-    private String endAppDate;
+    private LocalDate endAppDate;
 
     @Schema(description = "公开日起")
-    private String beginPubDate;
+    private LocalDate beginPubDate;
 
     @Schema(description = "公开日止")
-    private String endPubDate;
+    private LocalDate endPubDate;
 
     @Schema(description = "代理机构")
     private String agencyName;

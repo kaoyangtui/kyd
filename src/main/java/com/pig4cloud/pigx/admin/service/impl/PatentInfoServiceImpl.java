@@ -30,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -131,42 +133,62 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         } else {
             if (StrUtil.isNotBlank(request.getKeyword())) {
                 wrapper.and(w -> w
-                        .like(PatentInfoEntity::getTitleKey, request.getKeyword())
-                        .or().like(PatentInfoEntity::getAppNumber, request.getKeyword())
-                        .or().like(PatentInfoEntity::getPubNumber, request.getKeyword())
+                        .like(PatentInfoEntity::getTitle, request.getKeyword())
+                        .or().eq(PatentInfoEntity::getAppNumber, request.getKeyword())
+                        .or().eq(PatentInfoEntity::getPubNumber, request.getKeyword())
                         .or().like(PatentInfoEntity::getPatentWords, request.getKeyword())
                 );
             }
             wrapper.in(CollUtil.isNotEmpty(request.getPatType()), PatentInfoEntity::getPatType, request.getPatType());
             wrapper.eq(StrUtil.isNotBlank(request.getLegalStatus()), PatentInfoEntity::getLegalStatus, request.getLegalStatus());
-            wrapper.eq(StrUtil.isNotBlank(request.getApplicantName()), PatentInfoEntity::getApplicantName, request.getApplicantName());
-            wrapper.eq(StrUtil.isNotBlank(request.getInventorName()), PatentInfoEntity::getInventorName, request.getInventorName());
-            wrapper.ge(StrUtil.isNotBlank(request.getBeginAppDate()), PatentInfoEntity::getAppDate, request.getBeginAppDate());
-            wrapper.le(StrUtil.isNotBlank(request.getEndAppDate()), PatentInfoEntity::getAppDate, request.getEndAppDate());
-            wrapper.ge(StrUtil.isNotBlank(request.getBeginPubDate()), PatentInfoEntity::getPubDate, request.getBeginPubDate());
-            wrapper.le(StrUtil.isNotBlank(request.getEndPubDate()), PatentInfoEntity::getPubDate, request.getEndPubDate());
+            wrapper.like(StrUtil.isNotBlank(request.getApplicantName()), PatentInfoEntity::getApplicantName, request.getApplicantName());
+            wrapper.like(StrUtil.isNotBlank(request.getInventorName()), PatentInfoEntity::getInventorName, request.getInventorName());
+            // ===== AppDate =====
+            String beginAppDate = formatDotDate(request.getBeginAppDate());
+            String endAppDate = formatDotDate(request.getEndAppDate());
+            wrapper.ge(StrUtil.isNotBlank(beginAppDate), PatentInfoEntity::getAppDate, beginAppDate);
+            wrapper.le(StrUtil.isNotBlank(endAppDate), PatentInfoEntity::getAppDate, endAppDate);
+            // ===== PubDate =====
+            String beginPubDate = formatDotDate(request.getBeginPubDate());
+            String endPubDate = formatDotDate(request.getEndPubDate());
+            wrapper.ge(StrUtil.isNotBlank(beginPubDate), PatentInfoEntity::getPubDate, beginPubDate);
+            wrapper.le(StrUtil.isNotBlank(endPubDate), PatentInfoEntity::getPubDate, endPubDate);
+
             wrapper.eq(StrUtil.isNotBlank(request.getAgencyName()), PatentInfoEntity::getAgencyName, request.getAgencyName());
             wrapper.eq(StrUtil.isNotBlank(request.getLeaderCode()), PatentInfoEntity::getLeaderCode, request.getLeaderCode());
             wrapper.eq(StrUtil.isNotBlank(request.getMergeFlag()), PatentInfoEntity::getMergeFlag, request.getMergeFlag());
             wrapper.eq(StrUtil.isNotBlank(request.getTransferFlag()), PatentInfoEntity::getTransferFlag, request.getTransferFlag());
             wrapper.eq(StrUtil.isNotBlank(request.getClaimFlag()), PatentInfoEntity::getTransferFlag, request.getClaimFlag());
             wrapper.eq(StrUtil.isNotBlank(request.getShelfFlag()), PatentInfoEntity::getShelfFlag, request.getShelfFlag());
-
+            List<Long> deptIds = CollUtil.newArrayList();
+            String name = "";
             // 数据权限
             DataScope dataScope = DataScope.of();
             if (!dataScopeService.calcScope(dataScope)) {
-                List<Long> deptIds = dataScope.getDeptList();
-                String name = dataScope.getUsername();
+                deptIds = dataScope.getDeptList();
+                name = dataScope.getUsername();
 
                 if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(name)) {
+                    log.warn("用户 {} 无数据权限", name);
                     wrapper.apply("1=0"); // 直接返回空结果
                     return wrapper;
                 }
+            }
 
+            if (StrUtil.isNotBlank(request.getDeptId())) {
+                if (deptIds.contains(Long.parseLong(request.getDeptId()))) {
+                    deptIds = CollUtil.newArrayList(Long.parseLong(request.getDeptId()));
+                } else {
+                    log.warn("用户 {} 无权查看部门 {} 的专利信息", name, request.getDeptId());
+                    wrapper.apply("1=0");
+                    return wrapper;
+                }
+            }
+
+            if (CollUtil.isNotEmpty(deptIds) || StrUtil.isNotBlank(name)) {
                 String deptIn = CollUtil.isNotEmpty(deptIds)
                         ? deptIds.stream().map(String::valueOf).collect(Collectors.joining(","))
                         : "";
-
                 if (StrUtil.isNotBlank(name) && CollUtil.isNotEmpty(deptIds)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and (name = {0} or dept_id in (" + deptIn + ")))", name);
@@ -180,6 +202,10 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             }
         }
         return wrapper;
+    }
+
+    private String formatDotDate(LocalDate date) {
+        return date != null ? DateTimeFormatter.ofPattern("yyyy.MM.dd").format(date) : null;
     }
 
     @Override
