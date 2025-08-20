@@ -133,7 +133,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     }
 
     @Override
-    public IPage<ResultResponse> pageResult(Page reqPage, ResultPageRequest request) {
+    public IPage<ResultResponse> pageResult(Page reqPage, ResultPageRequest request, boolean isByScope) {
         LambdaQueryWrapper<ResultEntity> wrapper = Wrappers.lambdaQuery();
 
         if (CollUtil.isNotEmpty(request.getIds())) {
@@ -179,7 +179,14 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         if (CollUtil.isEmpty(reqPage.orders())) {
             wrapper.orderByDesc(ResultEntity::getCreateTime);
         }
-        IPage<ResultEntity> entityPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
+        IPage<ResultEntity> entityPage;
+        if (isByScope) {
+            entityPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
+        } else {
+            entityPage = baseMapper.selectPage(reqPage, wrapper);
+
+        }
+
         return entityPage.convert(this::convertToResponse);
     }
 

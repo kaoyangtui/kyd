@@ -126,7 +126,7 @@ public class PcController {
             pageRequest.setOrders(orders);
         }
         request.setShelfStatus(1);
-        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
+        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
 

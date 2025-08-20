@@ -16,7 +16,7 @@ public interface ResultService extends IService<ResultEntity> {
 
     Boolean updateResult(ResultUpdateRequest request);
 
-    IPage<ResultResponse> pageResult(Page page, ResultPageRequest request);
+    IPage<ResultResponse> pageResult(Page page, ResultPageRequest request, boolean isByScope);
 
     Boolean updateShelfStatus(ResultShelfRequest request);
 

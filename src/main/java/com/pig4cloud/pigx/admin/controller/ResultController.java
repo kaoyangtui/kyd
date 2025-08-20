@@ -63,7 +63,7 @@ public class ResultController {
     //@PreAuthorize("@pms.hasPermission('result_view')")
     public R<IPage<ResultResponse>> page(@ParameterObject PageRequest pageRequest,
                                          @ParameterObject ResultPageRequest request) {
-        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
+        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request, true));
     }
 
     @PostMapping("/shelf")
@@ -121,7 +121,7 @@ public class ResultController {
 
         // 3. 查询数据
         IPage<ResultResponse> pageData = resultService.pageResult(
-                new Page<>(), request.getQuery()
+                new Page<>(), request.getQuery(), true
         );
 
         // 4. 调用通用导出工具

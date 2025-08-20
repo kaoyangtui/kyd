@@ -76,7 +76,7 @@ public class UserFollowController {
         List<Long> followIds = userFollowService.getFollowIds(ResultResponse.BIZ_CODE);
         ResultPageRequest request = new ResultPageRequest();
         request.setIds(followIds);
-        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
+        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
 

@@ -97,7 +97,7 @@ public class MatchController {
 
         ResultPageRequest request = new ResultPageRequest();
         request.setIds(ids);
-        IPage<ResultResponse> page = resultService.pageResult(PageUtil.toPage(pageRequest), request);
+        IPage<ResultResponse> page = resultService.pageResult(PageUtil.toPage(pageRequest), request, true);
 
         page.getRecords().forEach(item ->
                 item.setMatchScore(scoreMap.getOrDefault(item.getId(), 0))
@@ -121,7 +121,7 @@ public class MatchController {
         List<Long> ids = supplyDemandMatchResultService.getMatchId(ResultResponse.BIZ_CODE);
         ResultPageRequest request = new ResultPageRequest();
         request.setIds(ids);
-        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request));
+        return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request, true));
     }
     /**
      * 构建匹配分数字典
