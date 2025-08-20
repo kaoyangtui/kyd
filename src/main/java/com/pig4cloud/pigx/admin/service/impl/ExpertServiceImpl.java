@@ -13,12 +13,10 @@ import com.pig4cloud.pigx.admin.dto.expert.ExpertCreateRequest;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertPageRequest;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertResponse;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
 import com.pig4cloud.pigx.admin.entity.ExpertEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ExpertMapper;
 import com.pig4cloud.pigx.admin.service.ExpertService;
-import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -68,7 +66,7 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
             wrapper.orderByDesc(ExpertEntity::getCreateTime);
         }
 
-        IPage<ExpertEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<ExpertEntity> entityPage = baseMapper.selectPage(page, wrapper);
 
         return entityPage.convert(entity -> BeanUtil.copyProperties(entity, ExpertResponse.class));
     }
