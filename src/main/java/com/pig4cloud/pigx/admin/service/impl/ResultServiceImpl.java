@@ -184,7 +184,6 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             entityPage = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
         } else {
             entityPage = baseMapper.selectPage(reqPage, wrapper);
-
         }
 
         return entityPage.convert(this::convertToResponse);

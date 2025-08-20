@@ -23,6 +23,8 @@ public interface DemandInService extends IService<DemandInEntity> {
 
     IPage<DemandInResponse> pageResult(Page page, DemandInPageRequest request);
 
+    IPage<DemandInResponse> pageResult(Page page, DemandInPageRequest request, boolean isByScope);
+
     @Transactional
     Boolean updateShelfStatus(Long id, Integer shelfStatus);
 }

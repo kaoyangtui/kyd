@@ -15,7 +15,6 @@ import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -78,8 +77,11 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         return this.removeBatchByIds(ids);
     }
 
-    @Override
     public IPage<DemandInResponse> pageResult(Page page, DemandInPageRequest request) {
+        return pageResult(page, request, true);
+    }
+    @Override
+    public IPage<DemandInResponse> pageResult(Page page, DemandInPageRequest request, boolean isByScope) {
         LambdaQueryWrapper<DemandInEntity> wrapper = new LambdaQueryWrapper<>();
 
         if (CollUtil.isNotEmpty(request.getIds())) {

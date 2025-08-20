@@ -15,7 +15,6 @@ import com.pig4cloud.pigx.admin.dto.demand.*;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
-import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
@@ -93,8 +92,12 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
         return this.removeBatchByIds(ids);
     }
 
-    @Override
     public IPage<DemandResponse> pageResult(Page page, DemandPageRequest request) {
+        return pageResult(page, request, true);
+    }
+
+    @Override
+    public IPage<DemandResponse> pageResult(Page page, DemandPageRequest request, boolean isByScope) {
         LambdaQueryWrapper<DemandEntity> wrapper = new LambdaQueryWrapper<>();
 
         if (CollUtil.isNotEmpty(request.getIds())) {
@@ -132,7 +135,12 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
             wrapper.orderByDesc(DemandEntity::getCreateTime);
         }
 
-        IPage<DemandEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<DemandEntity> entityPage;
+        if (isByScope) {
+            entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        } else {
+            entityPage = baseMapper.selectPage(page, wrapper);
+        }
         return entityPage.convert(this::convertToResponse);
     }
 

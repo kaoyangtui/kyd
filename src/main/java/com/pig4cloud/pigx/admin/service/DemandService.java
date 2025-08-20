@@ -20,5 +20,7 @@ public interface DemandService extends IService<DemandEntity> {
 
     IPage<DemandResponse> pageResult(Page page, DemandPageRequest request);
 
+    IPage<DemandResponse> pageResult(Page page, DemandPageRequest request, boolean isByScope);
+
     Boolean updateShelfStatus(DemandShelfRequest request);
 }

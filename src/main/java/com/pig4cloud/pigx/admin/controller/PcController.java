@@ -150,7 +150,7 @@ public class PcController {
         pageRequest.setOrders(orders);
         request.setShelfStatus(1);
         request.setCategory(1);
-        return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request));
+        return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
     @PostMapping("/demand/create")
@@ -172,7 +172,7 @@ public class PcController {
         orders.add(orderItem);
         pageRequest.setOrders(orders);
         request.setShelfStatus(1);
-        return R.ok(demandInService.pageResult(PageUtil.toPage(pageRequest), request));
+        return R.ok(demandInService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
     @GetMapping("/expert")
