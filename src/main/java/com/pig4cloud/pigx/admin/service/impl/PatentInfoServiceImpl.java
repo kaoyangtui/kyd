@@ -54,29 +54,93 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
 
     @Override
     public IPage<PatentInfoResponse> pageResult(Page page, PatentPageRequest request) {
+        LambdaQueryWrapper<PatentInfoEntity> wrapper = buildWrapper(request);
+
+        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
+            page.setSize(request.getEndNo() - request.getStartNo() + 1);
+            page.setCurrent(1);
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
+            page.setSize(request.getIds().size());
+            page.setCurrent(1);
+        }
+
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(PatentInfoEntity::getPubDate);
+        }
+
+        IPage<PatentInfoEntity> entityPage = this.page(page, wrapper);
+        if (entityPage == null || CollUtil.isEmpty(entityPage.getRecords())) {
+            return null;
+        }
+
+        List<String> pidList = entityPage.getRecords().stream()
+                .map(PatentInfoEntity::getPid)
+                .distinct()
+                .toList();
+
+        Map<String, PatentDetailCacheEntity> cacheMap = patentDetailCacheService.lambdaQuery()
+                .in(PatentDetailCacheEntity::getPid, pidList)
+                .list()
+                .stream()
+                .collect(Collectors.toMap(PatentDetailCacheEntity::getPid, e -> e, (a, b) -> a));
+
+        return entityPage.convert(entity -> {
+            PatentInfoResponse response = BeanUtil.copyProperties(entity, PatentInfoResponse.class);
+            PatentDetailCacheEntity detailCacheEntity = cacheMap.get(entity.getPid());
+            if (detailCacheEntity != null) {
+                response.setDraws(detailCacheEntity.getDraws());
+            }
+            PatentTypeEnum patentTypeEnum = PatentTypeEnum.getByCode(entity.getPatType());
+            if (patentTypeEnum != null) {
+                response.setPatTypeName(patentTypeEnum.getDescription());
+            } else {
+                response.setPatTypeName("未知");
+            }
+            return response;
+        });
+    }
+
+
+    @Override
+    public List<PatentTypeSummaryVO> patentTypeSummary(PatentPageRequest request) {
+        LambdaQueryWrapper<PatentInfoEntity> wrapper = buildWrapper(request);
+        wrapper.isNotNull(PatentInfoEntity::getPatType);
+        List<PatentTypeSummaryVO> result = baseMapper.selectGroupSum(wrapper);
+        return result.stream()
+                .map(entity -> {
+                    PatentTypeEnum patentTypeEnum = PatentTypeEnum.getByCode(entity.getPatType());
+                    if (patentTypeEnum != null) {
+                        entity.setPatTypeName(patentTypeEnum.getDescription());
+                    } else {
+                        entity.setPatTypeName("未知");
+                    }
+                    return entity;
+                })
+                .toList();
+    }
+
+    private LambdaQueryWrapper<PatentInfoEntity> buildWrapper(PatentPageRequest request) {
         LambdaQueryWrapper<PatentInfoEntity> wrapper = new LambdaQueryWrapper<>();
 
         if (CollUtil.isNotEmpty(request.getIds())) {
             List<Long> ids = request.getIds();
             wrapper.in(PatentInfoEntity::getId, ids)
-                    .last("ORDER BY FIELD(id, " + ids.stream().map(String::valueOf).collect(Collectors.joining(",")) + ")");
+                    .last("ORDER BY FIELD(id, " + ids.stream()
+                            .map(String::valueOf)
+                            .collect(Collectors.joining(",")) + ")");
         } else {
             if (StrUtil.isNotBlank(request.getKeyword())) {
                 wrapper.and(w -> w
                         .like(PatentInfoEntity::getTitleKey, request.getKeyword())
-                        .or()
-                        .like(PatentInfoEntity::getAppNumber, request.getKeyword())
-                        .or()
-                        .like(PatentInfoEntity::getPubNumber, request.getKeyword())
-                        .or()
-                        .like(PatentInfoEntity::getPatentWords, request.getKeyword())
+                        .or().like(PatentInfoEntity::getAppNumber, request.getKeyword())
+                        .or().like(PatentInfoEntity::getPubNumber, request.getKeyword())
+                        .or().like(PatentInfoEntity::getPatentWords, request.getKeyword())
                 );
             }
-            wrapper.eq(CollUtil.isNotEmpty(request.getPatType()), PatentInfoEntity::getPatType, request.getPatType());
+            wrapper.in(CollUtil.isNotEmpty(request.getPatType()), PatentInfoEntity::getPatType, request.getPatType());
             wrapper.eq(StrUtil.isNotBlank(request.getLegalStatus()), PatentInfoEntity::getLegalStatus, request.getLegalStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getApplicantName()), PatentInfoEntity::getApplicantName, request.getApplicantName());
             wrapper.eq(StrUtil.isNotBlank(request.getInventorName()), PatentInfoEntity::getInventorName, request.getInventorName());
-            //wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PatentInfoEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginAppDate()), PatentInfoEntity::getAppDate, request.getBeginAppDate());
             wrapper.le(StrUtil.isNotBlank(request.getEndAppDate()), PatentInfoEntity::getAppDate, request.getEndAppDate());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginPubDate()), PatentInfoEntity::getPubDate, request.getBeginPubDate());
@@ -87,82 +151,35 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             wrapper.eq(StrUtil.isNotBlank(request.getTransferFlag()), PatentInfoEntity::getTransferFlag, request.getTransferFlag());
             wrapper.eq(StrUtil.isNotBlank(request.getClaimFlag()), PatentInfoEntity::getTransferFlag, request.getClaimFlag());
             wrapper.eq(StrUtil.isNotBlank(request.getShelfFlag()), PatentInfoEntity::getShelfFlag, request.getShelfFlag());
-            //数据权限
+
+            // 数据权限
             DataScope dataScope = DataScope.of();
             if (!dataScopeService.calcScope(dataScope)) {
                 List<Long> deptIds = dataScope.getDeptList();
                 String name = dataScope.getUsername();
-                // 1.无数据权限限制，则直接返回 0 条数据
+
                 if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(name)) {
-                    return null;
+                    wrapper.apply("1=0"); // 直接返回空结果
+                    return wrapper;
                 }
 
-                // 部门ID转字符串拼接（数字类型）
-                String deptIn = deptIds.stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.joining(","));
+                String deptIn = CollUtil.isNotEmpty(deptIds)
+                        ? deptIds.stream().map(String::valueOf).collect(Collectors.joining(","))
+                        : "";
 
-                // 2.本人 + 部门权限
                 if (StrUtil.isNotBlank(name) && CollUtil.isNotEmpty(deptIds)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and (name = {0} or dept_id in (" + deptIn + ")))", name);
-                }
-                // 3.本人权限
-                else if (StrUtil.isNotBlank(name)) {
+                } else if (StrUtil.isNotBlank(name)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and name = {0})", name);
-                }
-                // 4.部门权限
-                else {
+                } else {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and dept_id in (" + deptIn + "))");
                 }
             }
-
         }
-
-        if (ObjectUtil.isNotNull(request.getStartNo()) && ObjectUtil.isNotNull(request.getEndNo())) {
-            page.setSize(request.getEndNo() - request.getStartNo() + 1);
-            page.setCurrent(1);
-        } else if (request.getIds() != null && !request.getIds().isEmpty()) {
-            page.setSize(request.getIds().size());
-            page.setCurrent(1);
-        }
-        if (CollUtil.isEmpty(page.orders())) {
-            wrapper.orderByDesc(PatentInfoEntity::getPubDate);
-        }
-        IPage<PatentInfoEntity> entityPage = this.page(page, wrapper);
-
-        if (entityPage == null || CollUtil.isEmpty(entityPage.getRecords())) {
-            return null;
-        }
-
-        // 1. 获取所有PID
-        List<String> pidList = entityPage.getRecords().stream()
-                .map(PatentInfoEntity::getPid)
-                .distinct()
-                .collect(Collectors.toList());
-
-        // 2. 一次性查出所有对应的 detailCache
-        List<PatentDetailCacheEntity> cacheList = patentDetailCacheService.lambdaQuery()
-                .in(PatentDetailCacheEntity::getPid, pidList)
-                .list();
-
-        // 3. 构建 PID -> Cache 映射
-        Map<String, PatentDetailCacheEntity> cacheMap = cacheList.stream()
-                .collect(Collectors.toMap(PatentDetailCacheEntity::getPid, e -> e, (a, b) -> a));
-
-        // 4. 批量转换、批量赋值
-        return entityPage.convert(entity -> {
-            PatentInfoResponse response = BeanUtil.copyProperties(entity, PatentInfoResponse.class);
-            PatentDetailCacheEntity detailCacheEntity = cacheMap.get(entity.getPid());
-            if (detailCacheEntity != null) {
-                response.setDraws(detailCacheEntity.getDraws());
-            }
-            response.setPatTypeName(PatentTypeEnum.getByCode(Integer.parseInt(entity.getPatType())).getDescription());
-            return response;
-        });
-
+        return wrapper;
     }
 
     @Override
@@ -221,9 +238,11 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
         int total = baseMapper.countSearch(whereSql.toString());
         records.forEach(patent -> {
             if (StrUtil.isNotBlank(patent.getPatType()) && NumberUtil.isNumber(patent.getPatType())) {
-                PatentTypeEnum typeEnum = PatentTypeEnum.getByCode(Integer.parseInt(patent.getPatType()));
+                PatentTypeEnum typeEnum = PatentTypeEnum.getByCode(patent.getPatType());
                 if (typeEnum != null) {
                     patent.setPatTypeName(typeEnum.getDescription());
+                } else {
+                    patent.setPatTypeName("未知");
                 }
             }
         });

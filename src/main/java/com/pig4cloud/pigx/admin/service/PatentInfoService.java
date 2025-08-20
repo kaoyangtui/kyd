@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 
+import java.util.List;
+
 /**
  * @author zhaoliang
  */
@@ -25,4 +27,5 @@ public interface PatentInfoService extends IService<PatentInfoEntity> {
 
     String getDetailPdfByPid(String pid);
 
+    List<PatentTypeSummaryVO> patentTypeSummary(PatentPageRequest request);
 }

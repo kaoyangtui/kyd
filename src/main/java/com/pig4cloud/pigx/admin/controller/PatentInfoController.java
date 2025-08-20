@@ -53,6 +53,12 @@ public class PatentInfoController {
         return R.ok(patentInfoService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
+    @GetMapping("/patentTypeSummary")
+    @Operation(summary = "专利各类型数量查询")
+    public R<List<PatentTypeSummaryVO>> patentTypeSummary(@ParameterObject PatentPageRequest request) {
+        return R.ok(patentInfoService.patentTypeSummary(request));
+    }
+
     @Operation(summary = "全国专利查询")
     @PostMapping("/search")
     public R<IPage<PatentSearchListRes>> search(@RequestBody PatentSearchListReq req) {

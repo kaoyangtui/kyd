@@ -161,7 +161,7 @@ public class PatentFeeReimburseServiceImpl extends ServiceImpl<PatentFeeReimburs
 
     private PatentFeeReimburseResponse convertToResponse(PatentFeeReimburseEntity entity) {
         PatentFeeReimburseResponse response = BeanUtil.copyProperties(entity, PatentFeeReimburseResponse.class);
-        response.setPatTypeName(PatentTypeEnum.getByCode(Integer.parseInt(entity.getPatType())).getDescription());
+        response.setPatTypeName(PatentTypeEnum.getByCode(entity.getPatType()).getDescription());
         return response;
     }
 }
