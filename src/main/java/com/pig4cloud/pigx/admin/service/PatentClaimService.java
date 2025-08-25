@@ -18,7 +18,7 @@ public interface PatentClaimService extends IService<PatentClaimEntity> {
 
     Boolean removeClaims(List<Long> ids);
 
-    Boolean claim(PatentClaimCreateRequest req);
+    Boolean claim(PatentClaimCreateRequest req, boolean isClaim);
 
     Boolean unClaim(PatentUnClaimRequest req);
 

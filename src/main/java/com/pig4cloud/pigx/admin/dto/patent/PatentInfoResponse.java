@@ -793,4 +793,16 @@ public class PatentInfoResponse {
      */
     @Schema(description="匹配度分数 0-100")
     private Integer matchScore;
+
+    /**
+     * 认领标识
+     */
+    @Schema(description = "认领标识,1已认领")
+    private String claimFlag;
+
+    /**
+     * 上架标识
+     */
+    @Schema(description = "上架标识,1已上架")
+    private String shelfFlag;
 }

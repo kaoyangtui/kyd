@@ -11,7 +11,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.dto.patent.*;
-import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
+import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
+import com.pig4cloud.pigx.admin.entity.PatentInventorEntity;
+import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PatentClaimMapper;
 import com.pig4cloud.pigx.admin.service.*;
@@ -94,7 +97,7 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
     @SneakyThrows
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean claim(PatentClaimCreateRequest req) {
+    public Boolean claim(PatentClaimCreateRequest req, boolean isClaim) {
         if (req == null || StrUtil.isBlank(req.getPid()) || CollUtil.isEmpty(req.getPatentInventor())) {
             throw new BizException("认领信息不能为空");
         }

@@ -93,8 +93,15 @@ public class PatentClaimController {
     @Operation(summary = "专利认领")
     @PostMapping("/claim")
     public R<Boolean> claim(@RequestBody PatentClaimCreateRequest req) {
-        return R.ok(patentClaimService.claim(req));
+        return R.ok(patentClaimService.claim(req, true));
     }
+
+    @Operation(summary = "专利信息补录")
+    @PostMapping("/supplement")
+    public R<Boolean> supplement(@RequestBody PatentClaimCreateRequest req) {
+        return R.ok(patentClaimService.claim(req, false));
+    }
+
 
     @Operation(summary = "专利否认领")
     @PostMapping("/unclaim")
