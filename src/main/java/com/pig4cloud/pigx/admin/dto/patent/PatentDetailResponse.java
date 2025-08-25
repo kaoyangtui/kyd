@@ -41,9 +41,6 @@ public class PatentDetailResponse extends PatentInfoResponse {
     @Schema(description = "说明书")
     private String instrPath;
 
-    /**
-     * 法律信息
-     */
     @Schema(description = "法律信息\n" +
             "newInfo\t\t\t\t最新\n" +
             "prsDate\t\t\t\t公告日\n" +
@@ -52,9 +49,6 @@ public class PatentDetailResponse extends PatentInfoResponse {
             "codeExpl\t\t\t详细")
     private String legalList;
 
-    /**
-     * 简单同族信息
-     */
     @Schema(description = "简单同族信息\n" +
             "appNumber\t申请号\n" +
             "appDate\t\t申请日\n" +
@@ -62,9 +56,6 @@ public class PatentDetailResponse extends PatentInfoResponse {
             "pubDate\t\t公开公告日")
     private String simpleFamilyList;
 
-    /**
-     * 扩展同族信息
-     */
     @Schema(description = "扩展同族信息\n" +
             "appNumber\t申请号\n" +
             "appDate\t\t申请日\n" +
@@ -72,18 +63,12 @@ public class PatentDetailResponse extends PatentInfoResponse {
             "pubDate\t\t公开公告日")
     private String extendFamilyList;
 
-    /**
-     * 海外同族信息
-     */
     @Schema(description = "海外同族信息\n" +
             "country\t\t\t国别\n" +
             "appQuantity\t申请数\n" +
             "pubQuantity\t公开数")
     private String overseasFamilyInfo;
 
-    /**
-     * 引证信息
-     */
     @Schema(description = "引证信息\n" +
             "srepPhase\t\t\t\t\t\t\t\t引证阶段\n" +
             "citationInfoNo\t\t\t\t\t引证号\n" +
