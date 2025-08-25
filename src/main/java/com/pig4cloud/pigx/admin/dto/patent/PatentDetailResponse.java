@@ -44,31 +44,54 @@ public class PatentDetailResponse extends PatentInfoResponse {
     /**
      * 法律信息
      */
-    @Schema(description = "法律信息")
+    @Schema(description = "法律信息\n" +
+            "newInfo\t\t\t\t最新\n" +
+            "prsDate\t\t\t\t公告日\n" +
+            "prsCode\t\t\t\t状态\n" +
+            "strLegalCode\t代码\n" +
+            "codeExpl\t\t\t详细")
     private String legalList;
 
     /**
      * 简单同族信息
      */
-    @Schema(description = "简单同族信息")
+    @Schema(description = "简单同族信息\n" +
+            "appNumber\t申请号\n" +
+            "appDate\t\t申请日\n" +
+            "pubNumber\t公开公告号\n" +
+            "pubDate\t\t公开公告日")
     private String simpleFamilyList;
 
     /**
      * 扩展同族信息
      */
-    @Schema(description = "扩展同族信息")
+    @Schema(description = "扩展同族信息\n" +
+            "appNumber\t申请号\n" +
+            "appDate\t\t申请日\n" +
+            "pubNumber\t公开公告号\n" +
+            "pubDate\t\t公开公告日")
     private String extendFamilyList;
 
     /**
      * 海外同族信息
      */
-    @Schema(description = "海外同族信息")
+    @Schema(description = "海外同族信息\n" +
+            "country\t\t\t国别\n" +
+            "appQuantity\t申请数\n" +
+            "pubQuantity\t公开数")
     private String overseasFamilyInfo;
 
     /**
      * 引证信息
      */
-    @Schema(description = "引证信息")
+    @Schema(description = "引证信息\n" +
+            "srepPhase\t\t\t\t\t\t\t\t引证阶段\n" +
+            "citationInfoNo\t\t\t\t\t引证号\n" +
+            "citationInfoApplicant\t\t引证申请人\n" +
+            "citationInfoIpc\t\t\t\t\t分类号\n" +
+            "citationInfoCountry\t\t\t引证国家\n" +
+            "citationInfoLocation\t\t引证文献位置\n" +
+            "citationInfoRichContent\t详细")
     private String citationInfo;
     /**
      * 上架信息
