@@ -32,6 +32,7 @@ public class CompleterServiceImpl extends ServiceImpl<CompleterMapper, Completer
                 .eq(CompleterEntity::getCode, code));
         if (CollUtil.isNotEmpty(entities)) {
             entities.forEach(e -> {
+                e.setId(null);
                 e.setCode(code);
                 e.setCompleterDeptName(sysDeptService.getById(e.getCompleterDeptId()).getName());
             });
