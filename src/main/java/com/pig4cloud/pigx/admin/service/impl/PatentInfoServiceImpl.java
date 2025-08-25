@@ -524,13 +524,13 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             patentInfo.setViewCount(0L);
             this.save(patentInfo);
             log.info("保存成功: {}", patentInfo);
+            //处理专利申请号合并
+            this.lambdaUpdate()
+                    .eq(PatentInfoEntity::getAppNumber, patentInfo.getAppNumber())
+                    .ne(PatentInfoEntity::getPid, patentInfo.getPid())
+                    .set(PatentInfoEntity::getMergeFlag, "0")
+                    .update();
         }
-        //处理专利申请号合并
-        this.lambdaUpdate()
-                .eq(PatentInfoEntity::getAppNumber, patentInfo.getAppNumber())
-                .ne(PatentInfoEntity::getPid, patentInfo.getPid())
-                .set(PatentInfoEntity::getMergeFlag, "0")
-                .update();
     }
 
     private String calcTransferFlag(String applicantName, String patentee) {
