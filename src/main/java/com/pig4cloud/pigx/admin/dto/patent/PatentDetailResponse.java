@@ -1,7 +1,5 @@
 package com.pig4cloud.pigx.admin.dto.patent;
 
-import com.pig4cloud.pigx.admin.dto.patent.cnipr.CitationInfo;
-import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -47,12 +45,31 @@ public class PatentDetailResponse extends PatentInfoResponse {
      * 法律信息
      */
     @Schema(description = "法律信息")
-    private List<Legal> legalList;
+    private String legalList;
+
+    /**
+     * 简单同族信息
+     */
+    @Schema(description = "简单同族信息")
+    private String simpleFamilyList;
+
+    /**
+     * 扩展同族信息
+     */
+    @Schema(description = "扩展同族信息")
+    private String extendFamilyList;
+
+    /**
+     * 海外同族信息
+     */
+    @Schema(description = "海外同族信息")
+    private String overseasFamilyInfo;
+
     /**
      * 引证信息
      */
     @Schema(description = "引证信息")
-    private List<CitationInfo> citationInfoList;
+    private String citationInfo;
     /**
      * 上架信息
      */
