@@ -10,6 +10,7 @@ import lombok.Getter;
 @Getter
 public enum PatentStatusEnum {
     VALID("10", "有效专利"),
+    PUBLIC("11", "公开"),
     EXPIRED("20", "失效专利"),
     EXPIRATION("21", "专利权届满的专利"),
     OVERDUE_IN_EXAMINATION("22", "在审超期"),
@@ -31,7 +32,7 @@ public enum PatentStatusEnum {
      */
     public static PatentStatusEnum getByCode(String code) {
         for (PatentStatusEnum status : PatentStatusEnum.values()) {
-            if (status.getCode() == code) {
+            if (status.getCode().equalsIgnoreCase(code)) {
                 return status;
             }
         }

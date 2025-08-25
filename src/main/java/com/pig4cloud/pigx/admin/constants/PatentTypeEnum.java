@@ -31,7 +31,7 @@ public enum PatentTypeEnum {
      */
     public static PatentTypeEnum getByCode(String code) {
         for (PatentTypeEnum type : PatentTypeEnum.values()) {
-            if (type.getCode().equals(code)) {
+            if (type.getCode().equalsIgnoreCase(code)) {
                 return type;
             }
         }

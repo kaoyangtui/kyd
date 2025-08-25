@@ -20,10 +20,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -39,11 +37,11 @@ public class PatentMonitorTransformController {
 
     private final PatentMonitorTransformService patentMonitorTransformService;
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询转化监控列表")
     public R<IPage<PatentMonitorTransformResponse>> page(
-            @RequestBody PageRequest pageRequest,
-            @RequestBody PatentMonitorTransformPageRequest request) {
+            @ParameterObject PageRequest pageRequest,
+            @ParameterObject PatentMonitorTransformPageRequest request) {
         return R.ok(patentMonitorTransformService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 

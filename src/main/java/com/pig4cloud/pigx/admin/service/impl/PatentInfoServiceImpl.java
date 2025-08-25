@@ -17,10 +17,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.*;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
-import com.pig4cloud.pigx.admin.entity.PatentDetailCacheEntity;
-import com.pig4cloud.pigx.admin.entity.PatentDetailEntity;
-import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
-import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
@@ -52,6 +49,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
     private final DataScopeService dataScopeService;
     private final PatentDetailService patentDetailService;
     private final PatentDetailCacheService patentDetailCacheService;
+    private final PatentShelfService patentShelfService;
     private final FileService fileService;
 
     @Override
@@ -97,6 +95,12 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 response.setPatTypeName(patentTypeEnum.getDescription());
             } else {
                 response.setPatTypeName("未知");
+            }
+            PatentShelfEntity patentShelfEntity = patentShelfService.lambdaQuery()
+                    .eq(PatentShelfEntity::getPid, entity.getPid())
+                    .one();
+            if (patentShelfEntity != null) {
+                response.setShelfFlag(String.valueOf(patentShelfEntity.getShelfStatus()));
             }
             return response;
         });

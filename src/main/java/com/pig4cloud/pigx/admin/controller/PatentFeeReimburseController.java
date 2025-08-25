@@ -18,11 +18,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -49,10 +47,10 @@ public class PatentFeeReimburseController {
         return R.ok(patentFeeReimburseService.updatePatentFeeReimburse(request));
     }
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询专利费用报销")
-    public R<IPage<PatentFeeReimburseResponse>> page(@RequestBody PageRequest pageRequest,
-                                                     @RequestBody PatentFeeReimbursePageRequest request) {
+    public R<IPage<PatentFeeReimburseResponse>> page(@ParameterObject PageRequest pageRequest,
+                                                     @ParameterObject PatentFeeReimbursePageRequest request) {
         return R.ok(patentFeeReimburseService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 

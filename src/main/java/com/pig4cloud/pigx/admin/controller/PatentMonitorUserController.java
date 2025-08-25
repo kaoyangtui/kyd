@@ -21,10 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -40,11 +37,11 @@ public class PatentMonitorUserController {
 
     private final PatentMonitorUserService patentMonitorUserService;
 
-    @PostMapping("/page")
+    @GetMapping("/page")
     @Operation(summary = "分页查询用户监控的专利列表")
     public R<IPage<PatentMonitorUserResponse>> page(
-            @ParameterObject @RequestBody PageRequest pageRequest,
-            @ParameterObject @RequestBody PatentMonitorUserPageRequest request) {
+             @ParameterObject PageRequest pageRequest,
+             @ParameterObject PatentMonitorUserPageRequest request) {
         return R.ok(patentMonitorUserService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
