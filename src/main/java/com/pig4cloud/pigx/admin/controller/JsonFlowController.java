@@ -19,7 +19,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/jsonflow")
+@RequestMapping("/jf")
 @Tag(name = "流程引擎")
 @SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
 public class JsonFlowController {

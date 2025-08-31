@@ -28,8 +28,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import java.util.Map;
-
 /**
  * @author lengleng 单体版本启动器，只需要运行此模块则整个系统启动
  */
@@ -42,36 +40,26 @@ import java.util.Map;
 public class App {
 
 
-    private final ApplicationContext context;
+    private final ApplicationContext ctx;
 
     public App(ApplicationContext context) {
-        this.context = context;
+        this.ctx = context;
     }
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }
 
-//    @PostConstruct
-//    public void checkJsonFlowController() {
-//        // 1. Bean 基本信息
-//        Object bean = context.getBean("jsonFlowController");
-//        System.out.println("==== Bean 类型: " + bean.getClass().getName());
-//
-//        // 2. 打印这个类上所有注解
-//        System.out.println("==== 类注解: ");
-//        for (var ann : bean.getClass().getAnnotations()) {
-//            System.out.println("  " + ann);
-//        }
-//
-//        // 3. 打印 RequestMappingHandlerMapping 里注册的路径
-//        Map<String, RequestMappingHandlerMapping> mappings = context.getBeansOfType(RequestMappingHandlerMapping.class);
-//        mappings.forEach((name, mapping) -> {
-//            mapping.getHandlerMethods().forEach((info, method) -> {
-//                if (method.getBeanType().getSimpleName().equals("JsonFlowController")) {
-//                    System.out.println("==== 映射路径: " + info + " -> " + method);
-//                }
-//            });
-//        });
-//    }
+    @PostConstruct
+    public void dumpMappings() {
+        System.out.println("==== Dump Spring MVC Mappings ====");
+        ctx.getBeansOfType(RequestMappingHandlerMapping.class).forEach((name, mapping) -> {
+            mapping.getHandlerMethods().forEach((info, handlerMethod) -> {
+                if (handlerMethod.getBeanType().getSimpleName().equals("JsonFlowController")) {
+                    System.out.println("[JsonFlowController] " + info + " -> " + handlerMethod);
+                }
+            });
+        });
+        System.out.println("==== End Dump ====");
+    }
 
 }
