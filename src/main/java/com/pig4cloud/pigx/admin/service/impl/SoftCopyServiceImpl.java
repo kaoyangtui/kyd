@@ -10,19 +10,15 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyPageRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyRegEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -82,7 +78,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         } else if (request instanceof SoftCopyUpdateRequest updateReq) {
             entity.setId(updateReq.getId());
         }
-
+        entity.setTechField(StrUtil.join(";", request.getTechField()));
         // 附件处理
         if (CollUtil.isNotEmpty(request.getAttachmentUrls())) {
             List<FileCreateRequest> fileList = Lists.newArrayList();
@@ -120,9 +116,12 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         } else {
             this.updateById(entity);
         }
-
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        String code = entity.getCode();
+        if (StrUtil.isBlank(code)) {
+            code = this.getById(entity.getId()).getCode();
+        }
+        completerService.replaceCompleters(code, request.getCompleters());
+        ownerService.replaceOwners(code, request.getOwners());
     }
 
     @Override

@@ -14,7 +14,7 @@ import java.util.List;
 @Schema(description = "软著登记返回信息")
 public class SoftCopyRegResponse extends BaseResponse {
 
-    public static final String BIZ_CODE = "SOFT_COPY";
+    public static final String BIZ_CODE = "SOFT_COPY_REG";
 
     @TableId
     @Schema(description = "主键")

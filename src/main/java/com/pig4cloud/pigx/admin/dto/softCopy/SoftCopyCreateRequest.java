@@ -20,7 +20,7 @@ public class SoftCopyCreateRequest {
     private String softName;
 
     @Schema(description = "技术领域")
-    private String techField;
+    private List<String> techField;
 
     @Schema(description = "是否依托项目")
     private Integer relyProject;
