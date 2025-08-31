@@ -26,8 +26,8 @@ public class JsonFlowController {
 
     @PostMapping("/node/approver")
     @Operation(summary = "获取流程节点审批人")
-    public R<List<Long>> nodeApprover(@RequestBody Map<String, Object> request) {
+    public R<List<String>> nodeApprover(@RequestBody Map<String, Object> request) {
         log.info("$$$$$$$$$$$$$$$获取流程节点审批人,{}", request);
-        return R.ok(Lists.newArrayList(1L));
+        return R.ok(Lists.newArrayList("USER_1"));
     }
 }
