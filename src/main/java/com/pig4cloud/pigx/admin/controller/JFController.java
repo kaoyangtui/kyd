@@ -1,10 +1,11 @@
 package com.pig4cloud.pigx.admin.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.google.common.collect.Lists;
-import com.pig4cloud.pigx.admin.api.entity.SysDeptRelation;
+import com.google.common.collect.ArrayListMultimap;
+import com.pig4cloud.pigx.admin.api.entity.SysDept;
 import com.pig4cloud.pigx.admin.api.entity.SysRole;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.api.entity.SysUserRole;
@@ -20,17 +21,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 审批人计算入口（基于角色与数据权限）
+ *
+ * 设计要点：
+ * 1）所有与库交互尽量做“批量拉取”，避免循环查库（N+1）。
+ * 2）用内存结构做一次性计算：userId->roleIds，多角色取“最小 dsType”为最大权限。
+ * 3）部门为树结构：构建父子邻接表，BFS 收集“本级及子级”。
+ * 4）对空参、角色不存在、无匹配用户等场景统一安全返回空列表。
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -44,85 +48,230 @@ public class JFController {
     private final SysRoleService sysRoleService;
     private final SysDeptService sysDeptService;
 
+    /**
+     * 获取流程节点审批人
+     * 入参：
+     *   roleCode  目标角色编码（如：DEPT_LEADER）
+     *   userId    工单发起人ID
+     *   deptId    工单发起人部门ID
+     * 出参：
+     *   满足数据权限的审批人 userId 列表
+     */
     @PostMapping("/node/approver")
     @Operation(summary = "获取流程节点审批人")
     public R<List<Long>> nodeApprover(@RequestBody Map<String, Object> request) {
-        log.info("$$$$$$$$$$$$$$$获取流程节点审批人,{}", request);
         String roleCode = MapUtil.getStr(request, "roleCode");
-        Long userId = MapUtil.getLong(request, "userId");
-        Long deptId = MapUtil.getLong(request, "deptId");
-        return R.ok(getApproverUserIds(roleCode, userId, deptId));
-    }
+        Long createUserId = MapUtil.getLong(request, "userId");
+        Long createDeptId = MapUtil.getLong(request, "deptId");
 
-
-    public List<Long> getApproverUserIds(String roleCode, Long createUserId, Long createDeptId) {
-        SysRole sysRole = sysRoleService.lambdaQuery().eq(SysRole::getRoleCode, roleCode).one();
-        //获取所有拥有角色组的用户 id
-        List<Long> list = sysUserRoleService
-                .list(Wrappers.<SysUserRole>lambdaQuery()
-                        .eq(SysUserRole::getRoleId, sysRole.getRoleId()))
-                .stream()
-                .map(SysUserRole::getUserId).collect(Collectors.toList());
-        List<SysUser> sysUserList = sysUserService.listByIds(list);
-        List<Long> results = Lists.newArrayList();
-        for (SysUser sysUser : sysUserList) {
-            if (this.checkDataScope(sysUser, createUserId, createDeptId)) {
-                results.add(sysUser.getUserId());
-            }
+        if (StrUtil.isBlank(roleCode) || createUserId == null || createDeptId == null) {
+            return R.ok(Collections.emptyList());
         }
-        return results;
+        return R.ok(getApproverUserIds(roleCode, createUserId, createDeptId));
     }
 
     /**
-     * 校验用户是否拥有工单人的数据查看权限
-     *
-     * @param sysUser
-     * @param createUserId
-     * @param createDeptId
+     * 计算审批人集合（核心算法）
+     * 步骤：
+     *   1. 取目标角色
+     *   2. 取拥有该角色的候选用户（候选集）
+     *   3. 批量取候选用户信息
+     *   4. 批量取候选用户的“全部角色”并计算每个用户的最大数据权限（最小 dsType）
+     *   5. 构建部门父子邻接表，做 OWN_CHILD_LEVEL 的子树匹配
+     *   6. 按 dsType 规则过滤，得到最终可审批用户
      */
-    private Boolean checkDataScope(SysUser sysUser, Long createUserId, Long createDeptId) {
-        //获取用户角色组
-        List<Long> roleIdList = sysUserRoleService
-                .list(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getUserId, sysUser.getUserId())).stream()
-                .map(SysUserRole::getRoleId).collect(Collectors.toList());
-        //根据角色组获取用户最大数据权限
-        SysRole role = sysRoleService.listByIds(roleIdList)
-                .stream()
-                .min(Comparator.comparingInt(SysRole::getDsType)).orElse(null);
-        //角色有可能已经删除了
-        if (role == null) {
-            return false;
+    public List<Long> getApproverUserIds(String roleCode, Long createUserId, Long createDeptId) {
+        SysRole targetRole = sysRoleService.lambdaQuery()
+                .eq(SysRole::getRoleCode, roleCode)
+                .one();
+        if (targetRole == null) {
+            return Collections.emptyList();
         }
-        //用户最大数据权限
-        Integer dsType = role.getDsType();
-        //定义拥有的部门权限组
-        List<Long> deptList = org.apache.commons.compress.utils.Lists.newArrayList();
-        // 查询全部
-        if (DataScopeTypeEnum.ALL.getType() == dsType) {
-            return true;
-        } else if (DataScopeTypeEnum.CUSTOM.getType() == dsType && StrUtil.isNotBlank(role.getDsScope())) {
-            // 自定义
-            String dsScope = role.getDsScope();
-            deptList.addAll(Arrays.stream(dsScope.split(StrUtil.COMMA)).map(Long::parseLong).collect(Collectors.toList()));
-        } else if (DataScopeTypeEnum.OWN_CHILD_LEVEL.getType() == dsType) {
-            // 查询本级及其下级
-            //todo 获取部门及子部门
-            //deptList.addAll(deptIdList);
-        } else if (DataScopeTypeEnum.OWN_LEVEL.getType() == dsType) {
-            // 只查询本级
-            deptList.add(sysUser.getDeptId());
-        } else if (DataScopeTypeEnum.SELF_LEVEL.getType() == dsType) {
-            // 只查询本人
-            if (sysUser.getUserId().equals(createUserId)) {
-                return true;
+
+        List<SysUserRole> userRolesOfTarget = sysUserRoleService.list(
+                Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getRoleId, targetRole.getRoleId())
+        );
+        if (CollUtil.isEmpty(userRolesOfTarget)) {
+            return Collections.emptyList();
+        }
+
+        List<Long> candidateUserIds = userRolesOfTarget.stream()
+                .map(SysUserRole::getUserId).distinct().toList();
+
+        List<SysUser> candidateUsers = sysUserService.listByIds(candidateUserIds);
+        if (CollUtil.isEmpty(candidateUsers)) {
+            return Collections.emptyList();
+        }
+
+        List<SysUserRole> allRolesOfCandidates = sysUserRoleService.list(
+                Wrappers.<SysUserRole>lambdaQuery().in(SysUserRole::getUserId, candidateUserIds)
+        );
+        if (CollUtil.isEmpty(allRolesOfCandidates)) {
+            return Collections.emptyList();
+        }
+
+        Set<Long> allRoleIds = allRolesOfCandidates.stream()
+                .map(SysUserRole::getRoleId).collect(Collectors.toSet());
+        List<SysRole> allRoles = sysRoleService.listByIds(allRoleIds);
+        Map<Long, SysRole> roleMap = allRoles.stream()
+                .collect(Collectors.toMap(SysRole::getRoleId, r -> r, (a, b) -> a));
+
+        ArrayListMultimap<Long, Long> userIdToRoleIds = ArrayListMultimap.create();
+        allRolesOfCandidates.forEach(ur -> userIdToRoleIds.put(ur.getUserId(), ur.getRoleId()));
+
+        Map<Long, List<Long>> parentToChildren = buildDeptAdjacency();
+
+        List<Long> result = new ArrayList<>(candidateUsers.size());
+        for (SysUser u : candidateUsers) {
+            Integer dsType = resolveUserMaxDataScope(u.getUserId(), userIdToRoleIds, roleMap);
+            if (dsType == null) {
+                continue;
             }
-        } else {
-            log.error(StrUtil.format("【数据权限类型错误】用户id:{},用户部门id:{},工单人id:{},工单人部门id:{}", sysUser.getUserId(), sysUser.getDeptId(), createUserId, createDeptId));
+            if (allowByDataScope(u, dsType, createUserId, createDeptId, parentToChildren)) {
+                result.add(u.getUserId());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 计算用户在其“所有角色”维度上的最大数据权限
+     * 约定：dsType 数值越小，权限越大（如 ALL 最小）
+     * 取最小 dsType 作为用户最大权限
+     */
+    private Integer resolveUserMaxDataScope(Long userId,
+                                            ArrayListMultimap<Long, Long> userIdToRoleIds,
+                                            Map<Long, SysRole> roleMap) {
+        Collection<Long> rids = userIdToRoleIds.get(userId);
+        if (CollUtil.isEmpty(rids)) {
+            return null;
+        }
+        Integer min = null;
+        for (Long rid : rids) {
+            SysRole role = roleMap.get(rid);
+            if (role == null || role.getDsType() == null) {
+                continue;
+            }
+            if (min == null || role.getDsType() < min) {
+                min = role.getDsType();
+            }
+        }
+        return min;
+    }
+
+    /**
+     * 数据权限判定
+     * 规则：
+     *   ALL              直接通过
+     *   SELF_LEVEL       仅本人
+     *   OWN_LEVEL        本部门
+     *   OWN_CHILD_LEVEL  本部门及其所有子部门（需树遍历）
+     *   CUSTOM           自定义部门集合（dsScope 逗号分隔）
+     */
+    private boolean allowByDataScope(SysUser sysUser,
+                                     Integer dsType,
+                                     Long createUserId,
+                                     Long createDeptId,
+                                     Map<Long, List<Long>> parentToChildren) {
+        if (dsType == null) {
             return false;
         }
-        if (deptList.contains(createDeptId)) {
+
+        if (Objects.equals(dsType, DataScopeTypeEnum.ALL.getType())) {
             return true;
         }
+
+        if (Objects.equals(dsType, DataScopeTypeEnum.SELF_LEVEL.getType())) {
+            return Objects.equals(sysUser.getUserId(), createUserId);
+        }
+
+        if (Objects.equals(dsType, DataScopeTypeEnum.OWN_LEVEL.getType())) {
+            Long selfDept = sysUser.getDeptId();
+            return selfDept != null && Objects.equals(selfDept, createDeptId);
+        }
+
+        if (Objects.equals(dsType, DataScopeTypeEnum.OWN_CHILD_LEVEL.getType())) {
+            Long selfDept = sysUser.getDeptId();
+            if (selfDept == null) {
+                return false;
+            }
+            Set<Long> cover = collectDeptWithChildren(selfDept, parentToChildren);
+            return cover.contains(createDeptId);
+        }
+
+        if (Objects.equals(dsType, DataScopeTypeEnum.CUSTOM.getType())) {
+            SysRole maxRole = findUserMaxRole(sysUser.getUserId());
+            if (maxRole == null || StrUtil.isBlank(maxRole.getDsScope())) {
+                return false;
+            }
+            Set<Long> allowed = StrUtil.split(maxRole.getDsScope(), StrUtil.COMMA)
+                    .stream().filter(StrUtil::isNotBlank)
+                    .map(Long::parseLong).collect(Collectors.toSet());
+            return allowed.contains(createDeptId);
+        }
+
         return false;
+    }
+
+    /**
+     * 辅助：再次精确获取“最大权限角色”（用于 CUSTOM 拿 dsScope）
+     * 若你能在 resolveUserMaxDataScope 时顺便返回“对应角色”，可以避免再次查库。
+     */
+    private SysRole findUserMaxRole(Long userId) {
+        List<SysUserRole> urs = sysUserRoleService.list(
+                Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getUserId, userId)
+        );
+        if (CollUtil.isEmpty(urs)) {
+            return null;
+        }
+        Set<Long> roleIds = urs.stream().map(SysUserRole::getRoleId).collect(Collectors.toSet());
+        List<SysRole> roles = sysRoleService.listByIds(roleIds);
+        return roles.stream()
+                .filter(r -> r.getDsType() != null)
+                .min(Comparator.comparingInt(SysRole::getDsType))
+                .orElse(null);
+    }
+
+    /**
+     * 构建部门父子邻接表
+     * 仅选 deptId、parentId 字段，减少传输与内存
+     * O(N) 构建，其中 N 为部门数
+     */
+    private Map<Long, List<Long>> buildDeptAdjacency() {
+        List<SysDept> depts = sysDeptService.list(
+                Wrappers.<SysDept>lambdaQuery().select(SysDept::getDeptId, SysDept::getParentId)
+        );
+        Map<Long, List<Long>> parentToChildren = new HashMap<>(Math.max(16, depts.size()));
+        for (SysDept d : depts) {
+            parentToChildren.computeIfAbsent(d.getParentId(), k -> new ArrayList<>())
+                    .add(d.getDeptId());
+        }
+        return parentToChildren;
+    }
+
+    /**
+     * 收集“本部门 + 所有子部门”
+     * BFS/DFS 皆可；此处用 BFS
+     * 平均复杂度 O(K)，K 为该子树规模
+     */
+    private Set<Long> collectDeptWithChildren(Long rootDeptId, Map<Long, List<Long>> parentToChildren) {
+        Set<Long> all = new HashSet<>();
+        Deque<Long> q = new ArrayDeque<>();
+        q.add(rootDeptId);
+        all.add(rootDeptId);
+
+        while (!q.isEmpty()) {
+            Long cur = q.poll();
+            List<Long> children = parentToChildren.get(cur);
+            if (CollUtil.isEmpty(children)) {
+                continue;
+            }
+            for (Long ch : children) {
+                if (all.add(ch)) {
+                    q.add(ch);
+                }
+            }
+        }
+        return all;
     }
 }
