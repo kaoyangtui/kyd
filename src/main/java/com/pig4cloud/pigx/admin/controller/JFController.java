@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/jf")
 @Tag(name = "流程引擎")
 @SecurityRequirement(name = HttpHeaders.AUTHORIZATION)
-public class JsonFlowController {
+public class JFController {
 
     @PostMapping("/node/approver")
     @Operation(summary = "获取流程节点审批人")
