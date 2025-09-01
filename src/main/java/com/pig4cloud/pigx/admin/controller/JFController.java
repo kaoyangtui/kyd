@@ -21,7 +21,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -60,6 +63,7 @@ public class JFController {
     @PostMapping("/node/approver")
     @Operation(summary = "获取流程节点审批人")
     public R<List<Long>> nodeApprover(@RequestBody Map<String, Object> request) {
+        log.info("获取流程节点审批人,{}", request);
         String roleCode = MapUtil.getStr(request, "roleCode");
         Long createUserId = MapUtil.getLong(request, "userId");
         Long createDeptId = MapUtil.getLong(request, "deptId");
