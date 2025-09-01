@@ -65,13 +65,12 @@ public class JFController {
     public R<List<Long>> nodeApprover(@RequestBody Map<String, Object> request) {
         log.info("$$$$$获取流程节点审批人,{}", request);
         String roleCode = MapUtil.getStr(request, "roleCode");
-        Long createUserId = MapUtil.getLong(request, "userId");
-        Long createDeptId = MapUtil.getLong(request, "deptId");
+        Long createUserId = MapUtil.getLong(request, "createUser");
 
-        if (StrUtil.isBlank(roleCode) || createUserId == null || createDeptId == null) {
+        if (StrUtil.isBlank(roleCode) || createUserId == null) {
             return R.ok(Collections.emptyList());
         }
-        return R.ok(getApproverUserIds(roleCode, createUserId, createDeptId));
+        return R.ok(getApproverUserIds(roleCode, createUserId));
     }
 
     /**
@@ -84,7 +83,10 @@ public class JFController {
      *   5. 构建部门父子邻接表，做 OWN_CHILD_LEVEL 的子树匹配
      *   6. 按 dsType 规则过滤，得到最终可审批用户
      */
-    public List<Long> getApproverUserIds(String roleCode, Long createUserId, Long createDeptId) {
+    public List<Long> getApproverUserIds(String roleCode, Long createUserId) {
+        Long createDeptId = sysUserService.lambdaQuery()
+                .eq(SysUser::getUserId, createUserId)
+                .one().getDeptId();
         SysRole targetRole = sysRoleService.lambdaQuery()
                 .eq(SysRole::getRoleCode, roleCode)
                 .one();
