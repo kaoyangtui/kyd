@@ -4,6 +4,8 @@ import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Schema(description = "专家返回数据")
 public class ExpertResponse extends BaseResponse {
@@ -54,4 +56,10 @@ public class ExpertResponse extends BaseResponse {
 
     @Schema(description = "成果数量")
     private Long resultCnt;
+
+    @Schema(description = "上下架状态（0下架 1上架）")
+    private Integer shelfStatus;
+
+    @Schema(description = "上下架时间")
+    private LocalDateTime shelfTime;
 }

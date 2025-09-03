@@ -15,15 +15,12 @@ import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamResponse;
 import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.ResearchNewsEntity;
-import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchTeamEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchTeamMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.ResearchTeamService;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
-import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -119,12 +116,27 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean update(ResearchTeamUpdateRequest request) {
+        // 1) 先取业务编码（只查 code 一列）
+        String code = this.lambdaQuery()
+                .select(ResearchTeamEntity::getCode)
+                .eq(ResearchTeamEntity::getId, request.getId())
+                .oneOpt()
+                .map(ResearchTeamEntity::getCode)
+                .orElseThrow(() -> new BizException("团队不存在或已删除"));
+
+        // 2) 组装要更新的字段（null 不会被 MP 更新，默认 NOT_NULL 策略）
         ResearchTeamEntity entity = BeanUtil.copyProperties(request, ResearchTeamEntity.class);
-        entity.setResearchTags(StrUtil.join(";", request.getResearchTags()));
+        entity.setResearchTags(
+                CollUtil.isEmpty(request.getResearchTags()) ? null : String.join(";", request.getResearchTags())
+        );
 
-        this.updateById(entity);
+        boolean ok = this.updateById(entity);
+        if (!ok) {
+            throw new BizException("更新失败");
+        }
 
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        // 3) 使用已获取的 code 处理协作者
+        completerService.replaceCompleters(code, request.getCompleters());
         return Boolean.TRUE;
     }
 

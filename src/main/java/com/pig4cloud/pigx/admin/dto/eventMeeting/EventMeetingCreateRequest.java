@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class EventMeetingCreateRequest {
 
     @NotNull(message = "活动时间不能为空")
     @Schema(description = "活动时间")
-    private LocalDateTime eventTime;
+    private LocalDate eventTime;
 
     @NotBlank(message = "活动地点不能为空")
     @Schema(description = "活动地点")
@@ -38,11 +39,11 @@ public class EventMeetingCreateRequest {
 
     @NotNull(message = "报名开始时间不能为空")
     @Schema(description = "报名开始时间")
-    private LocalDateTime signUpStart;
+    private LocalDate signUpStart;
 
     @NotNull(message = "报名截止时间不能为空")
     @Schema(description = "报名截止时间")
-    private LocalDateTime signUpEnd;
+    private LocalDate signUpEnd;
 
     @Schema(description = "附件路径（多个用;分隔）")
     private List<String> fileUrl;

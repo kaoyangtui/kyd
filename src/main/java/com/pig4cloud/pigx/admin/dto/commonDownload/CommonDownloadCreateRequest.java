@@ -14,10 +14,6 @@ public class CommonDownloadCreateRequest {
     @Schema(description = "文件名")
     private String fileName;
 
-    @NotBlank(message = "文件地址不能为空")
-    @Schema(description = "文件地址")
-    private String filePath;
-
     @NotBlank(message = "内容说明不能为空")
     @Schema(description = "内容说明")
     private String content;

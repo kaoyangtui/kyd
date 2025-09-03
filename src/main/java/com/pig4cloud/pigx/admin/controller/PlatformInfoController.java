@@ -28,24 +28,10 @@ public class PlatformInfoController {
 
     private final PlatformInfoService platformInfoService;
 
-    @GetMapping("/page")
-    @Operation(summary = "分页查询")
-    public R<IPage<PlatformInfoResponse>> page(@ParameterObject Page page,
-                                               @ParameterObject PlatformInfoPageRequest request) {
-        return R.ok(platformInfoService.pageResult(page, request));
-    }
-
     @PostMapping("/detail")
     @Operation(summary = "详情")
-    public R<PlatformInfoResponse> detail(@RequestBody IdRequest request) {
-        return R.ok(platformInfoService.getDetail(request.getId()));
-    }
-
-    @PostMapping("/create")
-    @Operation(summary = "新增")
-    @SysLog("新增关于平台内容")
-    public R<Boolean> create(@RequestBody @Valid PlatformInfoCreateRequest request) {
-        return R.ok(platformInfoService.createInfo(request));
+    public R<PlatformInfoResponse> detail() {
+        return R.ok(platformInfoService.getDetail());
     }
 
     @PostMapping("/update")

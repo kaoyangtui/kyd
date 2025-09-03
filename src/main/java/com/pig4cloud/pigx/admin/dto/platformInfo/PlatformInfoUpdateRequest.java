@@ -12,7 +12,4 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "关于平台内容修改请求")
 public class PlatformInfoUpdateRequest extends PlatformInfoCreateRequest{
 
-    @Schema(description = "主键ID")
-    private Long id;
-
 }
