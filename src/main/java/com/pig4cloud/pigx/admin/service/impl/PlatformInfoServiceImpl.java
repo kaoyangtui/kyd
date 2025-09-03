@@ -39,7 +39,7 @@ public class PlatformInfoServiceImpl extends ServiceImpl<PlatformInfoMapper, Pla
             entity = BeanUtil.copyProperties(request, PlatformInfoEntity.class);
             return this.save(entity);
         } else {
-            entity = BeanUtil.copyProperties(request, PlatformInfoEntity.class);
+            BeanUtil.copyProperties(request, entity);
             return this.updateById(entity);
         }
     }
