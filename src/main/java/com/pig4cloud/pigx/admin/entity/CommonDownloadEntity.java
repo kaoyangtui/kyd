@@ -37,12 +37,6 @@ public class CommonDownloadEntity extends Model<CommonDownloadEntity> {
     private String fileName;
 
     /**
-     * 文件地址
-     */
-    @Schema(description = "文件地址")
-    private String filePath;
-
-    /**
      * 内容说明
      */
     @Schema(description = "内容说明")

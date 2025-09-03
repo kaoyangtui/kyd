@@ -18,9 +18,6 @@ public class CommonDownloadResponse extends BaseResponse {
     @Schema(description = "文件名")
     private String fileName;
 
-    @Schema(description = "文件地址")
-    private String filePath;
-
     @Schema(description = "内容说明")
     private String content;
 
