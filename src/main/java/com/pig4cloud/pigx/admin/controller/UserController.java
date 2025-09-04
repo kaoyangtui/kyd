@@ -53,20 +53,20 @@ public class UserController {
     private final EventMeetingService eventMeetingService;
     private final EventMeetingApplyService eventMeetingApplyService;
 
-    @GetMapping("/page")
+    @GetMapping("/customer/page")
     @Operation(summary = "分页查询user")
     public R<IPage<UserResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject UserPageRequest request) {
         return R.ok(userService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
-    @PostMapping("/remove")
+    @PostMapping("/customer/remove")
     @Operation(summary = "删除user")
     @SysLog("删除user")
     public R<Boolean> remove(@RequestBody @Valid IdListRequest request) {
         return R.ok(userService.removeUser(request));
     }
 
-    @PostMapping("/export/fields")
+    @PostMapping("/customer/export/fields")
     @Operation(summary = "获取导出字段列表")
     public R<ExportFieldListResponse> exportFields() {
         ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
@@ -76,7 +76,7 @@ public class UserController {
         return R.ok(fields);
     }
 
-    @PostMapping("/export")
+    @PostMapping("/customer/export")
     @ResponseExcel(name = "用户导出", sheets = {@Sheet(sheetName = "用户列表")})
     @Operation(summary = "导出用户")
     public void export(@RequestBody @Valid UserExportWrapperRequest request) throws IOException {
