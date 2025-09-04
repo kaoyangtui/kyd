@@ -113,8 +113,6 @@ public class PatentMonitorUserServiceImpl extends ServiceImpl<PatentMonitorUserM
     @Transactional(rollbackFor = Exception.class)
     public Boolean remove(List<String> pidList) {
         // 只做逻辑删除
-        LambdaQueryWrapper<PatentMonitorUserEntity> qw = new LambdaQueryWrapper<>();
-        qw.in(PatentMonitorUserEntity::getPid, pidList);
-        return lambdaUpdate().set(PatentMonitorUserEntity::getDelFlag, "1").apply(qw.getSqlSegment()).update();
+        return this.removeBatchByIds(pidList);
     }
 }
