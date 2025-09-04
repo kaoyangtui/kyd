@@ -4,27 +4,32 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.ArrayListMultimap;
 import com.pig4cloud.pigx.admin.api.entity.SysDept;
 import com.pig4cloud.pigx.admin.api.entity.SysRole;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.api.entity.SysUserRole;
+import com.pig4cloud.pigx.admin.dto.PageRequest;
+import com.pig4cloud.pigx.admin.jsonflow.FlowListPageRequest;
+import com.pig4cloud.pigx.admin.jsonflow.FlowListResponse;
+import com.pig4cloud.pigx.admin.jsonflow.JfRunFlowService;
 import com.pig4cloud.pigx.admin.service.SysDeptService;
 import com.pig4cloud.pigx.admin.service.SysRoleService;
 import com.pig4cloud.pigx.admin.service.SysUserRoleService;
 import com.pig4cloud.pigx.admin.service.SysUserService;
+import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.data.datascope.DataScopeTypeEnum;
+import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +55,7 @@ public class JFController {
     private final SysUserRoleService sysUserRoleService;
     private final SysRoleService sysRoleService;
     private final SysDeptService sysDeptService;
+    private final JfRunFlowService jfRunFlowService;
 
     /**
      * 获取流程节点审批人
@@ -73,6 +79,15 @@ public class JFController {
         return R.ok(getApproverUserIds(roleCode, createUserId));
     }
 
+
+    @Operation(summary = "我的申请")
+    @GetMapping("/page")
+    public R<Page<FlowListResponse>> page(
+            @ParameterObject PageRequest pageRequest,
+            @ParameterObject FlowListPageRequest req) {
+        req.setCreateUser(SecurityUtils.getUser().getId());
+        return R.ok(jfRunFlowService.pageFlowList(PageUtil.toPage(pageRequest), req));
+    }
     /**
      * 计算审批人集合（核心算法）
      * 步骤：

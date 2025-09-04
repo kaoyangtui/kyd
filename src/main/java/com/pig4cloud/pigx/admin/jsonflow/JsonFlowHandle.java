@@ -26,14 +26,15 @@ public class JsonFlowHandle {
         // 发起流程
         Map<String, Object> order = MapUtil.newHashMap();
         order.put("id", id);
+        order.put("code", code);
         order.put("flowInstId", flowInstId);
         order.put("flowKey", flowKey);
+        order.put("orderName", orderName);
 
         Map<String, Object> params = MapUtil.newHashMap();
         params.put("flowInstId", flowInstId);
         params.put("code", code);
         params.put("flowKey", flowKey);
-        params.put("orderName", orderName);
 
         Boolean bl = runFlowService.startFlow(order, params);
         if (!bl) {

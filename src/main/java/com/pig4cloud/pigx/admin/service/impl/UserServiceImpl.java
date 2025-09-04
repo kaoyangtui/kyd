@@ -1,9 +1,16 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.user.*;
 import com.pig4cloud.pigx.admin.entity.UserEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
@@ -17,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -152,6 +160,56 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
         user.setUpdateTime(LocalDateTime.now());
         userMapper.updateById(user);
         return true;
+    }
+
+    @Override
+    public IPage<UserResponse> pageResult(Page reqPage, UserPageRequest request) {
+        LambdaQueryWrapper<UserEntity> wrapper = Wrappers.lambdaQuery();
+
+        if (CollUtil.isNotEmpty(request.getIds())) {
+            wrapper.in(UserEntity::getId, request.getIds());
+        } else {
+            if (StrUtil.isNotBlank(request.getKeyword())) {
+                wrapper.and(w -> w.like(UserEntity::getNickname, request.getKeyword())
+                        .or().like(UserEntity::getUsername, request.getKeyword())
+                        .or().like(UserEntity::getMobile, request.getKeyword()));
+            }
+            wrapper.like(StrUtil.isNotBlank(request.getMobile()), UserEntity::getMobile, request.getMobile());
+            wrapper.like(StrUtil.isNotBlank(request.getUsername()), UserEntity::getUsername, request.getUsername());
+            wrapper.eq(StrUtil.isNotBlank(request.getProvinceCode()), UserEntity::getProvinceCode, request.getProvinceCode());
+            wrapper.eq(StrUtil.isNotBlank(request.getCityCode()), UserEntity::getCityCode, request.getCityCode());
+            wrapper.eq(StrUtil.isNotBlank(request.getDistrictCode()), UserEntity::getDistrictCode, request.getDistrictCode());
+        }
+
+        if (ObjectUtil.isAllNotEmpty(request.getStartNo(), request.getEndNo())) {
+            long size = Math.max(0, request.getEndNo() - request.getStartNo() + 1);
+            reqPage.setCurrent(1);
+            reqPage.setSize(size);
+        } else if (CollUtil.isNotEmpty(request.getIds())) {
+            reqPage.setCurrent(1);
+            reqPage.setSize(request.getIds().size());
+        }
+
+        if (CollUtil.isEmpty(reqPage.orders())) {
+            wrapper.orderByDesc(UserEntity::getCreateTime);
+        }
+
+        IPage<UserEntity> entityPage = this.baseMapper.selectPage((Page<UserEntity>) reqPage, wrapper);
+        return entityPage.convert(this::convertToResponse);
+    }
+
+    @Override
+    @SneakyThrows
+    public Boolean removeUser(IdListRequest request) {
+        List<Long> ids = request.getIds();
+        if (CollUtil.isEmpty(ids)) {
+            throw new BizException("ID列表不能为空");
+        }
+        return this.removeBatchByIds(ids);
+    }
+
+    private UserResponse convertToResponse(UserEntity entity) {
+        return BeanUtil.copyProperties(entity, UserResponse.class);
     }
 
 }
