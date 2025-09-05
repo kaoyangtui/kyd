@@ -14,6 +14,8 @@ import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegPageRequest;
@@ -69,11 +71,13 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
 
     private void doSaveOrUpdate(SoftCopyRegCreateRequest request, boolean isCreate) {
         SoftCopyRegEntity entity = BeanUtil.copyProperties(request, SoftCopyRegEntity.class);
-
-        if (isCreate) {
-            entity.setCode(ParamResolver.getStr(SoftCopyRegResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
-        } else if (request instanceof SoftCopyRegUpdateRequest updateRequest) {
+        String code;
+        if (!isCreate && request instanceof SoftCopyRegUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(SoftCopyRegResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
         }
 
         if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
@@ -112,8 +116,8 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
             this.updateById(entity);
         }
 
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        completerService.replaceCompleters(code, request.getCompleters());
+        ownerService.replaceOwners(code, request.getOwners());
     }
 
     @SneakyThrows

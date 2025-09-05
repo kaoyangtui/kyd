@@ -19,6 +19,8 @@ import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutPageRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -121,9 +123,13 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
 
     private void doSaveOrUpdate(IcLayoutCreateRequest request, boolean isCreate) {
         IcLayoutEntity entity = BeanUtil.copyProperties(request, IcLayoutEntity.class);
-
-        if (isCreate) {
-            entity.setCode(ParamResolver.getStr(IcLayoutResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+        String code;
+        if (!isCreate && request instanceof IcLayoutUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(IcLayoutResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
         }
 
         // 设置负责人
@@ -165,8 +171,7 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
         }
 
         // 保存或更新
-        if (!isCreate && request instanceof IcLayoutUpdateRequest updateRequest) {
-            entity.setId(updateRequest.getId());
+        if (!isCreate) {
             this.updateById(entity);
         } else {
             entity.setFlowKey(IcLayoutResponse.BIZ_CODE);
@@ -177,8 +182,8 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
         }
 
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        completerService.replaceCompleters(code, request.getCompleters());
+        ownerService.replaceOwners(code, request.getOwners());
     }
 
     private IcLayoutResponse convertToResponse(IcLayoutEntity entity) {

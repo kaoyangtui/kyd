@@ -14,8 +14,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
@@ -74,17 +77,14 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
     }
 
     private ResultResponse doSaveOrUpdate(ResultCreateRequest request, boolean isCreate) throws BizException {
-        ResultEntity entity;
-        if (isCreate) {
-            entity = BeanUtil.copyProperties(request, ResultEntity.class);
-            entity.setCode(ParamResolver.getStr(ResultResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
+        ResultEntity entity = BeanUtil.copyProperties(request, ResultEntity.class);
+        String code;
+        if (!isCreate && request instanceof ResultUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
         } else {
-            ResultEntity existing = this.getById(((ResultUpdateRequest) request).getId());
-            if (existing == null) {
-                throw new BizException("数据不存在");
-            }
-            entity = existing;
-            BeanUtil.copyProperties(request, entity, CopyOptions.create().ignoreNullValue());
+            code = ParamResolver.getStr(ResultResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
         }
 
         entity.setTechArea(StrUtil.join(";", request.getTechArea()));
@@ -128,7 +128,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         } else {
             this.updateById(entity);
         }
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        completerService.replaceCompleters(code, request.getCompleters());
         return convertToResponse(entity);
     }
 

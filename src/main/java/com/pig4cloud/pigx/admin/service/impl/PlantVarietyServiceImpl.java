@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyPageRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
@@ -70,11 +71,13 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
 
     private void doSaveOrUpdate(PlantVarietyCreateRequest request, boolean isCreate) {
         PlantVarietyEntity entity = BeanUtil.copyProperties(request, PlantVarietyEntity.class);
-
-        if (isCreate) {
-            entity.setCode(ParamResolver.getStr(PlantVarietyResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
-        } else if (request instanceof PlantVarietyUpdateRequest updateRequest) {
+        String code;
+        if (!isCreate && request instanceof PlantVarietyUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(PlantVarietyResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
         }
 
         if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
@@ -107,8 +110,8 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
             this.updateById(entity);
         }
 
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        completerService.replaceCompleters(code, request.getCompleters());
+        ownerService.replaceOwners(code, request.getOwners());
     }
 
     @SneakyThrows

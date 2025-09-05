@@ -12,6 +12,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
+import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
 import com.pig4cloud.pigx.admin.dto.standard.StandardCreateRequest;
 import com.pig4cloud.pigx.admin.dto.standard.StandardPageRequest;
@@ -31,6 +33,7 @@ import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.OwnerService;
 import com.pig4cloud.pigx.admin.service.StandardService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -69,11 +72,13 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
     @SneakyThrows
     private void doSaveOrUpdate(StandardCreateRequest request, boolean isCreate) {
         StandardEntity entity = BeanUtil.copyProperties(request, StandardEntity.class);
-
-        if (isCreate) {
-            entity.setCode(StandardResponse.BIZ_CODE + IdUtil.getSnowflakeNextIdStr());
-        } else if (request instanceof StandardUpdateRequest updateReq) {
-            entity.setId(updateReq.getId());
+        String code;
+        if (!isCreate && request instanceof StandardUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(StandardResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
         }
 
         // 附件处理
@@ -117,8 +122,8 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
             this.updateById(entity);
         }
 
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        ownerService.replaceOwners(code, request.getOwners());
+        completerService.replaceCompleters(code, request.getCompleters());
     }
 
     @Override
