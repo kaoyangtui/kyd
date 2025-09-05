@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentEvaluation.PatentEvaluationCommitRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
@@ -133,6 +132,14 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
 
     private void doSaveOrUpdate(PatentProposalCreateRequest request, boolean isCreate) {
         PatentProposalEntity entity = BeanUtil.copyProperties(request, PatentProposalEntity.class);
+        String code;
+        if (!isCreate && request instanceof PatentProposalUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
+        }
 
         List<FileCreateRequest> fileList = Lists.newArrayList();
 
@@ -173,13 +180,11 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
                     });
         }
 
-        if (!isCreate && request instanceof PatentProposalUpdateRequest updateRequest) {
-            entity.setId(updateRequest.getId());
+        if (!isCreate) {
             this.updateById(entity);
         } else {
             entity.setFlowKey(PatentProposalResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            entity.setCode(ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
@@ -200,8 +205,8 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             PatentEvaluationService.commit(pecRequest);
         }
 
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
-        ownerService.replaceOwners(entity.getCode(), request.getOwners());
+        completerService.replaceCompleters(code, request.getCompleters());
+        ownerService.replaceOwners(code, request.getOwners());
     }
 
     private PatentProposalResponse convertToResponse(PatentProposalEntity entity) {

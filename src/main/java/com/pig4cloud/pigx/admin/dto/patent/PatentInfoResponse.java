@@ -805,4 +805,10 @@ public class PatentInfoResponse {
      */
     @Schema(description = "上架标识,1已上架")
     private String shelfFlag;
+
+    /**
+     * 监控标识
+     */
+    @Schema(description = "监控标识,1已监控")
+    private String monitorFlag;
 }

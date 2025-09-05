@@ -154,6 +154,16 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
             fileService.batchCreate(fileList);
         }
 
+        if (CollUtil.isNotEmpty(request.getCompleters())) {
+            request.getCompleters().stream()
+                    .filter(c -> ObjectUtil.equal(c.getCompleterLeader(), 1))
+                    .findFirst()
+                    .ifPresent(leader -> {
+                        entity.setLeaderCode(leader.getCompleterNo());
+                        entity.setLeaderName(leader.getCompleterName());
+                    });
+        }
+
         // 保存或更新
         if (!isCreate && request instanceof IcLayoutUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
