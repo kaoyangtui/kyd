@@ -81,7 +81,7 @@ public class SoftCopyResponse extends BaseResponse {
      * 技术领域
      */
     @Schema(description = "技术领域")
-    private String techField;
+    private List<String> techField;
 
     /**
      * 依托项目 0否1是

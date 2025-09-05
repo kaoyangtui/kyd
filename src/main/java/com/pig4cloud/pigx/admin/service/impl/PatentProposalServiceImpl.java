@@ -141,6 +141,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             code = ParamResolver.getStr(PatentProposalResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
             entity.setCode(code);
         }
+        entity.setTechField(StrUtil.join(";", request.getTechField()));
 
         List<FileCreateRequest> fileList = Lists.newArrayList();
 
@@ -212,6 +213,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
 
     private PatentProposalResponse convertToResponse(PatentProposalEntity entity) {
         PatentProposalResponse response = BeanUtil.copyProperties(entity, PatentProposalResponse.class);
+        response.setTechField(StrUtil.split(entity.getTechField(), ";"));
         response.setClaimsFile(StrUtil.split(entity.getClaimsFile(), ";"));
         response.setDescriptionFile(StrUtil.split(entity.getDescriptionFile(), ";"));
         response.setDescFigureFile(StrUtil.split(entity.getDescFigureFile(), ";"));

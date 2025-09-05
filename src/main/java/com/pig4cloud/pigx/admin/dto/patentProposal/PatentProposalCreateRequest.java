@@ -20,7 +20,7 @@ public class PatentProposalCreateRequest {
     private String type;
 
     @Schema(description = "技术所属领域")
-    private String techField;
+    private List<String> techField;
 
     @Schema(description = "计划维持年限")
     private Integer planYears;

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -54,10 +55,10 @@ public class PlantVarietyResponse extends BaseResponse {
     private String genusName;
 
     @Schema(description = "申请时间")
-    private Date applyDate;
+    private LocalDate applyDate;
 
     @Schema(description = "授权时间")
-    private Date authDate;
+    private LocalDate authDate;
 
     @Schema(description = "校外培育人姓名")
     private String breederOutName;

@@ -175,6 +175,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
 
     private SoftCopyResponse convertToResponse(SoftCopyEntity entity) {
         SoftCopyResponse res = BeanUtil.copyProperties(entity, SoftCopyResponse.class);
+        res.setTechField(StrUtil.split(entity.getTechField(), ";"));
         res.setAttachmentUrls(StrUtil.split(entity.getAttachmentUrls(), ";"));
         return res;
     }
