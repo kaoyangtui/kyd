@@ -3,9 +3,11 @@ package com.pig4cloud.pigx.admin.dto.researchPlatform;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "科研平台响应")
 public class ResearchPlatformResponse extends BaseResponse {

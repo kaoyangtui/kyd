@@ -14,6 +14,8 @@ import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.*;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoSimpleVO;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformPlanEntity;
@@ -131,6 +133,15 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
 
     private void doSaveOrUpdate(IpTransformCreateRequest request, boolean isCreate) {
         IpTransformEntity entity = BeanUtil.copyProperties(request, IpTransformEntity.class);
+        String code;
+        if (!isCreate && request instanceof IpTransformUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(IpTransformResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
+        }
+
         entity.setIpCode(StrUtil.join(";", request.getIpCode()));
 
         List<FileCreateRequest> fileList = Lists.newArrayList();
@@ -139,7 +150,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             entity.setConsentFileUrl(StrUtil.join(";", request.getConsentFileUrl()));
             request.getConsentFileUrl().forEach(fileName ->
                     fileList.add(fileService.getFileCreateRequest(fileName,
-                            entity.getCode(),
+                            code,
                             IpTransformResponse.BIZ_CODE,
                             entity.getName(),
                             FileBizTypeEnum.IP_TRANSFORM_CONSENT.getValue())));
@@ -149,7 +160,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             entity.setPromiseFileUrl(StrUtil.join(";", request.getPromiseFileUrl()));
             request.getPromiseFileUrl().forEach(fileName ->
                     fileList.add(fileService.getFileCreateRequest(fileName,
-                            entity.getCode(),
+                            code,
                             IpTransformResponse.BIZ_CODE,
                             entity.getName(),
                             FileBizTypeEnum.IP_TRANSFORM_PROMISE.getValue())));
@@ -159,7 +170,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             entity.setRecordFileUrl(StrUtil.join(";", request.getRecordFileUrl()));
             request.getRecordFileUrl().forEach(fileName ->
                     fileList.add(fileService.getFileCreateRequest(fileName,
-                            entity.getCode(),
+                            code,
                             IpTransformResponse.BIZ_CODE,
                             entity.getName(),
                             FileBizTypeEnum.IP_TRANSFORM_RECORD.getValue())));
@@ -169,7 +180,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             entity.setContractFileUrl(StrUtil.join(";", request.getContractFileUrl()));
             request.getContractFileUrl().forEach(fileName ->
                     fileList.add(fileService.getFileCreateRequest(fileName,
-                            entity.getCode(),
+                            code,
                             IpTransformResponse.BIZ_CODE,
                             entity.getName(),
                             FileBizTypeEnum.IP_TRANSFORM_CONTRACT.getValue())));
@@ -179,7 +190,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             entity.setRewardApplyFileUrl(StrUtil.join(";", request.getRewardApplyFileUrl()));
             request.getRewardApplyFileUrl().forEach(fileName ->
                     fileList.add(fileService.getFileCreateRequest(fileName,
-                            entity.getCode(),
+                            code,
                             IpTransformResponse.BIZ_CODE,
                             entity.getName(),
                             FileBizTypeEnum.IP_TRANSFORM_REWARD_APPLY.getValue())));
@@ -189,7 +200,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             entity.setAllocationPlanFileUrl(StrUtil.join(";", request.getAllocationPlanFileUrl()));
             request.getAllocationPlanFileUrl().forEach(fileName ->
                     fileList.add(fileService.getFileCreateRequest(fileName,
-                            entity.getCode(),
+                            code,
                             IpTransformResponse.BIZ_CODE,
                             entity.getName(),
                             FileBizTypeEnum.IP_TRANSFORM_ALLOCATION_PLAN.getValue())));
@@ -199,11 +210,9 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             fileService.batchCreate(fileList);
         }
 
-        if (!isCreate && request instanceof IpTransformUpdateRequest updateRequest) {
-            entity.setId(updateRequest.getId());
+        if (!isCreate) {
             this.updateById(entity);
         } else {
-            entity.setCode(ParamResolver.getStr(IpTransformResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
         }
 
@@ -211,7 +220,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             List<IpTransformPlanEntity> planList = BeanUtil.copyToList(request.getIpTransformPlanVOS(), IpTransformPlanEntity.class);
             planList.forEach(plan -> {
                 plan.setTransformId(entity.getId());
-                plan.setTransformCode(entity.getCode());
+                plan.setTransformCode(code);
             });
             ipTransformPlanService.saveBatch(planList);
         }

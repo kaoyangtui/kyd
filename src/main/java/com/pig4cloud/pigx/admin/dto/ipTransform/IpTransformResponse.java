@@ -4,6 +4,7 @@ import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoSimpleVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.List;
 /**
  * 转化信息响应
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "知识产权转化响应")
 public class IpTransformResponse extends BaseResponse {

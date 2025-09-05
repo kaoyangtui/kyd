@@ -74,8 +74,9 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
         IPage<ResearchTeamEntity> result = baseMapper.selectPage(page, wrapper);
         return result.convert(entity -> {
             ResearchTeamResponse response = BeanUtil.copyProperties(entity, ResearchTeamResponse.class);
+            String code = entity.getCode();
             response.setResearchTags(StrUtil.split(entity.getResearchTags(), ";"));
-            response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
+            response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
             return response;
         });
     }
@@ -91,9 +92,10 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
                 .eq(ResearchTeamEntity::getId, id)
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
+        String code = entity.getCode();
         ResearchTeamResponse response = BeanUtil.copyProperties(entity, ResearchTeamResponse.class);
         response.setResearchTags(StrUtil.split(entity.getResearchTags(), ";"));
-        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
+        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
         return response;
     }
 
@@ -104,11 +106,10 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
         ResearchTeamEntity entity = BeanUtil.copyProperties(request, ResearchTeamEntity.class);
         entity.setCode(ParamResolver.getStr(ResearchTeamResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
         entity.setResearchTags(StrUtil.join(";", request.getResearchTags()));
-
         this.save(entity);
-
+        String code = entity.getCode();
         // 关联团队成员（completers）
-        completerService.replaceCompleters(entity.getCode(), request.getCompleters());
+        completerService.replaceCompleters(code, request.getCompleters());
         return Boolean.TRUE;
     }
 

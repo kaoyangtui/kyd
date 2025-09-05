@@ -26,7 +26,10 @@ public class OwnerServiceImpl extends ServiceImpl<OwnerMapper, OwnerEntity> impl
         this.remove(Wrappers.<OwnerEntity>lambdaQuery()
                 .eq(OwnerEntity::getCode, code));
         if (CollUtil.isNotEmpty(entities)) {
-            entities.forEach(e -> e.setCode(code));
+            entities.forEach(e -> {
+                e.setId(null);
+                e.setCode(code);
+            });
             this.saveBatch(entities);
         }
     }

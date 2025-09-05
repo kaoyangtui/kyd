@@ -3,9 +3,11 @@ package com.pig4cloud.pigx.admin.dto.expert;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "专家返回数据")
 public class ExpertResponse extends BaseResponse {

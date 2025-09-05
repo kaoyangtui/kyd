@@ -3,7 +3,9 @@ package com.pig4cloud.pigx.admin.dto.researchProject;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "科研项目响应")
 public class ResearchProjectResponse extends BaseResponse {

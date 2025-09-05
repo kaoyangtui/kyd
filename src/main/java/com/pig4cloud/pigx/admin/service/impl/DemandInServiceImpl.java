@@ -15,6 +15,8 @@ import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -133,6 +135,15 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
 
     private void doSaveOrUpdate(DemandInCreateRequest request, boolean isCreate) {
         DemandInEntity entity = BeanUtil.copyProperties(request, DemandInEntity.class);
+        String code;
+        if (!isCreate && request instanceof DemandInUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(DemandInResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
+        }
+
         entity.setTags(StrUtil.join(";", request.getTags()));
 
         if (CollUtil.isNotEmpty(request.getAttachFileUrl())) {
@@ -140,7 +151,7 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
             request.getAttachFileUrl().forEach(fileName -> {
                 FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
                         fileName,
-                        entity.getCode(),
+                        code,
                         DemandInResponse.BIZ_CODE,
                         entity.getName(),
                         FileBizTypeEnum.ATTACHMENT.getValue()
@@ -152,13 +163,11 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
             entity.setAttachFileUrl(StrUtil.join(";", request.getAttachFileUrl()));
         }
 
-        if (!isCreate && request instanceof DemandInUpdateRequest updateRequest) {
-            entity.setId(updateRequest.getId());
+        if (!isCreate) {
             this.updateById(entity);
         } else {
             entity.setFlowKey(DemandInResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            entity.setCode(ParamResolver.getStr(DemandInResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());

@@ -3,9 +3,11 @@ package com.pig4cloud.pigx.admin.dto.notice;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "通知公告响应")
 public class NoticeResponse extends BaseResponse {

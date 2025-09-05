@@ -3,6 +3,7 @@ package com.pig4cloud.pigx.admin.dto.demandIn;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.util.List;
 /**
  * 响应对象
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "校内需求响应")
 public class DemandInResponse extends BaseResponse {

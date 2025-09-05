@@ -7,6 +7,7 @@ import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 /**
  * @author zhaoliang
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "植物新品种权登记响应")
 public class PlantVarietyResponse extends BaseResponse {

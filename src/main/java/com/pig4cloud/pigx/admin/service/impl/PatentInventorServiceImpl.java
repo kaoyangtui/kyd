@@ -125,11 +125,12 @@ public class PatentInventorServiceImpl extends ServiceImpl<PatentInventorMapper,
                 new LambdaQueryWrapper<PatentInventorEntity>().eq(PatentInventorEntity::getPid, pid)
         );
         return entityList.stream().map(entity -> {
+            String code = entity.getCode();
             PatentInventorVO vo = new PatentInventorVO();
             // 如果 VO 有 id 字段，这里也要赋值
             vo.setId(entity.getId());
             vo.setPriority(entity.getPriority());
-            vo.setCode(entity.getCode());
+            vo.setCode(code);
             vo.setName(entity.getName());
             vo.setDeptId(entity.getDeptId());
             vo.setDeptName(entity.getDeptName());

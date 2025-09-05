@@ -3,7 +3,9 @@ package com.pig4cloud.pigx.admin.dto.patentFee;
 import com.pig4cloud.pigx.admin.dto.BasePageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "专利费用报销分页查询请求")
 public class PatentFeeReimbursePageRequest extends BasePageQuery {

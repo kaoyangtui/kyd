@@ -5,12 +5,14 @@ import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "企业需求响应")
 @Data
 public class DemandResponse extends BaseResponse {

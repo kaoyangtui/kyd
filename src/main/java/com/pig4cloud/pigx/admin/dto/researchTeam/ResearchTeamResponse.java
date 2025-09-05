@@ -4,9 +4,11 @@ import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "科研团队返回信息")
 public class ResearchTeamResponse extends BaseResponse {

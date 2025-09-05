@@ -6,10 +6,12 @@ import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "软著登记返回信息")
 public class SoftCopyRegResponse extends BaseResponse {

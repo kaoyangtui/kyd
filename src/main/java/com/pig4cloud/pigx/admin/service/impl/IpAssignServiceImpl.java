@@ -18,6 +18,8 @@ import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
+import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
@@ -122,6 +124,14 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
 
     private void doSaveOrUpdate(IpAssignCreateRequest request, boolean isCreate) {
         IpAssignEntity entity = BeanUtil.copyProperties(request, IpAssignEntity.class);
+        String code;
+        if (!isCreate && request instanceof IpAssignUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(IpAssignResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
+        }
 
         if (CollUtil.isNotEmpty(request.getProofFileUrl())) {
             entity.setProofFileUrl(StrUtil.join(";", request.getProofFileUrl()));
@@ -137,7 +147,7 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
             request.getProofFileUrl().forEach(fileName -> {
                 fileList.add(fileService.getFileCreateRequest(
                         fileName,
-                        entity.getCode(),
+                        code,
                         IpAssignResponse.BIZ_CODE,
                         FileBizTypeEnum.IP_ASSIGN_PROOF.getBizName(),
                         FileBizTypeEnum.IP_ASSIGN_PROOF.getValue()));
@@ -148,7 +158,7 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
             request.getAttachFileUrl().forEach(fileName -> {
                 fileList.add(fileService.getFileCreateRequest(
                         fileName,
-                        entity.getCode(),
+                        code,
                         IpAssignResponse.BIZ_CODE,
                         FileBizTypeEnum.IP_ASSIGN_ATTACH.getBizName(),
                         FileBizTypeEnum.IP_ASSIGN_ATTACH.getValue()));
@@ -159,13 +169,11 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
             fileService.batchCreate(fileList);
         }
 
-        if (!isCreate && request instanceof IpAssignUpdateRequest updateRequest) {
-            entity.setId(updateRequest.getId());
+        if (!isCreate) {
             this.updateById(entity);
         } else {
             entity.setFlowKey(IpAssignResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            entity.setCode(ParamResolver.getStr(IpAssignResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), "赋权");

@@ -97,7 +97,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
             request.getFileUrl().forEach(fileName -> {
                 FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
                         fileName,
-                        entity.getCode(),
+                        code,
                         ResultResponse.BIZ_CODE,
                         entity.getName(),
                         FileBizTypeEnum.ATTACHMENT.getValue()
@@ -200,8 +200,9 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
                 .eq(ResultEntity::getId, id)
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
+        String code = entity.getCode();
         ResultResponse response = convertToResponse(entity);
-        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
+        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
         return response;
     }
 

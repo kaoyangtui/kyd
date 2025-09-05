@@ -87,7 +87,7 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
             for (String fileName : request.getFileUrls()) {
                 FileCreateRequest fileCreateRequest = fileService.getFileCreateRequest(
                         fileName,
-                        entity.getCode(),
+                        code,
                         StandardResponse.BIZ_CODE,
                         entity.getName(),
                         FileBizTypeEnum.ATTACHMENT.getValue()
@@ -170,9 +170,10 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         if (entity == null) {
             throw new BizException("标准信息不存在");
         }
+        String code = entity.getCode();
         StandardResponse res = convertToResponse(entity);
-        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
-        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
+        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, code).list());
+        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
         return res;
     }
 

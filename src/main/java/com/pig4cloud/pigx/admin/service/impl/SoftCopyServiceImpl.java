@@ -72,19 +72,22 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
     @SneakyThrows
     private void doSaveOrUpdate(SoftCopyCreateRequest request, boolean isCreate) {
         SoftCopyEntity entity = BeanUtil.copyProperties(request, SoftCopyEntity.class);
-
-        if (isCreate) {
-            entity.setCode(ParamResolver.getStr(SoftCopyResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
-        } else if (request instanceof SoftCopyUpdateRequest updateReq) {
-            entity.setId(updateReq.getId());
+        String code;
+        if (!isCreate && request instanceof SoftCopyUpdateRequest updateRequest) {
+            entity.setId(updateRequest.getId());
+            code = this.getById(updateRequest.getId()).getCode();
+        } else {
+            code = ParamResolver.getStr(SoftCopyResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+            entity.setCode(code);
         }
+
         entity.setTechField(StrUtil.join(";", request.getTechField()));
         // 附件处理
         if (CollUtil.isNotEmpty(request.getAttachmentUrls())) {
             List<FileCreateRequest> fileList = Lists.newArrayList();
             request.getAttachmentUrls().forEach(fileName -> {
                 FileCreateRequest file = fileService.getFileCreateRequest(
-                        fileName, entity.getCode(),
+                        fileName, code,
                         SoftCopyResponse.BIZ_CODE, entity.getSoftName(),
                         FileBizTypeEnum.ATTACHMENT.getValue());
                 fileList.add(file);
@@ -116,10 +119,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         } else {
             this.updateById(entity);
         }
-        String code = entity.getCode();
-        if (StrUtil.isBlank(code)) {
-            code = this.getById(entity.getId()).getCode();
-        }
+
         completerService.replaceCompleters(code, request.getCompleters());
         ownerService.replaceOwners(code, request.getOwners());
     }
@@ -166,9 +166,10 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        String code = entity.getCode();
         SoftCopyResponse res = convertToResponse(entity);
-        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
-        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
+        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
+        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, code).list());
         return res;
     }
 

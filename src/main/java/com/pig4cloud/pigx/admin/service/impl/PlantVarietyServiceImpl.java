@@ -11,17 +11,13 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyPageRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
-import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.entity.PlantVarietyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -85,7 +81,7 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
 
             List<FileCreateRequest> fileList = Lists.newArrayList();
             request.getCertFileUrl().forEach(file -> fileList.add(fileService.getFileCreateRequest(
-                    file, entity.getCode(), PlantVarietyResponse.BIZ_CODE, entity.getName(), FileBizTypeEnum.PLANT_VARIETY_CERT.getValue()
+                    file, code, PlantVarietyResponse.BIZ_CODE, entity.getName(), FileBizTypeEnum.PLANT_VARIETY_CERT.getValue()
             )));
             fileService.batchCreate(fileList);
         }
@@ -121,9 +117,10 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        String code = entity.getCode();
         PlantVarietyResponse response = convertToResponse(entity);
-        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
-        response.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
+        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
+        response.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, code).list());
         return response;
     }
 

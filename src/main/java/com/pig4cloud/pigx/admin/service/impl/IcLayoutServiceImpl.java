@@ -75,9 +75,10 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        String code = entity.getCode();
         IcLayoutResponse response = convertToResponse(entity);
-        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
-        response.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
+        response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
+        response.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, code).list());
         return response;
     }
 
@@ -150,7 +151,7 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
             List<FileCreateRequest> fileList = Lists.newArrayList();
             request.getCertFileUrl().forEach(fileName -> {
                 FileCreateRequest file = fileService.getFileCreateRequest(
-                        fileName, entity.getCode(),
+                        fileName, code,
                         IcLayoutResponse.BIZ_CODE,
                         entity.getName(),
                         FileBizTypeEnum.IC_LAYOUT_CERT.getValue()

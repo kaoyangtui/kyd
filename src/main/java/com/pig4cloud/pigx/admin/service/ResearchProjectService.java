@@ -27,7 +27,6 @@ public interface ResearchProjectService extends IService<ResearchProjectEntity> 
 
     List<String> projectNameOptions(ProjectNameSearchRequest request);
 
-    @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
     Boolean changeStatus(Long id, Integer status);
 }

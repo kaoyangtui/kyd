@@ -3,7 +3,9 @@ package com.pig4cloud.pigx.admin.dto.consult;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "咨询信息响应")
 public class ConsultResponse extends BaseResponse {

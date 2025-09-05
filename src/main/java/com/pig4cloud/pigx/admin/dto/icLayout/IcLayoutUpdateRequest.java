@@ -2,7 +2,9 @@ package com.pig4cloud.pigx.admin.dto.icLayout;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "集成电路布图登记修改请求")
 public class IcLayoutUpdateRequest extends IcLayoutCreateRequest {

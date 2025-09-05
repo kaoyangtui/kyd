@@ -3,12 +3,14 @@ package com.pig4cloud.pigx.admin.dto.ipAssign;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
 /**
  * 响应结构：赋权主信息封装
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "赋权响应")
 public class IpAssignResponse extends BaseResponse {

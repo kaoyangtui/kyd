@@ -3,7 +3,9 @@ package com.pig4cloud.pigx.admin.dto.patentMonitor;
 import com.pig4cloud.pigx.admin.dto.BasePageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "专利转化监控分页查询请求")
 public class PatentMonitorTransformPageRequest extends BasePageQuery {

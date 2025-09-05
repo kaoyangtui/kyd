@@ -10,18 +10,15 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegPageRequest;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.SoftCopyRegEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -85,7 +82,7 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
             request.getCertFileUrl().forEach(fileName -> {
                 FileCreateRequest file = fileService.getFileCreateRequest(
                         fileName,
-                        entity.getCode(),
+                        code,
                         SoftCopyRegResponse.BIZ_CODE,
                         entity.getName(),
                         FileBizTypeEnum.SOFT_COPY_CERT.getValue()
@@ -127,9 +124,10 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        String code = entity.getCode();
         SoftCopyRegResponse res = convertToResponse(entity);
-        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
-        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
+        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
+        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, code).list());
         return res;
     }
 

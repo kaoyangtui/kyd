@@ -3,7 +3,9 @@ package com.pig4cloud.pigx.admin.dto.plantVariety;
 import com.pig4cloud.pigx.admin.dto.BasePageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "植物新品种权分页查询请求")
 public class PlantVarietyPageRequest extends BasePageQuery {

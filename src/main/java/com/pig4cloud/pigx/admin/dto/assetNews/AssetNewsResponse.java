@@ -3,9 +3,11 @@ package com.pig4cloud.pigx.admin.dto.assetNews;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "资产资讯响应")
 public class AssetNewsResponse extends BaseResponse {

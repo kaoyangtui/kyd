@@ -100,9 +100,10 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         if (entity == null) {
             throw new BizException("数据不存在");
         }
+        String code = entity.getCode();
         PatentProposalResponse res = convertToResponse(entity);
-        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, entity.getCode()).list());
-        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, entity.getCode()).list());
+        res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
+        res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, code).list());
         return res;
     }
 
@@ -145,17 +146,17 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
 
         if (CollUtil.isNotEmpty(request.getClaimsFile())) {
             entity.setClaimsFile(StrUtil.join(";", request.getClaimsFile()));
-            request.getClaimsFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_CLAIMS.getValue())));
+            request.getClaimsFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, code, PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_CLAIMS.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getDescriptionFile())) {
             entity.setDescriptionFile(StrUtil.join(";", request.getDescriptionFile()));
-            request.getDescriptionFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_DESCRIPTION.getValue())));
+            request.getDescriptionFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, code, PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_DESCRIPTION.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getAbstractFile())) {
             entity.setAbstractFile(StrUtil.join(";", request.getAbstractFile()));
-            request.getAbstractFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, entity.getCode(), PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_ABSTRACT.getValue())));
+            request.getAbstractFile().forEach(file -> fileList.add(fileService.getFileCreateRequest(file, code, PatentProposalResponse.BIZ_CODE, entity.getTitle(), FileBizTypeEnum.PATENT_PROPOSAL_ABSTRACT.getValue())));
         }
 
         if (CollUtil.isNotEmpty(request.getDescFigureFile())) {

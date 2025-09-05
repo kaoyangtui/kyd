@@ -3,9 +3,11 @@ package com.pig4cloud.pigx.admin.dto.user;
 import com.pig4cloud.pigx.admin.dto.BasePageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "user分页查询请求")
 public class UserPageRequest extends BasePageQuery {
