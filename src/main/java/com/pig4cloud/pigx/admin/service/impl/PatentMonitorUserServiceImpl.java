@@ -13,6 +13,7 @@ import com.pig4cloud.pigx.admin.entity.PatentMonitorEntity;
 import com.pig4cloud.pigx.admin.entity.PatentMonitorUserEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentMonitorUserMapper;
 import com.pig4cloud.pigx.admin.service.PatentMonitorUserService;
+import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +34,7 @@ public class PatentMonitorUserServiceImpl extends ServiceImpl<PatentMonitorUserM
     @Override
     public IPage<PatentMonitorUserResponse> pageResult(Page page, PatentMonitorUserPageRequest request) {
         LambdaQueryWrapper<PatentMonitorUserEntity> qw = new LambdaQueryWrapper<>();
-        qw.eq(PatentMonitorUserEntity::getDelFlag, "0");
+        qw.eq(PatentMonitorUserEntity::getCreateUserId, SecurityUtils.getUser().getId());
         if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             qw.and(wrapper -> wrapper
                     .like(PatentMonitorUserEntity::getPid, request.getKeyword())

@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -10,14 +11,19 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInventorEntity;
 import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.PatentClaimMapper;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -33,12 +39,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, PatentClaimEntity> implements PatentClaimService {
+public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, PatentClaimEntity> implements PatentClaimService, FlowStatusUpdater {
 
     private final SysUserService sysUserService;
     private final PatentInfoService patentInfoService;
     private final PatentInventorService patentInventorService;
     private final PatentProposalService patentProposalService;
+    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     public IPage<PatentClaimResponse> pageResult(Page reqPage, PatentClaimPageRequest request) {
@@ -181,6 +188,7 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
             List<Long> delIds = toDelete.stream().map(PatentInventorEntity::getId).collect(Collectors.toList());
             this.removeByIds(delIds);
         }
+        // 8. 更新专利信息
         patentInfoService.lambdaUpdate().eq(PatentInfoEntity::getPid, pid)
                 .set(PatentInfoEntity::getClaimFlag, 1)
                 .update();
@@ -190,6 +198,18 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
                     .set(PatentProposalEntity::getPid, pid)
                     .update();
         }
+        // 9. 创建认领工单
+        PatentInfoEntity patentInfo = patentInfoService.lambdaQuery().eq(PatentInfoEntity::getPid, pid).one();
+        PatentClaimEntity entity = new PatentClaimEntity();
+        String code = ParamResolver.getStr(PatentClaimResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+        entity.setPid(patentInfo.getPid());
+        entity.setCode(code);
+        entity.setAppNumber(patentInfo.getAppNumber());
+        entity.setTitle(patentInfo.getTitle());
+        entity.setInventorName(patentInfo.getInventorName());
+        this.save(entity);
+        // 10. 发起流程
+        jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
         return true;
     }
 
@@ -206,5 +226,25 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
                 .eq(PatentInventorEntity::getCode, sysUser.getCode())
                 .remove();
         return null;
+    }
+
+    @Override
+    public String flowKey() {
+        return PatentClaimResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(PatentClaimEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, PatentClaimEntity::getFlowStatus, dto.getFlowStatus())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), PatentClaimEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
+        if (dto.getFlowStatus() != null && dto.getFlowStatus().equals(FlowStatusEnum.INVALID.getStatus())) {
+            String pid = this.lambdaQuery().eq(PatentClaimEntity::getFlowInstId, dto.getFlowInstId()).one().getPid();
+            patentInfoService.lambdaUpdate().eq(PatentInfoEntity::getPid, pid)
+                    .set(PatentInfoEntity::getClaimFlag, 0)
+                    .update();
+        }
     }
 }

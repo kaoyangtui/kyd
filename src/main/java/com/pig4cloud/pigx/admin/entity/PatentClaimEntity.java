@@ -29,6 +29,12 @@ public class PatentClaimEntity extends Model<PatentClaimEntity> {
     @Schema(description="主键")
     private Long id;
 
+    /**
+     * 专利唯一ID
+     */
+    @Schema(description = "专利唯一ID")
+    private String pid;
+
 	/**
 	* 认领编码
 	*/
