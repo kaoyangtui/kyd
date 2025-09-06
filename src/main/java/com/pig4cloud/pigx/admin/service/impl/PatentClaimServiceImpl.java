@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.patent.*;
+import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInventorEntity;
@@ -207,6 +208,8 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
         entity.setAppNumber(patentInfo.getAppNumber());
         entity.setTitle(patentInfo.getTitle());
         entity.setInventorName(patentInfo.getInventorName());
+        entity.setFlowKey(PatentClaimResponse.BIZ_CODE);
+        entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
         this.save(entity);
         // 10. 发起流程
         jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
