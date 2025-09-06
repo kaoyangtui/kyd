@@ -1,8 +1,6 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,7 +35,7 @@ public class PatentMonitorUserServiceImpl extends ServiceImpl<PatentMonitorUserM
     public IPage<PatentMonitorUserResponse> pageResult(Page page, PatentMonitorUserPageRequest request) {
         LambdaQueryWrapper<PatentMonitorUserEntity> qw = new LambdaQueryWrapper<>();
         qw.eq(PatentMonitorUserEntity::getCreateUserId, SecurityUtils.getUser().getId());
-        if (StrUtil.isNotBlank(request.getKeyword())) {
+        if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
             qw.and(wrapper -> wrapper
                     .like(PatentMonitorUserEntity::getPid, request.getKeyword())
                     .or().like(PatentMonitorUserEntity::getTitle, request.getKeyword())
@@ -49,33 +46,32 @@ public class PatentMonitorUserServiceImpl extends ServiceImpl<PatentMonitorUserM
 
         IPage<PatentMonitorUserEntity> entityPage = this.page(page, qw);
 
-        // 1. 收集PID
+        // 1. 先收集所有PID
         List<String> pidList = entityPage.getRecords().stream()
                 .map(PatentMonitorUserEntity::getPid)
-                .filter(StrUtil::isNotBlank)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
-
-        Map<String, PatentMonitorEntity> latestLogMap = Collections.emptyMap();
-
-        // 2. 仅当 pidList 非空时查询日志
-        if (CollUtil.isNotEmpty(pidList)) {
-            List<PatentMonitorEntity> logList = patentMonitorService.lambdaQuery()
-                    .in(PatentMonitorEntity::getPid, pidList)
-                    .orderByDesc(PatentMonitorEntity::getEventTime)
-                    .list();
-
-            // 构建 PID -> 最新日志
-            latestLogMap = logList.stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(
-                            PatentMonitorEntity::getPid,
-                            e -> e,
-                            (oldVal, newVal) -> oldVal // 保留第一条（最新）
-                    ));
+        if (pidList.isEmpty()) {
+            return null;
         }
 
-        // 3. 分页结果转换
+        // 2. 一次查出所有PID最新一条日志（按时间倒序）
+        List<PatentMonitorEntity> logList = patentMonitorService.lambdaQuery()
+                .in(PatentMonitorEntity::getPid, pidList)
+                .orderByDesc(PatentMonitorEntity::getEventTime)
+                .list();
+        // 构建PID->日志的映射，只保留最新一条
+        Map<String, PatentMonitorEntity> latestLogMap = logList.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        PatentMonitorEntity::getPid,
+                        e -> e,
+                        // 保留第一条（最新）
+                        (oldVal, newVal) -> oldVal
+                ));
+
+        // 3. 分页批量赋值
         return entityPage.convert(entity -> {
             PatentMonitorUserResponse resp = BeanUtil.copyProperties(entity, PatentMonitorUserResponse.class);
             PatentMonitorEntity latestLog = latestLogMap.get(entity.getPid());
@@ -86,6 +82,7 @@ public class PatentMonitorUserServiceImpl extends ServiceImpl<PatentMonitorUserM
             }
             return resp;
         });
+
     }
 
     @Override

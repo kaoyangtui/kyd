@@ -121,6 +121,6 @@ public class DataScopeServiceImpl implements DataScopeService {
      * 处理个人数据权限
      */
     private void handleSelfLevelScope(PigxUser user, DataScope dataScope) {
-        dataScope.setUsername(user.getName());
+        dataScope.setUsername(user.getUsername());
     }
 }
