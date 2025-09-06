@@ -88,9 +88,11 @@ public class PatentMonitorUserServiceImpl extends ServiceImpl<PatentMonitorUserM
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(List<String> pidList) {
+        Long userId = SecurityUtils.getUser().getId();
         for (String pid : pidList) {
             PatentMonitorUserEntity old = lambdaQuery()
                     .eq(PatentMonitorUserEntity::getPid, pid)
+                    .eq(PatentMonitorUserEntity::getCreateUserId, userId)
                     .last("limit 1")
                     .one();
             if (old == null) {
@@ -104,9 +106,7 @@ public class PatentMonitorUserServiceImpl extends ServiceImpl<PatentMonitorUserM
                 entity.setAppNumber(patentInfo.getAppNumber());
                 this.save(entity);
             } else if ("1".equals(old.getDelFlag())) {
-                // 逻辑删除过的，直接恢复
-                old.setDelFlag("0");
-                this.updateById(old);
+                this.removeById(old);
             }
         }
         return true;
