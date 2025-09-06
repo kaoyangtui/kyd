@@ -19,6 +19,7 @@ import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
 import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
+import com.pig4cloud.pigx.admin.mapper.PatentMonitorUserMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
@@ -52,7 +53,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
     private final PatentDetailCacheService patentDetailCacheService;
     private final PatentShelfService patentShelfService;
     private final FileService fileService;
-    private final PatentMonitorUserService patentMonitorUserService;
+    private final PatentMonitorUserMapper patentMonitorUserMapper;
 
     @Override
     public IPage<PatentInfoResponse> pageResult(Page page, PatentPageRequest request) {
@@ -104,10 +105,11 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                     .exists();
             response.setShelfFlag(shelfFlag ? "1" : "0");
             // 监控标识
-            boolean monitorFlag = patentMonitorUserService.lambdaQuery()
-                    .eq(PatentMonitorUserEntity::getPid, entity.getPid())
-                    .eq(PatentMonitorUserEntity::getCreateUserId, SecurityUtils.getUser().getId())
-                    .exists();
+            boolean monitorFlag = patentMonitorUserMapper.exists(
+                    new LambdaQueryWrapper<PatentMonitorUserEntity>()
+                            .eq(PatentMonitorUserEntity::getPid, entity.getPid())
+                            .eq(PatentMonitorUserEntity::getCreateUserId, SecurityUtils.getUser().getId())
+            );
             response.setMonitorFlag(monitorFlag ? "1" : "0");
             return response;
         });
