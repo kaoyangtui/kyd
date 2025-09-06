@@ -51,6 +51,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
     private final DataScopeService dataScopeService;
     private final PatentDetailService patentDetailService;
     private final PatentDetailCacheService patentDetailCacheService;
+    private final PatentInventorService patentInventorService;
     private final PatentShelfService patentShelfService;
     private final FileService fileService;
     private final PatentMonitorUserMapper patentMonitorUserMapper;
@@ -87,6 +88,14 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 .stream()
                 .collect(Collectors.toMap(PatentDetailCacheEntity::getPid, e -> e, (a, b) -> a));
 
+
+        Map<String, List<PatentInventorEntity>> inventorMap =
+                patentInventorService.lambdaQuery()
+                        .in(PatentInventorEntity::getPid, pidList)
+                        .list()
+                        .stream()
+                        .collect(Collectors.groupingBy(PatentInventorEntity::getPid));
+        String code = SecurityUtils.getUser().getUsername();
         return entityPage.convert(entity -> {
             PatentInfoResponse response = BeanUtil.copyProperties(entity, PatentInfoResponse.class);
             PatentDetailCacheEntity detailCacheEntity = cacheMap.get(entity.getPid());
@@ -111,6 +120,11 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                             .eq(PatentMonitorUserEntity::getCreateUserId, SecurityUtils.getUser().getId())
             );
             response.setMonitorFlag(monitorFlag ? "1" : "0");
+            // 认领按钮是否显示
+            List<PatentInventorEntity> inventorList = inventorMap.get(entity.getPid());
+            boolean showClaimBtn = inventorList != null && inventorList.stream()
+                    .anyMatch(inv -> code.equals(inv.getCode()));
+            response.setShowClaimBtn(showClaimBtn ? "1" : "0");
             return response;
         });
     }
@@ -174,15 +188,15 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             wrapper.eq(StrUtil.isNotBlank(request.getClaimFlag()), PatentInfoEntity::getTransferFlag, request.getClaimFlag());
             wrapper.eq(StrUtil.isNotBlank(request.getShelfFlag()), PatentInfoEntity::getShelfFlag, request.getShelfFlag());
             List<Long> deptIds = CollUtil.newArrayList();
-            String name = "";
+            String code = "";
             // 数据权限
             DataScope dataScope = DataScope.of();
             if (!dataScopeService.calcScope(dataScope)) {
                 deptIds = dataScope.getDeptList();
-                name = dataScope.getUsername();
+                code = dataScope.getUsername();
 
-                if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(name)) {
-                    log.warn("用户 {} 无数据权限", name);
+                if (CollUtil.isEmpty(deptIds) && StrUtil.isBlank(code)) {
+                    log.warn("用户 {} 无数据权限", code);
                     wrapper.apply("1=0"); // 直接返回空结果
                     return wrapper;
                 }
@@ -192,22 +206,22 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 if (deptIds.contains(Long.parseLong(request.getDeptId()))) {
                     deptIds = CollUtil.newArrayList(Long.parseLong(request.getDeptId()));
                 } else {
-                    log.warn("用户 {} 无权查看部门 {} 的专利信息", name, request.getDeptId());
+                    log.warn("用户 {} 无权查看部门 {} 的专利信息", code, request.getDeptId());
                     wrapper.apply("1=0");
                     return wrapper;
                 }
             }
 
-            if (CollUtil.isNotEmpty(deptIds) || StrUtil.isNotBlank(name)) {
+            if (CollUtil.isNotEmpty(deptIds) || StrUtil.isNotBlank(code)) {
                 String deptIn = CollUtil.isNotEmpty(deptIds)
                         ? deptIds.stream().map(String::valueOf).collect(Collectors.joining(","))
                         : "";
-                if (StrUtil.isNotBlank(name) && CollUtil.isNotEmpty(deptIds)) {
+                if (StrUtil.isNotBlank(code) && CollUtil.isNotEmpty(deptIds)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
-                            "where pid = t_patent_info.pid and (name = {0} or dept_id in (" + deptIn + ")))", name);
-                } else if (StrUtil.isNotBlank(name)) {
+                            "where pid = t_patent_info.pid and (code = {0} or dept_id in (" + deptIn + ")))", code);
+                } else if (StrUtil.isNotBlank(code)) {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
-                            "where pid = t_patent_info.pid and name = {0})", name);
+                            "where pid = t_patent_info.pid and code = {0})", code);
                 } else {
                     wrapper.apply("exists (select 0 from t_patent_inventor " +
                             "where pid = t_patent_info.pid and dept_id in (" + deptIn + "))");

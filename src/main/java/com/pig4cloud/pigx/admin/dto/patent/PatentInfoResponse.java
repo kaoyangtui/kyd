@@ -798,7 +798,7 @@ public class PatentInfoResponse {
      * 是否显示认领按钮,1是
      */
     @Schema(description = "是否显示认领按钮,1是")
-    private Integer showClaimBtn;
+    private String showClaimBtn;
 
     /**
      * 认领标识

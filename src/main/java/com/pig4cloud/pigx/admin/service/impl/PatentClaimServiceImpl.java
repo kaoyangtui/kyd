@@ -13,7 +13,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.patent.*;
-import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInventorEntity;
@@ -217,19 +216,74 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
     }
 
     @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean unClaim(PatentUnClaimRequest req) {
         if (req == null || StrUtil.isBlank(req.getPid())) {
             throw new BizException("PID不能为空");
         }
+
+        // 1) 当前登录用户
         Long userId = SecurityUtils.getUser().getId();
         SysUser sysUser = sysUserService.getById(userId);
-        patentInventorService.lambdaUpdate()
-                .eq(PatentInventorEntity::getPid, req.getPid())
-                .eq(PatentInventorEntity::getCode, sysUser.getCode())
-                .remove();
-        return null;
+        if (sysUser == null || StrUtil.isBlank(sysUser.getCode())) {
+            throw new BizException("无法获取当前登录用户信息或工号为空");
+        }
+
+        // 2) 查找“我”认领的那条记录（同一个 pid + 我的工号）
+        PatentInventorEntity myRecord = patentInventorService.getOne(
+                Wrappers.<PatentInventorEntity>lambdaQuery()
+                        .eq(PatentInventorEntity::getPid, req.getPid())
+                        .eq(PatentInventorEntity::getCode, sysUser.getCode())
+                        .last("limit 1")
+        );
+
+        if (myRecord == null) {
+            // 业务可选：不抛错，返回 false；也可抛 BizException 看你偏好
+            throw new BizException("未找到您的认领记录，无法取消");
+            // return false;
+        }
+
+        // 3) 查找该 pid + priority 下所有记录（确保至少保留一条）
+        String priority = myRecord.getPriority();
+        var samePriorityList = patentInventorService.list(
+                Wrappers.<PatentInventorEntity>lambdaQuery()
+                        .eq(PatentInventorEntity::getPid, req.getPid())
+                        .eq(PatentInventorEntity::getPriority, priority)
+        );
+
+        if (samePriorityList == null || samePriorityList.isEmpty()) {
+            // 理论上不可能：至少应该有 myRecord
+            throw new BizException("数据异常：未找到同顺位记录");
+        }
+
+        if (samePriorityList.size() > 1) {
+            // 4) 同顺位有多条 → 可以直接删除“我”的这条
+            boolean removed = patentInventorService.removeById(myRecord.getId());
+            if (!removed) {
+                throw new BizException("取消认领失败：删除记录异常");
+            }
+            return true;
+        } else {
+            // 5) 同顺位仅一条 → 只能清空“我”的个人信息字段，保留这条
+            boolean updated = patentInventorService.lambdaUpdate()
+                    .eq(PatentInventorEntity::getId, myRecord.getId())
+                    // 这里显式 set 为 null/0，更直观且不受 @TableField(updateStrategy) 影响
+                    .set(PatentInventorEntity::getCode, null)
+                    .set(PatentInventorEntity::getDeptId, null)
+                    .set(PatentInventorEntity::getDeptName, null)
+                    .set(PatentInventorEntity::getContactNumber, null)
+                    .set(PatentInventorEntity::getEmail, null)
+                    .set(PatentInventorEntity::getIsLeader, 0)
+                    .set(PatentInventorEntity::getRemark, "取消认领：清空个人信息并保留记录")
+                    .update();
+            if (!updated) {
+                throw new BizException("取消认领失败：更新记录异常");
+            }
+            return true;
+        }
     }
+
 
     @Override
     public String flowKey() {

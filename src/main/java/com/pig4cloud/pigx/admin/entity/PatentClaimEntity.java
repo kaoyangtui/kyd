@@ -83,28 +83,26 @@ public class PatentClaimEntity extends Model<PatentClaimEntity> {
     @Schema(description="当前流程节点名称")
     private String currentNodeName;
 
-	/**
-	* 所属组织ID
-	*/
-    @Schema(description="所属组织ID")
+    /**
+     * 所属组织ID
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "所属组织ID")
     private Long deptId;
 
-	/**
-	* 组织名称
-	*/
-    @Schema(description="组织名称")
+    /**
+     * 组织名称
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "组织名称")
     private String deptName;
 
-	/**
-	* 创建人ID
-	*/
-    @Schema(description="创建人ID")
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人ID")
     private Long createUserId;
 
-	/**
-	* 创建人姓名
-	*/
-    @Schema(description="创建人姓名")
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人姓名")
     private String createUserName;
 
 	/**
