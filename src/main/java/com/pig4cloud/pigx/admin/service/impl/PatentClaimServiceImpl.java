@@ -23,6 +23,7 @@ import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.PatentClaimMapper;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,6 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
     @Override
     public IPage<PatentClaimResponse> pageResult(Page reqPage, PatentClaimPageRequest request) {
         LambdaQueryWrapper<PatentClaimEntity> wrapper = Wrappers.lambdaQuery();
-
         if (CollUtil.isNotEmpty(request.getIds())) {
             wrapper.in(PatentClaimEntity::getId, request.getIds());
         } else {
@@ -79,7 +79,7 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
             wrapper.orderByDesc(PatentClaimEntity::getCreateTime);
         }
 
-        IPage<PatentClaimEntity> page = this.page(reqPage, wrapper);
+        IPage<PatentClaimEntity> page = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
 
         return page.convert(entity -> BeanUtil.copyProperties(entity, PatentClaimResponse.class));
     }
