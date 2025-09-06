@@ -28,6 +28,7 @@ import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import com.pig4cloud.pigx.jsonflow.api.entity.DefFlow;
+import com.pig4cloud.pigx.jsonflow.api.vo.ToDoneJobVO;
 import com.pig4cloud.pigx.jsonflow.service.DefFlowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -164,6 +165,17 @@ public class JFController {
                 // DTO 类型
                 MyFlowResponse.class
         );
+    }
+
+    /**
+     * 查询任务数量
+     * @param toDoneJobVO 任务记录
+     * @return
+     */
+    @Operation(summary = "查询任务数量", description = "查询任务数量")
+    @GetMapping("/to-done/count")
+    public R<Long> getToDoneCount( @ModelAttribute ToDoneJobVO toDoneJobVO) {
+        return R.ok(jfRunFlowService.getToDoneCount(toDoneJobVO));
     }
 
     /**
