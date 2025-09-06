@@ -15,7 +15,7 @@ public class JfRunFlowServiceImpl implements JfRunFlowService {
     @Override
     @SneakyThrows
     @Transactional(readOnly = true)
-    public Page<FlowListResponse> pageFlowList(Page<FlowListResponse> page, FlowListPageRequest req) {
+    public Page<MyFlowResponse> pageFlowList(Page<MyFlowResponse> page, MyFlowRequest req) {
         return jfRunFlowMapper.page(page, req);
     }
 }

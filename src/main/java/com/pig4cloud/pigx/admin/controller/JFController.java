@@ -1,8 +1,10 @@
 package com.pig4cloud.pigx.admin.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.ArrayListMultimap;
@@ -11,26 +13,35 @@ import com.pig4cloud.pigx.admin.api.entity.SysRole;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.api.entity.SysUserRole;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
-import com.pig4cloud.pigx.admin.jsonflow.FlowListPageRequest;
-import com.pig4cloud.pigx.admin.jsonflow.FlowListResponse;
-import com.pig4cloud.pigx.admin.jsonflow.JfRunFlowService;
+import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
+import com.pig4cloud.pigx.admin.jsonflow.*;
 import com.pig4cloud.pigx.admin.service.SysDeptService;
 import com.pig4cloud.pigx.admin.service.SysRoleService;
 import com.pig4cloud.pigx.admin.service.SysUserRoleService;
 import com.pig4cloud.pigx.admin.service.SysUserService;
+import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
+import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.data.datascope.DataScopeTypeEnum;
+import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
+import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
+import com.pig4cloud.pigx.jsonflow.api.entity.DefFlow;
+import com.pig4cloud.pigx.jsonflow.service.DefFlowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,7 +67,7 @@ public class JFController {
     private final SysRoleService sysRoleService;
     private final SysDeptService sysDeptService;
     private final JfRunFlowService jfRunFlowService;
-
+    private final DefFlowService defFlowService;
     /**
      * 获取流程节点审批人
      * 入参：
@@ -80,14 +91,81 @@ public class JFController {
     }
 
 
+    @GetMapping("/options")
+    @Operation(summary = "流程定义下拉选项")
+    public R<List<DefFlowOptionResponse>> listOptions() {
+        List<DefFlow> list = defFlowService.list(
+                Wrappers.<DefFlow>lambdaQuery()
+                        .eq(DefFlow::getStatus, "1")   // 已发布
+                        .eq(DefFlow::getDelFlag, "0") // 未删除
+                        .orderByAsc(DefFlow::getSort)
+                        .orderByDesc(DefFlow::getCreateTime)
+        );
+        return R.ok(list.stream()
+                .map(item -> BeanUtil.copyProperties(item, DefFlowOptionResponse.class))
+                .collect(Collectors.toList()));
+    }
+
+
     @Operation(summary = "我的申请")
     @GetMapping("/page")
-    public R<Page<FlowListResponse>> page(
+    public R<Page<MyFlowResponse>> page(
             @ParameterObject PageRequest pageRequest,
-            @ParameterObject FlowListPageRequest req) {
+            @ParameterObject MyFlowRequest req) {
         req.setCreateUser(SecurityUtils.getUser().getId());
         return R.ok(jfRunFlowService.pageFlowList(PageUtil.toPage(pageRequest), req));
     }
+
+    @PostMapping("/export/fields")
+    @Operation(summary = "我的申请导出字段列表")
+    public R<ExportFieldListResponse> exportFields() {
+        ExportFieldListResponse fields = ExportFieldHelper.buildExportFieldList(
+                MyFlowResponse.BIZ_CODE,
+                MyFlowResponse.class
+        );
+        return R.ok(fields);
+    }
+
+
+    @PostMapping("/export")
+    @ResponseExcel(name = "我的申请导出", sheets = {@Sheet(sheetName = "我的申请导出")})
+    @Operation(summary = "我的申请导出")
+    //@PreAuthorize("@pms.hasPermission('result_export')")
+    public void export(@RequestBody MyFlowExportWrapperRequest request) throws IOException {
+        // 1. 拿到 ServletRequestAttributes
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (attrs == null) {
+            throw new IllegalStateException("当前不是 HTTP 请求上下文，无法导出 Excel");
+        }
+
+        // 2. 再拿到 Jakarta HttpServletResponse
+        HttpServletResponse response = attrs.getResponse();
+        if (response == null) {
+            throw new IllegalStateException("无法获取 HttpServletResponse");
+        }
+
+        // 3. 查询数据
+        IPage<MyFlowResponse> pageData = jfRunFlowService.pageFlowList(
+                new Page<>(), request.getQuery()
+        );
+
+        // 4. 调用通用导出工具
+        ExcelExportUtil.exportByBean(
+                response,
+                // 文件名（不带 .xlsx）
+                "我的申请导出",
+                // Sheet 名称
+                "数据",
+                // DTO 列表
+                pageData.getRecords(),
+                // 要导出的字段 keys
+                request.getExport().getFieldKeys(),
+                // DTO 类型
+                MyFlowResponse.class
+        );
+    }
+
     /**
      * 计算审批人集合（核心算法）
      * 步骤：

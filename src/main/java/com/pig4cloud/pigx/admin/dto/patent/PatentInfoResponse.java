@@ -795,6 +795,12 @@ public class PatentInfoResponse {
     private Integer matchScore;
 
     /**
+     * 是否显示认领按钮,1是
+     */
+    @Schema(description = "是否显示认领按钮,1是")
+    private Integer showClaimBtn;
+
+    /**
      * 认领标识
      */
     @Schema(description = "认领标识,1已认领")

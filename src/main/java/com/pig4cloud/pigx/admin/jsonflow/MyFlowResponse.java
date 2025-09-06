@@ -6,19 +6,22 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@Schema(name = "FlowListPageRequest")
-public class FlowListPageRequest {
+@Schema(name = "FlowListResponse")
+public class MyFlowResponse {
+
+    public static final String BIZ_CODE = "MY_FLOW";
+
     @Schema(description = "编码")
     private String code;
 
     @Schema(description = "流程业务Key")
     private String flowKey;
 
+    @Schema(description = "流程业务名称")
+    private String flowName;
+
     @Schema(description = "工单名称")
     private String orderName;
-
-    @Schema(description = "提交人ID")
-    private Long createUser;
 
     @Schema(description = "提交人姓名")
     private String createUserName;
@@ -26,12 +29,12 @@ public class FlowListPageRequest {
     @Schema(description = "所属院系")
     private String deptName;
 
-    @Schema(description = "流程状态 -2撤回 -1发起 0运行中 1完结 2其他")
+    @Schema(description = "提交时间")
+    private LocalDateTime createTime;
+
+    @Schema(description = "流程状态")
     private Integer status;
 
-    @Schema(description = "提交时间开始")
-    private LocalDateTime startTime;
-
-    @Schema(description = "提交时间结束")
-    private LocalDateTime endTime;
+    @Schema(description = "流程节点名")
+    private String nodeName;
 }
