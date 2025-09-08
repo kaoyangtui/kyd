@@ -205,6 +205,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         this.lambdaUpdate()
                 .eq(SoftCopyEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, SoftCopyEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, SoftCopyEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), SoftCopyEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
@@ -223,11 +224,15 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
         final LocalDateTime begin = start == null ? null : start.atStartOfDay();
         final LocalDateTime finish = end == null ? null : end.plusDays(1).atStartOfDay().minusNanos(1);
 
+        if (begin == null || finish == null) {
+            return Collections.emptyList();
+        }
+
         // 查询已完结的软著单
         List<SoftCopyEntity> list = this.lambdaQuery()
                 .eq(SoftCopyEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
-                .ge(begin != null, SoftCopyEntity::getCreateTime, begin)
-                .le(finish != null, SoftCopyEntity::getCreateTime, finish)
+                .ge(SoftCopyEntity::getFlowStatusTime, begin)
+                .le(SoftCopyEntity::getFlowStatusTime, finish)
                 .list();
         if (list == null || list.isEmpty()) {
             return Collections.emptyList();

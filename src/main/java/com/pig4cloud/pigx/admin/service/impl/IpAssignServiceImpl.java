@@ -201,6 +201,7 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
         this.lambdaUpdate()
                 .eq(IpAssignEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, IpAssignEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, IpAssignEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IpAssignEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
@@ -217,13 +218,19 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
                                                  PerfRuleEntity rule,
                                                  LocalDate start,
                                                  LocalDate end) {
-        // 时间边界（闭区间）
+        final LocalDateTime begin = start == null ? null : start.atStartOfDay();
+        final LocalDateTime finish = end == null ? null : end.plusDays(1).atStartOfDay().minusNanos(1);
+
+        if (begin == null || finish == null) {
+            return Collections.emptyList();
+        }
 
         List<IpAssignEntity> list = this.lambdaQuery()
                 .eq(IpAssignEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
-                .ge(start != null, IpAssignEntity::getCreateTime, start)
-                .le(end != null, IpAssignEntity::getCreateTime, end)
+                .ge(IpAssignEntity::getFlowStatusTime, begin)
+                .le(IpAssignEntity::getFlowStatusTime, finish)
                 .list();
+
         if (list == null || list.isEmpty()) {
             return Collections.emptyList();
         }

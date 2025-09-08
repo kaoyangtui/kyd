@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -202,6 +203,7 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
         this.lambdaUpdate()
                 .eq(StandardEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, StandardEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, StandardEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), StandardEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
@@ -215,14 +217,22 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
                                                   PerfRuleEntity rule,
                                                   LocalDate start,
                                                   LocalDate end) {
+
+        final LocalDateTime begin = start == null ? null : start.atStartOfDay();
+        final LocalDateTime finish = end == null ? null : end.plusDays(1).atStartOfDay().minusNanos(1);
+
+        if (begin == null || finish == null) {
+            return Collections.emptyList();
+        }
+
         final String eventCode = evt.getCode();
         final String eventName = evt.getName();
 
         // 按发布时间过滤
         List<StandardEntity> list = this.lambdaQuery()
                 .eq(StandardEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
-                .ge(start != null, StandardEntity::getCreateTime, start)
-                .le(end != null, StandardEntity::getCreateTime, end)
+                .ge(StandardEntity::getFlowStatusTime, begin)
+                .le(StandardEntity::getFlowStatusTime, finish)
                 .list();
         if (list == null || list.isEmpty()) {
             return Collections.emptyList();

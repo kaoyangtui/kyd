@@ -36,6 +36,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -248,6 +249,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         this.lambdaUpdate()
                 .eq(IpTransformEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, IpTransformEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, IpTransformEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IpTransformEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }

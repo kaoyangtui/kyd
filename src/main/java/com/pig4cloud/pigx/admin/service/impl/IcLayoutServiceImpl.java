@@ -21,10 +21,7 @@ import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
 import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
-import com.pig4cloud.pigx.admin.entity.OwnerEntity;
-import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -43,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -208,6 +206,7 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
         this.lambdaUpdate()
                 .eq(IcLayoutEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, IcLayoutEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, IcLayoutEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IcLayoutEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
@@ -220,29 +219,24 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
                                                   PerfRuleEntity rule,
                                                   LocalDate start,
                                                   LocalDate end) {
+
+        final LocalDateTime begin = start == null ? null : start.atStartOfDay();
+        final LocalDateTime finish = end == null ? null : end.plusDays(1).atStartOfDay().minusNanos(1);
+
+        if (begin == null || finish == null) {
+            return Collections.emptyList();
+        }
+
         // 事件编码/名称依赖上游配置
         final String eventCode = rule.getRuleEventCode();
         final String eventName = rule.getRuleEventName();
-        if (eventCode == null || eventCode.isEmpty() || eventName == null || eventName.isEmpty()) {
-            throw new BizException("规则事件未配置完整（ruleEventCode / ruleEventName 不能为空）");
-        }
 
-        // 事件时间字段选择：APPLY_PUB => applyDate，其它 => publishDate
-        boolean byApplyDate = RuleEventEnum.APPLY_PUB != null
-                && eventCode.equalsIgnoreCase(RuleEventEnum.APPLY_PUB.getCode());
 
-        List<IcLayoutEntity> list = byApplyDate
-                ? this.lambdaQuery()
+        List<IcLayoutEntity> list = this.lambdaQuery()
                 .eq(IcLayoutEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .isNotNull(IcLayoutEntity::getApplyDate)
-                .ge(start != null, IcLayoutEntity::getApplyDate, start)
-                .le(end != null, IcLayoutEntity::getApplyDate, end)
-                .list()
-                : this.lambdaQuery()
-                .eq(IcLayoutEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
-                .isNotNull(IcLayoutEntity::getPublishDate)
-                .ge(start != null, IcLayoutEntity::getPublishDate, start)
-                .le(end != null, IcLayoutEntity::getPublishDate, end)
+                .ge( IcLayoutEntity::getFlowStatusTime, begin)
+                .le( IcLayoutEntity::getFlowStatusTime, finish)
                 .list();
 
         if (list == null || list.isEmpty()) {

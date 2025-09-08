@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
+import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
@@ -213,6 +214,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
         this.lambdaUpdate()
                 .eq(DemandEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, DemandEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, DemandEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), DemandEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }

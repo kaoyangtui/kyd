@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyRegEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -37,6 +38,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Slf4j
 @Service
@@ -189,6 +191,7 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
         this.lambdaUpdate()
                 .eq(SoftCopyRegEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, SoftCopyRegEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, SoftCopyRegEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), SoftCopyRegEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }

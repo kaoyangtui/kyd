@@ -18,10 +18,7 @@ import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.OwnerEntity;
-import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
-import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -37,6 +34,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -237,6 +235,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         this.lambdaUpdate()
                 .eq(PatentProposalEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, PatentProposalEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, PatentProposalEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), PatentProposalEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }

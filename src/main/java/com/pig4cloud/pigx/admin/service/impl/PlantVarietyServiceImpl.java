@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -191,6 +192,7 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
         this.lambdaUpdate()
                 .eq(PlantVarietyEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, PlantVarietyEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, PlantVarietyEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), PlantVarietyEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
@@ -206,6 +208,14 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
                                                       PerfRuleEntity rule,
                                                       LocalDate start,
                                                       LocalDate end) {
+
+        final LocalDateTime begin = start == null ? null : start.atStartOfDay();
+        final LocalDateTime finish = end == null ? null : end.plusDays(1).atStartOfDay().minusNanos(1);
+
+        if (begin == null || finish == null) {
+            return Collections.emptyList();
+        }
+
         final String eventCode = rule.getRuleEventCode();
         final String eventName = rule.getRuleEventName();
 
@@ -213,8 +223,8 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
         List<PlantVarietyEntity> list = this.lambdaQuery()
                 .eq(PlantVarietyEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .isNotNull(PlantVarietyEntity::getAuthDate)
-                .ge(start != null, PlantVarietyEntity::getAuthDate, start)
-                .le(end != null, PlantVarietyEntity::getAuthDate, end)
+                .ge(PlantVarietyEntity::getFlowStatusTime, begin)
+                .le(PlantVarietyEntity::getFlowStatusTime, finish)
                 .list();
         if (list == null || list.isEmpty()) {
             return Collections.emptyList();

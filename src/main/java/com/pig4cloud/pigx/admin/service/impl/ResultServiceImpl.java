@@ -17,10 +17,7 @@ import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
-import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
-import com.pig4cloud.pigx.admin.entity.ResultEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -254,6 +251,7 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         this.lambdaUpdate()
                 .eq(ResultEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, ResultEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, ResultEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), ResultEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }

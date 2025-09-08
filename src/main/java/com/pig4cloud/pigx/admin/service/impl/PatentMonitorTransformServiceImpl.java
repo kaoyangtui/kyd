@@ -42,7 +42,6 @@ public class PatentMonitorTransformServiceImpl extends ServiceImpl<PatentMonitor
     @Override
     public IPage<PatentMonitorTransformResponse> pageResult(Page page, PatentMonitorTransformPageRequest request) {
         LambdaQueryWrapper<PatentMonitorTransformEntity> qw = new LambdaQueryWrapper<>();
-        qw.eq(PatentMonitorTransformEntity::getDelFlag, "0");
         if (StrUtil.isNotBlank(request.getTransformKeyword())) {
             qw.and(w ->
                     w.like(PatentMonitorTransformEntity::getName, request.getTransformKeyword())
@@ -62,7 +61,9 @@ public class PatentMonitorTransformServiceImpl extends ServiceImpl<PatentMonitor
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
-
+        if (pidList.isEmpty()) {
+            return null;
+        }
         // 2. 一次查出所有pid的最新日志
         List<PatentMonitorEntity> logList = patentMonitorService.lambdaQuery()
                 .in(PatentMonitorEntity::getPid, pidList)
