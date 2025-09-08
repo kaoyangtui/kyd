@@ -21,7 +21,10 @@ import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
 import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
-import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -261,13 +264,15 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
         // 组装事件：ipType 固定为 IC_LAYOUT；件数按业务 code 去重
         List<PerfEventDTO> out = new ArrayList<>(list.size());
         for (IcLayoutEntity r : list) {
-            LocalDate d = byApplyDate ? r.getApplyDate() : r.getPublishDate();
-            if (d == null) continue;
+            LocalDateTime eventTime = r.getFlowStatusTime();
+            if (eventTime == null) {
+                continue;
+            }
 
             List<PerfParticipantDTO> participants = completerService.toParticipants(completerMap.get(r.getCode()));
             out.add(PerfEventDTO.builder()
                     .pid(r.getCode())
-                    .eventTime(d.atStartOfDay())
+                    .eventTime(eventTime)
                     .ipTypeCode(IpTypeEnum.IC_LAYOUT.getCode())
                     .ipTypeName(IpTypeEnum.IC_LAYOUT.getName())
                     .ruleEventCode(eventCode)

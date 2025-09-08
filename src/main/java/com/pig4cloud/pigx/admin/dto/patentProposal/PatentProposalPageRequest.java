@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * 专利提案分页查询请求
  * 支持关键字、类型、流程状态、时间、按 ID、按 range 查询

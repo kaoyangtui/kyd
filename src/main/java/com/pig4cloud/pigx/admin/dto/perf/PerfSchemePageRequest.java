@@ -3,9 +3,11 @@ package com.pig4cloud.pigx.admin.dto.perf;
 import com.pig4cloud.pigx.admin.dto.BasePageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "业绩点方案-分页请求")
 public class PerfSchemePageRequest extends BasePageQuery {

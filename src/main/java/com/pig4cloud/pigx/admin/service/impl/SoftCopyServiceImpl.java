@@ -260,7 +260,7 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
 
         List<PerfEventDTO> out = new ArrayList<>(list.size());
         for (SoftCopyEntity r : list) {
-            LocalDateTime eventTime = r.getUpdateTime();
+            LocalDateTime eventTime = r.getFlowStatusTime();
             if (eventTime == null) {
                 continue;
             }

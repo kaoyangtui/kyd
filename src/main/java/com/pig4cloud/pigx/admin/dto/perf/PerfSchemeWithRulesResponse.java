@@ -2,9 +2,11 @@ package com.pig4cloud.pigx.admin.dto.perf;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "业绩点方案含规则-详情响应")
 public class PerfSchemeWithRulesResponse extends PerfSchemeResponse {
