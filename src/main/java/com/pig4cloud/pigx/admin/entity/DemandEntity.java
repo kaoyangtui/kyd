@@ -67,6 +67,9 @@ public class DemandEntity extends Model<DemandEntity> {
     @Schema(description = "流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
     private Integer flowStatus;
 
+    @Schema(description = "流程状态触发时间")
+    private LocalDateTime flowStatusTime;
+
     /**
      * 当前流程节点名称
      */

@@ -11,13 +11,19 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
+import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
+import com.pig4cloud.pigx.admin.constants.RuleEventEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
+import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyPageRequest;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
 import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -36,7 +42,10 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author zhaoliang
@@ -199,4 +208,75 @@ public class SoftCopyServiceImpl extends ServiceImpl<SoftCopyMapper, SoftCopyEnt
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), SoftCopyEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
+
+    /**
+     * 软件著作权登记事件
+     * 判定：t_soft_copy 流程完结（flow_status = 1），update_time 在 [start, end]
+     * 参与人：t_completer 按 code 关联
+     */
+    @Override
+    public List<PerfEventDTO> fetchSoftwareEvents(RuleEventEnum evt,
+                                                  PerfRuleEntity rule,
+                                                  LocalDate start,
+                                                  LocalDate end) {
+        // 时间边界（闭区间）
+        final LocalDateTime begin = start == null ? null : start.atStartOfDay();
+        final LocalDateTime finish = end == null ? null : end.plusDays(1).atStartOfDay().minusNanos(1);
+
+        // 查询已完结的软著单
+        List<SoftCopyEntity> list = this.lambdaQuery()
+                .eq(SoftCopyEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
+                .ge(begin != null, SoftCopyEntity::getCreateTime, begin)
+                .le(finish != null, SoftCopyEntity::getCreateTime, finish)
+                .list();
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 预取所有 code 的完成人，按 code 分组，避免 N+1
+        List<String> codes = list.stream()
+                .map(SoftCopyEntity::getCode)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<String, List<CompleterEntity>> completerMap = codes.isEmpty()
+                ? Collections.emptyMap()
+                : completerService.lambdaQuery()
+                .in(CompleterEntity::getCode, codes)
+                .eq(CompleterEntity::getDelFlag, "0")
+                .list()
+                .stream()
+                .collect(Collectors.groupingBy(CompleterEntity::getCode));
+
+        // 事件编码与名称：若未提供枚举，使用默认
+        final String eventCode = evt.getCode();
+        final String eventName = evt.getName();
+
+        List<PerfEventDTO> out = new ArrayList<>(list.size());
+        for (SoftCopyEntity r : list) {
+            LocalDateTime eventTime = r.getUpdateTime();
+            if (eventTime == null) {
+                continue;
+            }
+
+            // 参与人装配
+            List<PerfParticipantDTO> participants = completerService.toParticipants(completerMap.get(r.getCode()));
+
+            // 生成事件：ipType 固定用 SOFTWARE
+            out.add(PerfEventDTO.builder()
+                    // 用业务 code 作为去重主键（件数统计时按 pid 去重）
+                    .pid(r.getCode())
+                    .eventTime(eventTime)
+                    .ipTypeCode(IpTypeEnum.SOFTWARE.getCode())
+                    .ipTypeName(IpTypeEnum.SOFTWARE.getName())
+                    .ruleEventCode(eventCode)
+                    .ruleEventName(eventName)
+                    .baseScore(rule.getScore())
+                    .participants(participants)
+                    .build());
+        }
+        return out;
+    }
+
 }

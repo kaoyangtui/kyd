@@ -1,4 +1,4 @@
-package com.pig4cloud.pigx.admin.schedule;
+package com.pig4cloud.pigx.admin.job;
 
 import jakarta.annotation.Resource;
 import org.apache.commons.logging.Log;

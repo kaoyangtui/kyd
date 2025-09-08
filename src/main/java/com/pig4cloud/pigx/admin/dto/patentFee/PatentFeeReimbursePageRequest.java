@@ -37,6 +37,9 @@ public class PatentFeeReimbursePageRequest extends BasePageQuery {
     @Schema(description = "流程状态")
     private Integer flowStatus;
 
+    @Schema(description = "流程状态触发时间")
+    private LocalDateTime flowStatusTime;
+
     @Schema(description = "当前流程节点名称")
     private String currentNodeName;
 }

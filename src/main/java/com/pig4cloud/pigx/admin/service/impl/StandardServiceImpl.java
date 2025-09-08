@@ -10,18 +10,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
+import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
+import com.pig4cloud.pigx.admin.constants.RuleEventEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.softCopy.SoftCopyResponse;
+import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
+import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
 import com.pig4cloud.pigx.admin.dto.standard.StandardCreateRequest;
 import com.pig4cloud.pigx.admin.dto.standard.StandardPageRequest;
 import com.pig4cloud.pigx.admin.dto.standard.StandardResponse;
 import com.pig4cloud.pigx.admin.dto.standard.StandardUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
-import com.pig4cloud.pigx.admin.entity.SoftCopyEntity;
+import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.entity.StandardEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -39,7 +40,9 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -202,4 +205,66 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), StandardEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
+
+    /**
+     * 标准：默认按“发布”统计（pub_date 落在区间内）
+     * 参与人：t_completer 按 code 关联
+     */
+    @Override
+    public List<PerfEventDTO> fetchStandardEvents(RuleEventEnum evt,
+                                                  PerfRuleEntity rule,
+                                                  LocalDate start,
+                                                  LocalDate end) {
+        final String eventCode = evt.getCode();
+        final String eventName = evt.getName();
+
+        // 按发布时间过滤
+        List<StandardEntity> list = this.lambdaQuery()
+                .eq(StandardEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
+                .ge(start != null, StandardEntity::getCreateTime, start)
+                .le(end != null, StandardEntity::getCreateTime, end)
+                .list();
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 预取完成人，按 code 分组，避免 N+1
+        List<String> codes = list.stream()
+                .map(StandardEntity::getCode)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<String, List<CompleterEntity>> completerMap = codes.isEmpty()
+                ? Collections.emptyMap()
+                : completerService.lambdaQuery()
+                .in(CompleterEntity::getCode, codes)
+                .eq(CompleterEntity::getDelFlag, "0")
+                .list()
+                .stream()
+                .collect(Collectors.groupingBy(CompleterEntity::getCode));
+
+        // 组装事件
+        List<PerfEventDTO> out = new ArrayList<>(list.size());
+        for (StandardEntity r : list) {
+            LocalDate d = r.getPubDate();
+            if (d == null) continue;
+
+            List<PerfParticipantDTO> participants = completerService.toParticipants(completerMap.get(r.getCode()));
+
+            out.add(PerfEventDTO.builder()
+                    // 用标准号 code 作为“件数”去重主键
+                    .pid(r.getCode())
+                    .eventTime(d.atStartOfDay())
+                    .ipTypeCode(IpTypeEnum.STANDARD.getCode())
+                    .ipTypeName(IpTypeEnum.STANDARD.getName())
+                    .ruleEventCode(eventCode)
+                    .ruleEventName(eventName)
+                    .baseScore(rule.getScore())
+                    .participants(participants)
+                    .build());
+        }
+        return out;
+    }
+
 }

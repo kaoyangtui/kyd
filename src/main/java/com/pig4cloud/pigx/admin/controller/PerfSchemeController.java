@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.exportExecute.ExportFieldListResponse;
 import com.pig4cloud.pigx.admin.dto.perf.*;
+import com.pig4cloud.pigx.admin.service.PerfRuleResultService;
 import com.pig4cloud.pigx.admin.service.PerfSchemeService;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
@@ -29,6 +30,7 @@ import java.util.List;
 public class PerfSchemeController {
 
     private final PerfSchemeService perfSchemeService;
+    private final PerfRuleResultService perfRuleResultService;
 
     @PostMapping("/save")
     @Operation(summary = "保存方案及规则（一起提交）")
@@ -65,6 +67,12 @@ public class PerfSchemeController {
     @Operation(summary = "按方案查询总览（总分/统计期/单元格分数与件数）")
     public R<PerfSchemeOverviewResponse> overview(@RequestParam("schemeId") Long schemeId) {
         return R.ok(perfSchemeService.overview(schemeId));
+    }
+
+    @PostMapping("/run")
+    @Operation(summary = "执行业绩计算")
+    public R<PerfRuleCalcSummary> run(@RequestBody PerfRuleCalcRequest req) {
+        return R.ok(perfRuleResultService.runCalc(req));
     }
 
     // ====== 方案导出字段 ======

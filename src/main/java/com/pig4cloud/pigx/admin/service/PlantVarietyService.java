@@ -3,12 +3,16 @@ package com.pig4cloud.pigx.admin.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.pig4cloud.pigx.admin.constants.RuleEventEnum;
+import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyPageRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.entity.PlantVarietyEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -58,4 +62,9 @@ public interface PlantVarietyService extends IService<PlantVarietyEntity> {
      * @return 分页结果
      */
     IPage<PlantVarietyResponse> pageResult(Page<PlantVarietyEntity> page, PlantVarietyPageRequest request);
+
+    List<PerfEventDTO> fetchPlantVarietyEvents(RuleEventEnum evt,
+                                               PerfRuleEntity rule,
+                                               LocalDate start,
+                                               LocalDate end);
 }

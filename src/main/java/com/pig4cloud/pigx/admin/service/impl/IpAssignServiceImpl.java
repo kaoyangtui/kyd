@@ -10,18 +10,18 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
+import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
+import com.pig4cloud.pigx.admin.constants.RuleEventEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignPageRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.ipTransform.IpTransformResponse;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
+import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
+import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
 import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
+import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -36,6 +36,10 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -200,5 +204,71 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IpAssignEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
+
+    // ===================== 赋权 =====================
+
+    /**
+     * 知识产权赋权事件
+     * 条件：流程完结、未删除，创建时间在 [start, end]
+     * 参与人：默认仅“被赋权人”
+     */
+    @Override
+    public List<PerfEventDTO> fetchEmpowerEvents(RuleEventEnum evt,
+                                                 PerfRuleEntity rule,
+                                                 LocalDate start,
+                                                 LocalDate end) {
+        // 时间边界（闭区间）
+
+        List<IpAssignEntity> list = this.lambdaQuery()
+                .eq(IpAssignEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
+                .ge(start != null, IpAssignEntity::getCreateTime, start)
+                .le(end != null, IpAssignEntity::getCreateTime, end)
+                .list();
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final String eventCode = evt.getCode();
+        final String eventName = evt.getName();
+
+        List<PerfEventDTO> out = new ArrayList<>(list.size());
+        for (IpAssignEntity r : list) {
+            LocalDateTime eventTime = r.getCreateTime();
+            if (eventTime == null) {
+                continue;
+            }
+
+            // 参与人：仅被赋权人
+            List<PerfParticipantDTO> participants = new ArrayList<>(1);
+            if (r.getAssignToCode() != null && !r.getAssignToCode().isEmpty()) {
+                participants.add(PerfParticipantDTO.builder()
+                        .userId(null)
+                        .userCode(r.getAssignToCode())
+                        .userName(r.getAssignToName())
+                        .deptId(null)       // 若能由学工号反查部门，可在此补齐
+                        .deptName(null)
+                        .priority(null)
+                        .isLeader(1)        // 被赋权人视为该事件主负责人
+                        .build());
+            }
+
+            // 如需把发起人或“完成人”也计入，请在此处追加 participants
+            // 例如：根据 r.getCode() 从 t_completer 取人并追加
+            // participants.addAll(toParticipants(completerMap.get(r.getCode())));
+
+            out.add(PerfEventDTO.builder()
+                    .pid(r.getCode())                         // 业务编码作为去重主键
+                    .eventTime(eventTime)
+                    .ipTypeCode(IpTypeEnum.EMPOWER.getCode()) // 赋权类型
+                    .ipTypeName(IpTypeEnum.EMPOWER.getName())
+                    .ruleEventCode(eventCode)
+                    .ruleEventName(eventName)
+                    .baseScore(rule.getScore())
+                    .participants(participants)
+                    .build());
+        }
+        return out;
+    }
+
 }
 

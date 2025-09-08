@@ -2,10 +2,11 @@ package com.pig4cloud.pigx.admin.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.pig4cloud.pigx.common.core.util.TenantTable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.pig4cloud.pigx.common.core.util.TenantTable;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,7 +56,10 @@ public class IpTransformEntity extends Model<IpTransformEntity> {
     @Schema(description="流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
     private Integer flowStatus;
 
-	/**
+    @Schema(description = "流程状态触发时间")
+    private LocalDateTime flowStatusTime;
+
+    /**
 	* 当前流程节点名称
 	*/
     @Schema(description="当前流程节点名称")

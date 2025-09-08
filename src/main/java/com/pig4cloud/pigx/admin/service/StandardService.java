@@ -3,12 +3,16 @@ package com.pig4cloud.pigx.admin.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.pig4cloud.pigx.admin.constants.RuleEventEnum;
+import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
 import com.pig4cloud.pigx.admin.dto.standard.StandardCreateRequest;
 import com.pig4cloud.pigx.admin.dto.standard.StandardPageRequest;
 import com.pig4cloud.pigx.admin.dto.standard.StandardResponse;
 import com.pig4cloud.pigx.admin.dto.standard.StandardUpdateRequest;
+import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.entity.StandardEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface StandardService extends IService<StandardEntity> {
@@ -22,4 +26,9 @@ public interface StandardService extends IService<StandardEntity> {
     Boolean update(StandardUpdateRequest request);
 
     Boolean removeByIds(List<Long> ids);
+
+    List<PerfEventDTO> fetchStandardEvents(RuleEventEnum evt,
+                                           PerfRuleEntity rule,
+                                           LocalDate start,
+                                           LocalDate end);
 }

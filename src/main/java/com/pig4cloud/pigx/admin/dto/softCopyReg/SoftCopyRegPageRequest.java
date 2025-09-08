@@ -16,6 +16,9 @@ public class SoftCopyRegPageRequest extends BasePageQuery {
     @Schema(description = "流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
     private Integer flowStatus;
 
+    @Schema(description = "流程状态触发时间")
+    private LocalDateTime flowStatusTime;
+
     @Schema(description = "流程节点名称")
     private String currentNodeName;
 

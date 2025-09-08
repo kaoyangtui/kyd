@@ -11,13 +11,19 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
+import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
+import com.pig4cloud.pigx.admin.constants.RuleEventEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
+import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
+import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyCreateRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyPageRequest;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyResponse;
 import com.pig4cloud.pigx.admin.dto.plantVariety.PlantVarietyUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.entity.PlantVarietyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -32,12 +38,16 @@ import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, PlantVarietyEntity> implements PlantVarietyService, FlowStatusUpdater {
@@ -183,6 +193,67 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
                 .set(dto.getFlowStatus() != null, PlantVarietyEntity::getFlowStatus, dto.getFlowStatus())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), PlantVarietyEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
+    }
+
+    /**
+     * 植物新品种：仅按“发布”统计
+     * 发布时间：authDate
+     * 仅统计流程完结
+     * 参与人：t_completer 按业务 code 关联
+     */
+    @Override
+    public List<PerfEventDTO> fetchPlantVarietyEvents(RuleEventEnum evt,
+                                                      PerfRuleEntity rule,
+                                                      LocalDate start,
+                                                      LocalDate end) {
+        final String eventCode = rule.getRuleEventCode();
+        final String eventName = rule.getRuleEventName();
+
+        // 按授权时间过滤；必须流程完结
+        List<PlantVarietyEntity> list = this.lambdaQuery()
+                .eq(PlantVarietyEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
+                .isNotNull(PlantVarietyEntity::getAuthDate)
+                .ge(start != null, PlantVarietyEntity::getAuthDate, start)
+                .le(end != null, PlantVarietyEntity::getAuthDate, end)
+                .list();
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 预取完成人，按业务 code 分组，避免 N+1
+        List<String> codes = list.stream()
+                .map(PlantVarietyEntity::getCode)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<String, List<CompleterEntity>> completerMap = codes.isEmpty()
+                ? Collections.emptyMap()
+                : completerService.lambdaQuery()
+                .in(CompleterEntity::getCode, codes)
+                .list()
+                .stream()
+                .collect(Collectors.groupingBy(CompleterEntity::getCode));
+
+        // 组装事件：ipType 固定为 PLANT_VARIETY；件数按业务 code 去重
+        List<PerfEventDTO> out = new ArrayList<>(list.size());
+        for (PlantVarietyEntity r : list) {
+            LocalDate d = r.getAuthDate();
+            if (d == null) continue;
+
+            List<PerfParticipantDTO> participants = completerService.toParticipants(completerMap.get(r.getCode()));
+            out.add(PerfEventDTO.builder()
+                    .pid(r.getCode())
+                    .eventTime(d.atStartOfDay())
+                    .ipTypeCode(IpTypeEnum.PLANT_VARIETY.getCode())
+                    .ipTypeName(IpTypeEnum.PLANT_VARIETY.getName())
+                    .ruleEventCode(eventCode)
+                    .ruleEventName(eventName)
+                    .baseScore(rule.getScore())
+                    .participants(participants)
+                    .build());
+        }
+        return out;
     }
 }
 

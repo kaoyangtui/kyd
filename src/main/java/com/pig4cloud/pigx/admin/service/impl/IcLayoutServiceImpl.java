@@ -10,18 +10,21 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
+import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
+import com.pig4cloud.pigx.admin.constants.RuleEventEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutCreateRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutPageRequest;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutResponse;
 import com.pig4cloud.pigx.admin.dto.icLayout.IcLayoutUpdateRequest;
-import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
+import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -39,7 +42,9 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -206,6 +211,80 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IcLayoutEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }
+
+
+    // ===================== 集成电路布图 =====================
+    @Override
+    @SneakyThrows
+    public List<PerfEventDTO> fetchIcLayoutEvents(RuleEventEnum evt,
+                                                  PerfRuleEntity rule,
+                                                  LocalDate start,
+                                                  LocalDate end) {
+        // 事件编码/名称依赖上游配置
+        final String eventCode = rule.getRuleEventCode();
+        final String eventName = rule.getRuleEventName();
+        if (eventCode == null || eventCode.isEmpty() || eventName == null || eventName.isEmpty()) {
+            throw new BizException("规则事件未配置完整（ruleEventCode / ruleEventName 不能为空）");
+        }
+
+        // 事件时间字段选择：APPLY_PUB => applyDate，其它 => publishDate
+        boolean byApplyDate = RuleEventEnum.APPLY_PUB != null
+                && eventCode.equalsIgnoreCase(RuleEventEnum.APPLY_PUB.getCode());
+
+        List<IcLayoutEntity> list = byApplyDate
+                ? this.lambdaQuery()
+                .eq(IcLayoutEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
+                .isNotNull(IcLayoutEntity::getApplyDate)
+                .ge(start != null, IcLayoutEntity::getApplyDate, start)
+                .le(end != null, IcLayoutEntity::getApplyDate, end)
+                .list()
+                : this.lambdaQuery()
+                .eq(IcLayoutEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
+                .isNotNull(IcLayoutEntity::getPublishDate)
+                .ge(start != null, IcLayoutEntity::getPublishDate, start)
+                .le(end != null, IcLayoutEntity::getPublishDate, end)
+                .list();
+
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 预取完成人，按业务 code 分组，避免 N+1
+        List<String> codes = list.stream()
+                .map(IcLayoutEntity::getCode)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<String, List<CompleterEntity>> completerMap = codes.isEmpty()
+                ? Collections.emptyMap()
+                : completerService.lambdaQuery()
+                .in(CompleterEntity::getCode, codes)
+                .list()
+                .stream()
+                .collect(Collectors.groupingBy(CompleterEntity::getCode));
+
+        // 组装事件：ipType 固定为 IC_LAYOUT；件数按业务 code 去重
+        List<PerfEventDTO> out = new ArrayList<>(list.size());
+        for (IcLayoutEntity r : list) {
+            LocalDate d = byApplyDate ? r.getApplyDate() : r.getPublishDate();
+            if (d == null) continue;
+
+            List<PerfParticipantDTO> participants = completerService.toParticipants(completerMap.get(r.getCode()));
+            out.add(PerfEventDTO.builder()
+                    .pid(r.getCode())
+                    .eventTime(d.atStartOfDay())
+                    .ipTypeCode(IpTypeEnum.IC_LAYOUT.getCode())
+                    .ipTypeName(IpTypeEnum.IC_LAYOUT.getName())
+                    .ruleEventCode(eventCode)
+                    .ruleEventName(eventName)
+                    .baseScore(rule.getScore())
+                    .participants(participants)
+                    .build());
+        }
+        return out;
+    }
+
 }
 
 

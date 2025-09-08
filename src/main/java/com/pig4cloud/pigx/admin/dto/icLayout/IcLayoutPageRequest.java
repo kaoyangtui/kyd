@@ -22,6 +22,9 @@ public class IcLayoutPageRequest extends BasePageQuery {
     @Schema(description = "流程状态")
     private Integer flowStatus;
 
+    @Schema(description = "流程状态触发时间")
+    private LocalDateTime flowStatusTime;
+
     @Schema(description = "流程节点")
     private String currentNodeName;
 

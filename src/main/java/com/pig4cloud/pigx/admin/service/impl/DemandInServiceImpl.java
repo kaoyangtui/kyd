@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
+import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -33,6 +34,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -191,6 +193,7 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         this.lambdaUpdate()
                 .eq(DemandInEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, DemandInEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, DemandInEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), DemandInEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
     }

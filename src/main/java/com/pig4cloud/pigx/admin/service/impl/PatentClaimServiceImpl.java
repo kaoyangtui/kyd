@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -295,6 +296,7 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
         this.lambdaUpdate()
                 .eq(PatentClaimEntity::getFlowInstId, dto.getFlowInstId())
                 .set(dto.getFlowStatus() != null, PatentClaimEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, PatentClaimEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), PatentClaimEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
         if (dto.getFlowStatus() != null && dto.getFlowStatus().equals(FlowStatusEnum.INVALID.getStatus())) {

@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -17,6 +18,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.*;
 import com.pig4cloud.pigx.admin.dto.patent.*;
 import com.pig4cloud.pigx.admin.dto.patent.cnipr.Legal;
+import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
+import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
 import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.mapper.PatentMonitorUserMapper;
@@ -31,9 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -691,5 +692,172 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 .filter(StrUtil::isNotBlank)
                 .collect(Collectors.toList());
         return CollUtil.isEmpty(urlList) ? null : String.join(";", urlList);
+    }
+
+    /**
+     * 专利-申请公开
+     * 依据：t_patent_info.pubDate 在 [start, end] 且 patType 属于目标类型
+     */
+    @Override
+    public List<PerfEventDTO> fetchPatentApplyPub(IpTypeEnum type,
+                                                  PerfRuleEntity rule,
+                                                  LocalDate start,
+                                                  LocalDate end) {
+        List<String> patTypeNames = mapPatTypeNames(type);
+        if (patTypeNames.isEmpty()) return Collections.emptyList();
+
+        QueryWrapper<PatentInfoEntity> qw = new QueryWrapper<>();
+        qw.in("pat_type", patTypeNames)
+                .eq(patTypeNames.contains(PatentTypeEnum.INVENTION.getCode()), "db_name", PatentDbNameEnum.FMZL.getCode())
+                .apply(start != null,
+                        "COALESCE(STR_TO_DATE(pub_date,'%Y.%m.%d')) >= {0}",
+                        start)
+                .apply(end != null,
+                        "COALESCE(STR_TO_DATE(pub_date,'%Y.%m.%d')) <= {0}",
+                        end);
+
+        List<PatentInfoEntity> list = this.list(qw);
+        if (list.isEmpty()) return Collections.emptyList();
+
+        List<PerfEventDTO> out = new ArrayList<>(list.size());
+        for (PatentInfoEntity r : list) {
+            LocalDate pub = parseLocalDate(r.getPubDate());
+            if (pub == null) continue;
+
+            List<PerfParticipantDTO> ps = loadPatentParticipantsByPid(r.getPid());
+            out.add(PerfEventDTO.builder()
+                    .pid(r.getPid())
+                    .eventTime(pub.atStartOfDay())
+                    .ipTypeCode(type.getCode())
+                    .ipTypeName(type.getName())
+                    .ruleEventCode(RuleEventEnum.APPLY_PUB.getCode())
+                    .ruleEventName(RuleEventEnum.APPLY_PUB.getName())
+                    .baseScore(rule.getScore())
+                    .participants(ps)
+                    .build());
+        }
+        return out;
+    }
+
+    /**
+     * 专利-授权公告
+     * 查询：按类型与授权公告日过滤；表字段示例：pid, grant_publish_date
+     */
+    @Override
+    public List<PerfEventDTO> fetchPatentGrantPub(IpTypeEnum type,
+                                                  PerfRuleEntity rule,
+                                                  LocalDate start,
+                                                  LocalDate end) {
+        List<String> patTypeNames = mapPatTypeNames(type);
+        if (patTypeNames.isEmpty()) return Collections.emptyList();
+
+        QueryWrapper<PatentInfoEntity> qw = new QueryWrapper<>();
+        qw.in("pat_type", patTypeNames)
+                .eq(patTypeNames.contains(PatentTypeEnum.INVENTION.getCode()), "db_name", PatentDbNameEnum.FMSQ.getCode())
+                .apply(start != null,
+                        "COALESCE(STR_TO_DATE(pub_date,'%Y.%m.%d')) >= {0}",
+                        start)
+                .apply(end != null,
+                        "COALESCE(STR_TO_DATE(pub_date,'%Y.%m.%d')) <= {0}",
+                        end);
+
+        List<PatentInfoEntity> list = this.list(qw);
+        if (list.isEmpty()) return Collections.emptyList();
+
+        List<PerfEventDTO> out = new ArrayList<>(list.size());
+        for (PatentInfoEntity r : list) {
+            LocalDate pub = parseLocalDate(r.getPubDate());
+            if (pub == null) continue;
+
+            List<PerfParticipantDTO> ps = loadPatentParticipantsByPid(r.getPid());
+            out.add(PerfEventDTO.builder()
+                    .pid(r.getPid())
+                    .eventTime(pub.atStartOfDay())
+                    .ipTypeCode(type.getCode())
+                    .ipTypeName(type.getName())
+                    .ruleEventCode(RuleEventEnum.GRANT_PUB.getCode())
+                    .ruleEventName(RuleEventEnum.GRANT_PUB.getName())
+                    .baseScore(rule.getScore())
+                    .participants(ps)
+                    .build());
+        }
+        return out;
+    }
+
+    private List<PerfParticipantDTO> loadPatentParticipantsByPid(String pid) {
+        if (pid == null || pid.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<PatentInventorEntity> list = patentInventorService.lambdaQuery()
+                .eq(PatentInventorEntity::getPid, pid)
+                .list();
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return list.stream().map(inv -> PerfParticipantDTO.builder()
+                        .userId(null) // 如能从工号反查用户ID，可在此补齐
+                        .userCode(inv.getCode())
+                        .userName(inv.getName())
+                        .deptId(inv.getDeptId())
+                        .deptName(inv.getDeptName())
+                        .priority(parseInt(inv.getPriority()))
+                        .isLeader(inv.getIsLeader())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 安全解析顺位
+     */
+    private Integer parseInt(String s) {
+        try {
+            return s == null ? null : Integer.parseInt(s.trim());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 尝试多种常见格式解析 LocalDate
+     * 支持：yyyy-MM-dd, yyyyMMdd, yyyy/MM/dd, yyyy.MM.dd
+     */
+    private LocalDate parseLocalDate(String s) {
+        if (s == null) return null;
+        String v = s.trim();
+        if (v.isEmpty()) return null;
+        String[] patterns = {"yyyy-MM-dd", "yyyyMMdd", "yyyy/MM/dd", "yyyy.MM.dd"};
+        for (String p : patterns) {
+            try {
+                return java.time.LocalDate.parse(v, java.time.format.DateTimeFormatter.ofPattern(p));
+            } catch (Exception ignore) {
+            }
+        }
+        // 兜底：只取前10位尝试 yyyy-MM-dd
+        if (v.length() >= 10) {
+            try {
+                return java.time.LocalDate.parse(v.substring(0, 10));
+            } catch (Exception ignore) {
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 将 IpTypeEnum 映射到专利库里的 patType 文本集合
+     */
+    private List<String> mapPatTypeNames(IpTypeEnum type) {
+        if (type == null) {
+            return Collections.emptyList();
+        }
+        switch (type) {
+            case INVENTION:
+                return Arrays.asList(PatentTypeEnum.INVENTION.getCode());
+            case UTILITY_MODEL:
+                return Arrays.asList(PatentTypeEnum.UTILITY_MODEL.getCode());
+            case DESIGN:
+                return Arrays.asList(PatentTypeEnum.DESIGN.getCode());
+            default:
+                return Collections.emptyList();
+        }
     }
 }
