@@ -23,7 +23,6 @@ public class IpAssignResponse extends BaseResponse {
     private String code;
     @Schema(description = "流程状态")
     private Integer flowStatus;
-
     @Schema(description = "流程状态触发时间")
     private LocalDateTime flowStatusTime;
     @Schema(description = "当前流程节点")
@@ -34,6 +33,8 @@ public class IpAssignResponse extends BaseResponse {
     private String ipCode;
     @Schema(description = "被赋权人学号")
     private String assignToCode;
+    @Schema(description = "被赋权人姓名")
+    private String assignToName;
     @Schema(description = "赋权类型")
     private String assignMode;
     @Schema(description = "其它发明人同意证明附件URL（已分号分隔）")
