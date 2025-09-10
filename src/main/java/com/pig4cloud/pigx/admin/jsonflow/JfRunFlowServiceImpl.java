@@ -24,7 +24,6 @@ import java.util.List;
 public class JfRunFlowServiceImpl implements JfRunFlowService {
 
     private final JfRunFlowMapper jfRunFlowMapper;
-    private final RunFlowService runFlowService;
     private final RunJobService runJobService;
 
     @Override

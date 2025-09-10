@@ -11,6 +11,9 @@ public class MyFlowResponse {
 
     public static final String BIZ_CODE = "MY_FLOW";
 
+    @Schema(description = "流程业务工单 ID")
+    private String orderId;
+
     @Schema(description = "编码")
     private String code;
 

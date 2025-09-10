@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.PatentPreEval.PatentPreEvalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.PatentPreEval.PatentPreEvalDetailRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
@@ -18,10 +19,7 @@ import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.CompleterEntity;
-import com.pig4cloud.pigx.admin.entity.OwnerEntity;
-import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
-import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
+import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -58,6 +56,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
     private final ResearchProjectMapper researchProjectMapper;
     private final JsonFlowHandle jsonFlowHandle;
     private final PatentPreEvalService patentPreEvalService;
+    private final PatentFeeReimburseService patentFeeReimburseService;
 
     @Override
     public IPage<PatentProposalResponse> pageResult(Page reqPage, PatentProposalPageRequest request) {
@@ -236,6 +235,19 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         if (researchProject != null) {
             response.setResearchProjectType(researchProject.getProjectType());
             response.setResearchProjectName(researchProject.getProjectName());
+        }
+        if (StrUtil.isNotBlank(entity.getPid())) {
+            boolean bl = patentFeeReimburseService.lambdaQuery()
+                    .eq(PatentFeeReimburseEntity::getIpCode, entity.getPid())
+                    .in(PatentFeeReimburseEntity::getFlowStatus,
+                            FlowStatusEnum.RECALL.getStatus(),
+                            FlowStatusEnum.INITIATE.getStatus(),
+                            FlowStatusEnum.RUN.getStatus(),
+                            FlowStatusEnum.FINISH.getStatus())
+                    .exists();
+            if (!bl) {
+                response.setIsReimburse(1);
+            }
         }
         return response;
     }
