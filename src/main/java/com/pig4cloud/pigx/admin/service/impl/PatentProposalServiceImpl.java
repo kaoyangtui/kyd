@@ -237,16 +237,18 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             response.setResearchProjectName(researchProject.getProjectName());
         }
         if (StrUtil.isNotBlank(entity.getPid())) {
-            boolean bl = patentFeeReimburseService.lambdaQuery()
-                    .eq(PatentFeeReimburseEntity::getIpCode, entity.getPid())
-                    .in(PatentFeeReimburseEntity::getFlowStatus,
-                            FlowStatusEnum.RECALL.getStatus(),
-                            FlowStatusEnum.INITIATE.getStatus(),
-                            FlowStatusEnum.RUN.getStatus(),
-                            FlowStatusEnum.FINISH.getStatus())
-                    .exists();
-            if (!bl) {
-                response.setIsReimburse(1);
+            if (SecurityUtils.getUser().getUsername().equals(entity.getLeaderCode())) {
+                boolean bl = patentFeeReimburseService.lambdaQuery()
+                        .eq(PatentFeeReimburseEntity::getIpCode, entity.getPid())
+                        .in(PatentFeeReimburseEntity::getFlowStatus,
+                                FlowStatusEnum.RECALL.getStatus(),
+                                FlowStatusEnum.INITIATE.getStatus(),
+                                FlowStatusEnum.RUN.getStatus(),
+                                FlowStatusEnum.FINISH.getStatus())
+                        .exists();
+                if (!bl) {
+                    response.setIsReimburse(1);
+                }
             }
         }
         return response;

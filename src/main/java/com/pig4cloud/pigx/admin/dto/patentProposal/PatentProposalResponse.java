@@ -137,13 +137,9 @@ public class PatentProposalResponse extends BaseResponse {
     @Schema(description = "专利申请前评估信息")
     private PatentPreEvalResponse patentPreEval;
 
-    /**
-     * 专利 PID
-     */
     @Schema(description = "专利 PID")
     private String pid;
 
-    //是否可以申请费用报销
     @Schema(description = "是否可以申请费用报销")
     private Integer isReimburse;
 

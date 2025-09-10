@@ -21,6 +21,9 @@ public class IpAssignCreateRequest {
     @Schema(description = "被赋权人学号")
     private String assignToCode;
 
+    @Schema(description = "被赋权人姓名")
+    private String assignToName;
+
     @Schema(description = "赋权类型")
     private String assignMode;
 
