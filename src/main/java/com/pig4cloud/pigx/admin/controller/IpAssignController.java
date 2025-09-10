@@ -71,7 +71,8 @@ public class IpAssignController {
     @GetMapping("/page")
     @Operation(summary = "分页查询赋权记录")
     //@PreAuthorize("@pms.hasPermission('ip_assign_view')")
-    public R<IPage<IpAssignResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject IpAssignPageRequest request) {
+    public R<IPage<IpAssignResponse>> page(@ParameterObject PageRequest pageRequest,
+                                           @ParameterObject IpAssignPageRequest request) {
         return R.ok(ipAssignService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 

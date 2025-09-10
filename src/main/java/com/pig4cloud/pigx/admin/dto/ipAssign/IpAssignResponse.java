@@ -31,6 +31,8 @@ public class IpAssignResponse extends BaseResponse {
     private String ipType;
     @Schema(description = "知识产权编码")
     private String ipCode;
+    @Schema(description = "知识产权名称")
+    private String ipName;
     @Schema(description = "被赋权人学号")
     private String assignToCode;
     @Schema(description = "被赋权人姓名")

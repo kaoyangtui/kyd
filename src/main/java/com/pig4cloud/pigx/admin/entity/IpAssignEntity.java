@@ -76,6 +76,12 @@ public class IpAssignEntity extends Model<IpAssignEntity> {
     private String ipCode;
 
     /**
+     * 知识产权名称
+     */
+    @Schema(description = "知识产权名称")
+    private String ipName;
+
+    /**
      * 被赋权人学号
      */
     @Schema(description = "被赋权人学号")

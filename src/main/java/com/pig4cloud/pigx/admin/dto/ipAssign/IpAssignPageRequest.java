@@ -18,6 +18,12 @@ public class IpAssignPageRequest extends BasePageQuery {
     @Schema(description = "关键词：匹配编码、被赋权人")
     private String keyword;
 
+    @Schema(description = "知识产权类型")
+    private String ipType;
+
+    @Schema(description = "提交人用户名")
+    private String createBy;
+
     @Schema(description = "流程状态")
     private Integer flowStatus;
 
@@ -28,7 +34,7 @@ public class IpAssignPageRequest extends BasePageQuery {
     private String currentNodeName;
 
     @Schema(description = "创建人所属院系")
-    private String createByDept;
+    private Long deptId;
 
     @Schema(description = "起始时间")
     private String beginTime;

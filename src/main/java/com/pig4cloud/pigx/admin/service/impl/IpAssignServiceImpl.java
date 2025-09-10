@@ -21,6 +21,7 @@ import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.perf.PerfEventDTO;
 import com.pig4cloud.pigx.admin.dto.perf.PerfParticipantDTO;
 import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
+import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PerfRuleEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -29,6 +30,7 @@ import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.IpAssignMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IpAssignService;
+import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
@@ -49,8 +51,10 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
 
     private final FileService fileService;
     private final JsonFlowHandle jsonFlowHandle;
+    private final PatentInfoService patentInfoService;
 
     @Override
+    @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(IpAssignCreateRequest request) {
         doSaveOrUpdate(request, true);
@@ -94,11 +98,13 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
                 wrapper.and(w ->
                         w.like(IpAssignEntity::getCode, request.getKeyword())
                                 .or()
-                                .like(IpAssignEntity::getAssignToCode, request.getKeyword()));
+                                .like(IpAssignEntity::getIpName, request.getKeyword()));
             }
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), IpAssignEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), IpAssignEntity::getCurrentNodeName, request.getCurrentNodeName());
-            wrapper.eq(StrUtil.isNotBlank(request.getCreateByDept()), IpAssignEntity::getDeptId, request.getCreateByDept());
+            wrapper.eq(StrUtil.isNotBlank(request.getIpType()), IpAssignEntity::getIpType, request.getIpType());
+            wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), IpAssignEntity::getCreateBy, request.getCreateBy());
+            wrapper.eq(ObjectUtil.isNotNull(request.getDeptId()), IpAssignEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), IpAssignEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), IpAssignEntity::getCreateTime, request.getEndTime());
         }
@@ -126,7 +132,7 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
         return resultPage;
     }
 
-    private void doSaveOrUpdate(IpAssignCreateRequest request, boolean isCreate) {
+    private void doSaveOrUpdate(IpAssignCreateRequest request, boolean isCreate) throws BizException {
         IpAssignEntity entity = BeanUtil.copyProperties(request, IpAssignEntity.class);
         String code;
         if (!isCreate && request instanceof IpAssignUpdateRequest updateRequest) {
@@ -144,7 +150,13 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
         if (CollUtil.isNotEmpty(request.getAttachFileUrl())) {
             entity.setAttachFileUrl(StrUtil.join(";", request.getAttachFileUrl()));
         }
+        PatentInfoEntity patentInfo = java.util.Optional.ofNullable(
+                patentInfoService.lambdaQuery()
+                        .eq(PatentInfoEntity::getPid, entity.getIpCode())
+                        .one()
+        ).orElseThrow(() -> new BizException("专利信息不存在，pid=" + entity.getIpCode()));
 
+        entity.setIpName(patentInfo.getTitle());
         List<FileCreateRequest> fileList = CollUtil.newArrayList();
 
         if (CollUtil.isNotEmpty(request.getProofFileUrl())) {
@@ -180,7 +192,7 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
             //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), "赋权");
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), "【赋权】" + entity.getIpName());
         }
     }
 
