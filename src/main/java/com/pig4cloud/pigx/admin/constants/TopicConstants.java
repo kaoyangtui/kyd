@@ -20,4 +20,5 @@ public interface TopicConstants {
      * 专利申请前评估结果
      */
     String TOPIC_PATENT_EVALUATION_RESULT = "topic_patent_evaluation_result";
+    String CONSUMER_GROUP_PATENT_EVALUATION_RESULT = "consumer_group_patent_evaluation_result";
 }

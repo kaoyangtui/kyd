@@ -2,7 +2,6 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -12,13 +11,17 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.dto.PatentPreEval.PatentPreEvalCreateRequest;
+import com.pig4cloud.pigx.admin.dto.PatentPreEval.PatentPreEvalDetailRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.patentEvaluation.PatentEvaluationCommitRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.OwnerEntity;
+import com.pig4cloud.pigx.admin.entity.PatentProposalEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -28,12 +31,14 @@ import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -51,8 +56,8 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
     private final CompleterService completerService;
     private final OwnerService ownerService;
     private final ResearchProjectMapper researchProjectMapper;
-    private final PatentEvaluationService PatentEvaluationService;
     private final JsonFlowHandle jsonFlowHandle;
+    private final PatentPreEvalService patentPreEvalService;
 
     @Override
     public IPage<PatentProposalResponse> pageResult(Page reqPage, PatentProposalPageRequest request) {
@@ -102,11 +107,18 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         PatentProposalResponse res = convertToResponse(entity);
         res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
         res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, code).list());
+        //提交人不可以看申请前评估结果
+        if (!SecurityUtils.getUser().getId().equals(entity.getCreateUserId())) {
+            PatentPreEvalDetailRequest patentPreEvalDetailRequest = new PatentPreEvalDetailRequest();
+            patentPreEvalDetailRequest.setCode(code);
+            res.setPatentPreEval(patentPreEvalService.detail(patentPreEvalDetailRequest));
+        }
         return res;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    @SneakyThrows
     public Boolean createProposal(PatentProposalCreateRequest request) {
         doSaveOrUpdate(request, true);
         return Boolean.TRUE;
@@ -129,7 +141,7 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         return (Boolean) this.removeBatchByIds(ids);
     }
 
-    private void doSaveOrUpdate(PatentProposalCreateRequest request, boolean isCreate) {
+    private void doSaveOrUpdate(PatentProposalCreateRequest request, boolean isCreate) throws BizException {
         PatentProposalEntity entity = BeanUtil.copyProperties(request, PatentProposalEntity.class);
         String code;
         if (!isCreate && request instanceof PatentProposalUpdateRequest updateRequest) {
@@ -188,21 +200,24 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
             this.save(entity);
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
-            //提交申请前评估
-            PatentEvaluationCommitRequest pecRequest = new PatentEvaluationCommitRequest();
-            pecRequest.setSysBizId(entity.getId().toString());
-            pecRequest.setTitle(entity.getTitle());
+            PatentPreEvalCreateRequest preEvalRequest = new PatentPreEvalCreateRequest();
+            preEvalRequest.setCode(entity.getCode());
+            preEvalRequest.setTitle(entity.getTitle());
+            preEvalRequest.setAppDate(LocalDate.now());
             request.getOwners().stream()
                     .filter(c -> c.getOwnerType() == 1)
                     .findFirst()
                     .ifPresent(leader -> {
-                        pecRequest.setApplicant(leader.getOwnerName());
+                        preEvalRequest.setApplicant(leader.getOwnerName());
                     });
-            pecRequest.setAppDate(DateUtil.format(DateUtil.date(), "yyyyMMdd"));
-            pecRequest.setAbstractText(entity.getAbstractText());
-            pecRequest.setClaimText(entity.getClaimsText());
-            pecRequest.setDescriptionText(entity.getDescriptionText());
-            PatentEvaluationService.commit(pecRequest);
+            preEvalRequest.setApplyDateRangeType("ANY");
+            preEvalRequest.setAbstractText(entity.getAbstractText());
+            preEvalRequest.setClaimText(entity.getClaimsText());
+            preEvalRequest.setDescriptionText(entity.getDescriptionText());
+            boolean bl = patentPreEvalService.create(preEvalRequest);
+            if (!bl) {
+                throw new BizException("预评估创建失败");
+            }
         }
 
         completerService.replaceCompleters(code, request.getCompleters());

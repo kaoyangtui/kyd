@@ -3,6 +3,7 @@ package com.pig4cloud.pigx.admin.dto.patentProposal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
+import com.pig4cloud.pigx.admin.dto.PatentPreEval.PatentPreEvalResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -130,4 +131,9 @@ public class PatentProposalResponse extends BaseResponse {
     @Schema(description = "负责人姓名")
     private String leaderName;
 
+    /**
+     * 专利申请前评估信息
+     */
+    @Schema(description = "专利申请前评估信息")
+    private PatentPreEvalResponse patentPreEval;
 }
