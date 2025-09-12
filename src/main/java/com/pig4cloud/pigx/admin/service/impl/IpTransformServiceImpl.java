@@ -72,10 +72,10 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
-        this.lambdaUpdate()
-                .eq(IpTransformEntity::getId, id)
-                .setSql("view_count = ifnull(view_count,0) + 1")
-                .update();
+        //this.lambdaUpdate()
+        //        .eq(IpTransformEntity::getId, id)
+        //        .setSql("view_count = ifnull(view_count,0) + 1")
+        //        .update();
         IpTransformResponse response = convertToResponse(entity);
         List<IpTransformPlanEntity> plans = ipTransformPlanService.lambdaQuery()
                 .eq(IpTransformPlanEntity::getTransformId, entity.getId()).list();

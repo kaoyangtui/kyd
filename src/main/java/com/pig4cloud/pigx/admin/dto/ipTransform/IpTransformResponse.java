@@ -26,7 +26,6 @@ public class IpTransformResponse extends BaseResponse {
     private String code;
     @Schema(description = "流程状态")
     private Integer flowStatus;
-
     @Schema(description = "流程状态触发时间")
     private LocalDateTime flowStatusTime;
     @Schema(description = "流程节点名称")
@@ -80,4 +79,16 @@ public class IpTransformResponse extends BaseResponse {
 
     @Schema(description = "专利信息")
     private List<PatentInfoSimpleVO> patentInfoSimpleVOS;
+
+    @Schema(description="所属院系")
+    private String deptId;
+
+    @Schema(description="组织名称")
+    private String deptName;
+
+    @Schema(description="创建人ID")
+    private Long createUserId;
+
+    @Schema(description="创建人姓名")
+    private String createUserName;
 }
