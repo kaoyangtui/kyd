@@ -17,7 +17,7 @@ public class CommonDownloadPageRequest extends BasePageQuery {
     private String createBy;
 
     @Schema(description = "所属院系ID")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "创建时间起（yyyy-MM-dd）")
     private String beginTime;

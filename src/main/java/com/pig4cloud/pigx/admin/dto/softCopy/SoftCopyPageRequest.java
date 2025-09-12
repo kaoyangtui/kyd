@@ -49,7 +49,7 @@ public class SoftCopyPageRequest extends BasePageQuery {
     private String projectName;
 
     @Schema(description = "所属院系 ID")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "提交时间起（yyyy-MM-dd）")
     private String beginTime;

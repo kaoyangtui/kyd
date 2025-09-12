@@ -96,7 +96,7 @@ public class PatentFeeReimburseServiceImpl extends ServiceImpl<PatentFeeReimburs
             wrapper.like(StrUtil.isNotBlank(request.getProposalCode()), PatentFeeReimburseEntity::getProposalCode, request.getProposalCode());
             wrapper.eq(StrUtil.isNotBlank(request.getPatType()), PatentFeeReimburseEntity::getPatType, request.getPatType());
             wrapper.like(StrUtil.isNotBlank(request.getCreateBy()), PatentFeeReimburseEntity::getCreateBy, request.getCreateBy());
-            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PatentFeeReimburseEntity::getDeptId, request.getDeptId());
+            wrapper.eq(ObjectUtil.isNotNull(request.getDeptId()), PatentFeeReimburseEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getStartTime()), PatentFeeReimburseEntity::getCreateTime, request.getStartTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), PatentFeeReimburseEntity::getCreateTime, request.getEndTime());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), PatentFeeReimburseEntity::getFlowStatus, request.getFlowStatus());

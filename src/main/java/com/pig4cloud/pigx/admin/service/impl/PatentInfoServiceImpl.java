@@ -203,9 +203,9 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 }
             }
 
-            if (StrUtil.isNotBlank(request.getDeptId())) {
-                if (deptIds.contains(Long.parseLong(request.getDeptId()))) {
-                    deptIds = CollUtil.newArrayList(Long.parseLong(request.getDeptId()));
+            if (ObjectUtil.isNotNull(request.getDeptId())) {
+                if (deptIds.contains(request.getDeptId())) {
+                    deptIds = CollUtil.newArrayList(request.getDeptId());
                 } else {
                     log.warn("用户 {} 无权查看部门 {} 的专利信息", code, request.getDeptId());
                     wrapper.apply("1=0");

@@ -110,7 +110,7 @@ public class DemandReceiveEntity extends Model<DemandReceiveEntity> {
 	*/
     @TableField(fill = FieldFill.INSERT)
     @Schema(description="所属院系")
-    private String deptId;
+    private Long deptId;
 
 	/**
 	* 组织名称

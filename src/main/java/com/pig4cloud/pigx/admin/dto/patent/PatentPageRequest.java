@@ -32,7 +32,7 @@ public class PatentPageRequest extends BasePageQuery {
     private String inventorName;
 
     @Schema(description = "所属院系")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "申请日起")
     private LocalDate beginAppDate;

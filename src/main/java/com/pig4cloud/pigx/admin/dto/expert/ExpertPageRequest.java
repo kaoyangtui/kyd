@@ -20,7 +20,7 @@ public class ExpertPageRequest extends BasePageQuery {
     private String name;
 
     @Schema(description = "所属院系")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "上下架状态（0下架 1上架）")
     private Integer shelfStatus;

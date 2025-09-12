@@ -31,6 +31,6 @@ public class IcLayoutPageRequest extends BasePageQuery {
     private String currentNodeName;
 
     @Schema(description = "院系 ID")
-    private String deptId;
+    private Long deptId;
 
 }

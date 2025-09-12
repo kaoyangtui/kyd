@@ -47,7 +47,7 @@ public class DemandReceiveServiceImpl extends ServiceImpl<DemandReceiveMapper, D
         demandReceiveEntity.setReceiveUserId(request.getUserId());
         SysUser sysUser = sysUserService.getById(request.getUserId());
         SysDept sysDept = sysDeptService.getById(sysUser.getDeptId());
-        demandReceiveEntity.setDeptId(String.valueOf(sysDept.getDeptId()));
+        demandReceiveEntity.setDeptId(sysDept.getDeptId());
         demandReceiveEntity.setDeptName(sysDept.getName());
         demandReceiveEntity.setCreateUserId(sysUser.getUserId());
         demandReceiveEntity.setCreateUserName(sysUser.getUsername());

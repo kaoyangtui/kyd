@@ -16,7 +16,7 @@ public class PlantVarietyPageRequest extends BasePageQuery {
     private String keyword;
 
     @Schema(description = "所属组织ID")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "流程状态")
     private Integer flowStatus;

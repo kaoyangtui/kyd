@@ -49,7 +49,7 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
                 );
             }
             wrapper.eq(StrUtil.isNotBlank(request.getName()), ExpertEntity::getName, request.getName());
-            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), ExpertEntity::getDeptId, request.getDeptId());
+            wrapper.eq(ObjectUtil.isNotNull(request.getDeptId()), ExpertEntity::getDeptId, request.getDeptId());
             wrapper.eq(null != request.getShelfStatus(), ExpertEntity::getShelfStatus, request.getShelfStatus());
         }
 

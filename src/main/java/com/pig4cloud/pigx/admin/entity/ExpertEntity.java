@@ -130,7 +130,7 @@ public class ExpertEntity extends Model<ExpertEntity> {
      * 所属院系
      */
     @Schema(description = "所属院系")
-    private String deptId;
+    private Long deptId;
 
     /**
      * 组织名称

@@ -144,7 +144,7 @@ public class StandardServiceImpl extends ServiceImpl<StandardMapper, StandardEnt
                                 .like(StandardEntity::getName, request.getKeyword())
                 );
             }
-            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), StandardEntity::getDeptId, request.getDeptId());
+            wrapper.eq(ObjectUtil.isNotNull(request.getDeptId()), StandardEntity::getDeptId, request.getDeptId());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), StandardEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), StandardEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), StandardEntity::getCreateTime, request.getBeginTime());

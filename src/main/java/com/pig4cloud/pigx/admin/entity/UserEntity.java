@@ -119,7 +119,7 @@ public class UserEntity extends Model<UserEntity> {
      */
     @TableField(fill = FieldFill.INSERT)
     @Schema(description="所属院系")
-    private String deptId;
+    private Long deptId;
 
     /**
      * 创建/提交人

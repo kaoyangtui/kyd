@@ -26,7 +26,7 @@ public class ResearchTeamPageRequest extends BasePageQuery {
     private Integer shelfStatus;
 
     @Schema(description = "所属院系")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "提交时间起（yyyy-MM-dd）")
     private String beginTime;

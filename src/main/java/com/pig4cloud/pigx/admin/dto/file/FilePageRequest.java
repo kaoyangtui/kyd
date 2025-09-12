@@ -31,7 +31,7 @@ public class FilePageRequest extends BasePageQuery {
     private String createBy;
 
     @Schema(description = "所属院系")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "提交开始时间")
     private String beginTime;

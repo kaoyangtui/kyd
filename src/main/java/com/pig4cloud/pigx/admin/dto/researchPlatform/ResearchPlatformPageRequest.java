@@ -19,7 +19,7 @@ public class ResearchPlatformPageRequest extends BasePageQuery {
     private String leaderCode;
 
     @Schema(description = "所属院系 ID")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "上下架状态（0下架 1上架）")
     private Integer shelfStatus;

@@ -33,7 +33,7 @@ public class FileExportVO {
     private String createBy;
 
     @Schema(description = "所属院系")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "提交时间")
     private LocalDateTime createTime;

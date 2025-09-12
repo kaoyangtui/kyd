@@ -153,7 +153,7 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
                         .like(PlantVarietyEntity::getName, request.getKeyword())
                         .or().like(PlantVarietyEntity::getRightNo, request.getKeyword()));
             }
-            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), PlantVarietyEntity::getDeptId, request.getDeptId());
+            wrapper.eq(ObjectUtil.isNotNull(request.getDeptId()), PlantVarietyEntity::getDeptId, request.getDeptId());
             wrapper.eq(ObjectUtil.isNotNull(request.getFlowStatus()), PlantVarietyEntity::getFlowStatus, request.getFlowStatus());
             wrapper.eq(StrUtil.isNotBlank(request.getCurrentNodeName()), PlantVarietyEntity::getCurrentNodeName, request.getCurrentNodeName());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), PlantVarietyEntity::getCreateTime, request.getBeginTime());

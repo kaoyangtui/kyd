@@ -77,7 +77,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
                         .like(NoticeEntity::getContent, request.getKeyword()));
             }
             wrapper.eq(StrUtil.isNotBlank(request.getCreateBy()), NoticeEntity::getCreateBy, request.getCreateBy());
-            wrapper.eq(StrUtil.isNotBlank(request.getDeptId()), NoticeEntity::getDeptId, request.getDeptId());
+            wrapper.eq(ObjectUtil.isNotNull(request.getDeptId()), NoticeEntity::getDeptId, request.getDeptId());
             wrapper.ge(StrUtil.isNotBlank(request.getBeginTime()), NoticeEntity::getCreateTime, request.getBeginTime());
             wrapper.le(StrUtil.isNotBlank(request.getEndTime()), NoticeEntity::getCreateTime, request.getEndTime());
         }

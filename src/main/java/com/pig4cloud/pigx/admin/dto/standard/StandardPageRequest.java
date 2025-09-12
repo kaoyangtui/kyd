@@ -26,7 +26,7 @@ public class StandardPageRequest extends BasePageQuery {
     private String currentNodeName;
 
     @Schema(description = "院系 ID")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "开始时间")
     private String beginTime;

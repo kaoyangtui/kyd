@@ -109,7 +109,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
                 .like(StrUtil.isNotBlank(request.getFileName()), FileEntity::getFileName, request.getFileName())
                 .eq(StrUtil.isNotBlank(request.getFileType()), FileEntity::getFileType, request.getFileType())
                 .eq(StrUtil.isNotBlank(request.getCreateBy()), FileEntity::getCreateBy, request.getCreateBy())
-                .eq(StrUtil.isNotBlank(request.getDeptId()), FileEntity::getDeptId, request.getDeptId())
+                .eq(ObjectUtil.isNotNull(request.getDeptId()), FileEntity::getDeptId, request.getDeptId())
                 .ge(StrUtil.isNotBlank(request.getBeginTime()), FileEntity::getCreateTime, request.getBeginTime())
                 .le(StrUtil.isNotBlank(request.getEndTime()), FileEntity::getCreateTime, request.getEndTime());
 

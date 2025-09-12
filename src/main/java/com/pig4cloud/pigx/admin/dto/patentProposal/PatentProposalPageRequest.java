@@ -26,7 +26,7 @@ public class PatentProposalPageRequest extends BasePageQuery {
     private String type;
 
     @Schema(description = "所属院系")
-    private String deptId;
+    private Long deptId;
 
     @Schema(description = "流程状态")
     private Integer flowStatus;
