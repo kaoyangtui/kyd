@@ -45,6 +45,7 @@ public class PlatformInfoEntity extends Model<PlatformInfoEntity> {
 	/**
 	* 所属院系
 	*/
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description="所属院系")
     private String deptId;
 

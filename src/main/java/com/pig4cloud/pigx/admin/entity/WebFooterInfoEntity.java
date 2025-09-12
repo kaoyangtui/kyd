@@ -80,6 +80,7 @@ public class WebFooterInfoEntity extends Model<WebFooterInfoEntity> {
 	/**
 	* 所属院系
 	*/
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description="所属院系")
     private String deptId;
 

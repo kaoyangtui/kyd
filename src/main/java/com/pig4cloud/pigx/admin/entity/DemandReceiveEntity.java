@@ -108,12 +108,14 @@ public class DemandReceiveEntity extends Model<DemandReceiveEntity> {
 	/**
 	* 所属院系
 	*/
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description="所属院系")
     private String deptId;
 
 	/**
 	* 组织名称
 	*/
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description="组织名称")
     private String deptName;
 
@@ -126,6 +128,7 @@ public class DemandReceiveEntity extends Model<DemandReceiveEntity> {
 	/**
 	* 创建人姓名
 	*/
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description="创建人姓名")
     private String createUserName;
 

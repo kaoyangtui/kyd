@@ -132,6 +132,7 @@ public class PatentFeeReimburseEntity extends Model<PatentFeeReimburseEntity> {
 	/**
 	* 所属院系
 	*/
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description="所属院系")
     private String deptId;
 
