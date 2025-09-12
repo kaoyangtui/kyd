@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.*;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoSimpleVO;
+import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
 import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
@@ -23,6 +24,7 @@ import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
+import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IpTransformPlanService;
@@ -46,6 +48,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
     private final FileService fileService;
     private final IpTransformPlanService ipTransformPlanService;
     private final PatentInfoService patentInfoService;
+    private final JsonFlowHandle jsonFlowHandle;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -214,7 +217,11 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         if (!isCreate) {
             this.updateById(entity);
         } else {
+            entity.setFlowKey(ResultResponse.BIZ_CODE);
+            entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
+            //发起流程
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
         }
 
         if (CollUtil.isNotEmpty(request.getIpTransformPlanVOS())) {

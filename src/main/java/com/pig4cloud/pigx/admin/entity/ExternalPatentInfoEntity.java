@@ -2,10 +2,11 @@ package com.pig4cloud.pigx.admin.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.pig4cloud.pigx.common.core.util.TenantTable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.pig4cloud.pigx.common.core.util.TenantTable;
+
 import java.time.LocalDateTime;
 
 /**
@@ -53,23 +54,25 @@ public class ExternalPatentInfoEntity extends Model<ExternalPatentInfoEntity> {
     @Schema(description="摘要")
     private String abs;
 
-	/**
-	* 专利类型
-INVENTION(1, "发明专利"),
-UTILITY_MODEL(2, "实用新型"),
-DESIGN(3, "外观专利"),
-PCT_INVENTION(8, "PCT发明"),
-PCT_UTILITY_MODEL(9, "PCT实用新型");
-	*/
-    @Schema(description="专利类型
-INVENTION(1, "发明专利"),
-UTILITY_MODEL(2, "实用新型"),
-DESIGN(3, "外观专利"),
-PCT_INVENTION(8, "PCT发明"),
-PCT_UTILITY_MODEL(9, "PCT实用新型");")
+    /**
+     * 专利类型
+     */
+    @Schema(
+            description = """
+                    专利类型：
+                    1=发明专利(INVENTION)；
+                    2=实用新型(UTILITY_MODEL)；
+                    3=外观专利(DESIGN)；
+                    8=PCT发明(PCT_INVENTION)；
+                    9=PCT实用新型(PCT_UTILITY_MODEL)
+                    """,
+            example = "1",
+            allowableValues = {"1", "2", "3", "8", "9"}
+    )
     private String patType;
 
-	/**
+
+    /**
 	* 专利权状态
 	*/
     @Schema(description="专利权状态")
