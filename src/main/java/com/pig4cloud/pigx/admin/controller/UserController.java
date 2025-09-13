@@ -161,6 +161,7 @@ public class UserController {
     @Operation(summary = "新增需求")
     public R<Boolean> demandCreate(@RequestBody @Valid DemandCreateRequest request) {
         request.setUserId(SecurityUtils.getUser().getId());
+        request.setCategory(1);
         return R.ok(demandService.create(request));
     }
 

@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -217,9 +219,11 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         if (!isCreate) {
             this.updateById(entity);
         } else {
-            entity.setFlowKey(ResultResponse.BIZ_CODE);
+            entity.setFlowKey(IpTransformResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             this.save(entity);
+            Map<String, Object> order = MapUtil.newHashMap();
+            order.put("usePrice", entity.getUsePrice());
             //发起流程
             jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
         }

@@ -15,8 +15,11 @@ import java.util.Objects;
 public class JsonFlowHandle {
     private final RunFlowService runFlowService;
 
-    @SneakyThrows
     public void startFlow(Map<String, Object> map, String orderName) {
+        startFlow(map, orderName, null);
+    }
+    @SneakyThrows
+    public void startFlow(Map<String, Object> map, String orderName, Map<String, Object> orderParams) {
         // 必填字段校验
         Object id = requireParam(map, "id");
         Object flowInstId = requireParam(map, "flowInstId");
@@ -30,7 +33,9 @@ public class JsonFlowHandle {
         order.put("flowInstId", flowInstId);
         order.put("flowKey", flowKey);
         order.put("orderName", orderName);
-
+        if (orderParams != null) {
+            order.putAll(orderParams);
+        }
         Map<String, Object> params = MapUtil.newHashMap();
         params.put("flowInstId", flowInstId);
         params.put("code", code);

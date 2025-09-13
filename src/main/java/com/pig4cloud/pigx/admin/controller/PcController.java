@@ -153,13 +153,6 @@ public class PcController {
         return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
-    @PostMapping("/demand/create")
-    @Operation(summary = "需求发布")
-    public R<Boolean> demandCreate(@RequestBody @Valid DemandCreateRequest request) {
-        request.setCategory(1);
-        return R.ok(demandService.create(request));
-    }
-
 
     @GetMapping("/demandIn")
     @Operation(summary = "校内科研需求")

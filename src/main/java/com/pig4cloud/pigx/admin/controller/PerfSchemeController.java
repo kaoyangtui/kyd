@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
 import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/perf/scheme")
+@Tag(description = "业绩点方案", name = "业绩点方案")
 @RequiredArgsConstructor
 public class PerfSchemeController {
 
