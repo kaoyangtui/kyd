@@ -20,6 +20,8 @@ public class DemandResponse extends BaseResponse {
     public static final String BIZ_CODE = "DEMAND";
     @Schema(description = "主键")
     private Long id;
+    @Schema(description = "编码")
+    private String code;
     @Schema(description = "需求名称")
     private String name;
     @Schema(description = "需求分类，1 企业需求 2专项需求")
@@ -70,4 +72,19 @@ public class DemandResponse extends BaseResponse {
     private List<DemandSignupEntity> demandSignupList;
     @Schema(description = "需求推送信息")
     private List<DemandReceiveEntity> demandReceiveList;
+
+    @Schema(description = "流程实例 ID")
+    private String flowInstId;
+
+    @Schema(description = "流程KEY")
+    private String flowKey;
+
+    @Schema(description = "流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
+    private Integer flowStatus;
+
+    @Schema(description = "流程状态触发时间")
+    private LocalDateTime flowStatusTime;
+
+    @Schema(description = "当前流程节点名称")
+    private String currentNodeName;
 }

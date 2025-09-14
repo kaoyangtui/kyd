@@ -39,12 +39,12 @@ public class CommonNodeJobListener implements GlobalFlowListener {
     }
 
     /**
-     * 当完成节点时
+     * 当开启节点时
      * @param runNodeVO 运行节点
      */
     @Override
-    public void completeNode(RunNodeVO runNodeVO) {
-        log.info("*****************CommonNodeJobListener.completeNode:{}", JSONUtil.toJsonStr(runNodeVO));
+    public void startNode(RunNodeVO runNodeVO) {
+        log.info("*****************CommonNodeJobListener.startNode:{}", JSONUtil.toJsonStr(runNodeVO));
         this.handle(runNodeVO, null);
     }
 
