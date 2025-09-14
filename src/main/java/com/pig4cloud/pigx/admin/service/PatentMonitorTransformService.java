@@ -14,16 +14,6 @@ public interface PatentMonitorTransformService extends IService<PatentMonitorTra
     IPage<PatentMonitorTransformResponse> pageResult(Page page, PatentMonitorTransformPageRequest request);
 
     /**
-     * 添加监控（支持批量）
-     */
-    Boolean create(String pid,
-                   String code,
-                   String name,
-                   LocalDate signDate,
-                   LocalDate expireDate,
-                   Long createUserId);
-
-    /**
      * 取消监控（支持批量）
      */
     Boolean remove(List<Long> idList);

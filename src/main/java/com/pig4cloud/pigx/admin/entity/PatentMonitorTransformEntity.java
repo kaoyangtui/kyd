@@ -91,6 +91,13 @@ public class PatentMonitorTransformEntity extends Model<PatentMonitorTransformEn
     @Schema(description="所属院系")
     private Long deptId;
 
+    /**
+     * 组织名称
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description="组织名称")
+    private String deptName;
+
 	/**
 	* 创建/提交人
 	*/

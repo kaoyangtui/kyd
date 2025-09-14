@@ -16,11 +16,11 @@ import com.pig4cloud.pigx.admin.mapper.PatentMonitorTransformMapper;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.admin.service.PatentMonitorService;
 import com.pig4cloud.pigx.admin.service.PatentMonitorTransformService;
+import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,7 +54,7 @@ public class PatentMonitorTransformServiceImpl extends ServiceImpl<PatentMonitor
         }
         qw.orderByDesc(PatentMonitorTransformEntity::getUpdateTime, PatentMonitorTransformEntity::getCreateTime);
 
-        IPage<PatentMonitorTransformEntity> entityPage = this.page(page, qw);
+        IPage<PatentMonitorTransformEntity> entityPage = baseMapper.selectPageByScope(page, qw, DataScope.of());
         // 1. 提前收集所有pid
         List<String> pidList = entityPage.getRecords().stream()
                 .map(PatentMonitorTransformEntity::getPid)
@@ -106,43 +106,6 @@ public class PatentMonitorTransformServiceImpl extends ServiceImpl<PatentMonitor
             return resp;
         });
 
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean create(String pid,
-                          String code,
-                          String name,
-                          LocalDate signDate,
-                          LocalDate expireDate,
-                          Long createUserId) {
-
-        PatentMonitorTransformEntity old = lambdaQuery()
-                .eq(PatentMonitorTransformEntity::getPid, pid)
-                .last("limit 1")
-                .one();
-        if (old == null) {
-            PatentInfoEntity patentInfo = patentInfoService.lambdaQuery()
-                    .eq(PatentInfoEntity::getPid, pid).one();
-            if (patentInfo == null) {
-                return false;
-            }
-            PatentMonitorTransformEntity entity = new PatentMonitorTransformEntity();
-            entity.setPid(pid);
-            entity.setAppNumber(patentInfo.getAppNumber());
-            entity.setTitle(patentInfo.getTitle());
-            entity.setCode(code);
-            entity.setName(name);
-            entity.setPatType(patentInfo.getPatType());
-            entity.setSignDate(signDate);
-            entity.setExpireDate(expireDate);
-            entity.setCreateUserId(createUserId);
-            this.save(entity);
-        } else if ("1".equals(old.getDelFlag())) {
-            old.setDelFlag("0");
-            this.updateById(old);
-        }
-        return true;
     }
 
     @Override

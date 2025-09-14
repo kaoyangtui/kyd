@@ -11,26 +11,20 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.ipAssign.IpAssignResponse;
 import com.pig4cloud.pigx.admin.dto.ipTransform.*;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoSimpleVO;
-import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.IpAssignEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.entity.IpTransformPlanEntity;
 import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
+import com.pig4cloud.pigx.admin.entity.PatentMonitorTransformEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
-import com.pig4cloud.pigx.admin.service.FileService;
-import com.pig4cloud.pigx.admin.service.IpTransformPlanService;
-import com.pig4cloud.pigx.admin.service.IpTransformService;
-import com.pig4cloud.pigx.admin.service.PatentInfoService;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +45,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
     private final IpTransformPlanService ipTransformPlanService;
     private final PatentInfoService patentInfoService;
     private final JsonFlowHandle jsonFlowHandle;
+    private final PatentMonitorTransformService patentMonitorTransformService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -263,5 +258,41 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
                 .set(dto.getFlowStatus() != null, IpTransformEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IpTransformEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
+        if (dto.getFlowStatus().equals(FlowStatusEnum.FINISH.getStatus())) {
+            IpTransformEntity ipTransform = this.lambdaQuery()
+                    .eq(IpTransformEntity::getFlowInstId, dto.getFlowInstId())
+                    .one();
+            String pid = ipTransform.getIpCode();
+            String code = ipTransform.getCode();
+            String name = ipTransform.getName();
+            //流程完毕创建转化专利监控
+            PatentMonitorTransformEntity entity = patentMonitorTransformService.lambdaQuery()
+                    .eq(PatentMonitorTransformEntity::getPid, pid)
+                    .eq(PatentMonitorTransformEntity::getCode, code)
+                    .last("limit 1")
+                    .one();
+            if (entity == null) {
+                PatentInfoEntity patentInfo = patentInfoService.lambdaQuery()
+                        .eq(PatentInfoEntity::getPid, pid).one();
+                if (patentInfo == null) {
+                    return;
+                }
+                entity = new PatentMonitorTransformEntity();
+                entity.setPid(pid);
+                entity.setAppNumber(patentInfo.getAppNumber());
+                entity.setTitle(patentInfo.getTitle());
+                entity.setCode(code);
+                entity.setName(name);
+                entity.setPatType(patentInfo.getPatType());
+                entity.setSignDate(ipTransform.getContractSignTime());
+                entity.setExpireDate(ipTransform.getContractExpireTime());
+                entity.setDeptId(ipTransform.getDeptId());
+                entity.setDeptName(ipTransform.getDeptName());
+                entity.setCreateBy(ipTransform.getCreateBy());
+                entity.setCreateUserId(ipTransform.getCreateUserId());
+                patentMonitorTransformService.save(entity);
+            }
+        }
+
     }
 }

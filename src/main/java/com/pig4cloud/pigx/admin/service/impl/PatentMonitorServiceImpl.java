@@ -132,7 +132,7 @@ public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, P
             user.setEventTime(prsDate);
             SysMessageEntity msg = buildSysMessage(
                     SysMessageCategoryEnum.LETTER.getCode(),
-                    MessageTemplateEnum.PATENT_MONITOR_STATUS_CHANGE,
+                    MessageTemplateEnum.PATENT_MONITOR_STATUS_DETAIL,
                     title, eventContent);
             sysMessageList.add(msg);
 
