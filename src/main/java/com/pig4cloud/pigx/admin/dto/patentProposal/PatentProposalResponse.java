@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -28,6 +29,33 @@ public class PatentProposalResponse extends BaseResponse {
 
     @Schema(description = "业务编码")
     private String code;
+
+    /**
+     * 流程实例 ID
+     */
+    @Schema(description = "流程实例 ID")
+    private String flowInstId;
+
+    /**
+     * 流程KEY
+     */
+    @Schema(description = "流程KEY")
+    private String flowKey;
+
+    /**
+     * 流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止
+     */
+    @Schema(description = "流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
+    private Integer flowStatus;
+
+    @Schema(description = "流程状态触发时间")
+    private LocalDateTime flowStatusTime;
+
+    /**
+     * 当前流程节点名称
+     */
+    @Schema(description = "当前流程节点名称")
+    private String currentNodeName;
 
     @Schema(description = "拟申请专利名称")
     private String title;
