@@ -40,7 +40,9 @@ public class JsonFlowHandle {
         params.put("flowInstId", flowInstId);
         params.put("code", code);
         params.put("flowKey", flowKey);
-
+        if (orderParams != null) {
+            params.putAll(orderParams);
+        }
         Boolean bl = runFlowService.startFlow(order, params);
         if (!bl) {
             throw new BizException("流程启动失败");
