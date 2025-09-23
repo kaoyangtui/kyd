@@ -90,7 +90,7 @@ public class JsonFlowHandle {
         Long flowInstId = MapUtil.getLong(order, OrderEntityInfoConstants.FLOW_INST_ID);
         String flowKey = MapUtil.getStr(order, OrderEntityInfoConstants.FLOW_KEY);
         Boolean res = runFlowService.startFlow(order, params);
-        if (!FlowCommonConstants.SUCCESS.equals(res)) {
+        if (!res) {
             throw new ValidationException("发起流程失败: " + res);
         }
         log.info("工单 id:{},flowInstId:{},flowKey:{}", id, flowInstId, flowKey);
