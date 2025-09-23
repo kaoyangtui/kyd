@@ -220,7 +220,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
             Map<String, Object> order = MapUtil.newHashMap();
             order.put("usePrice", entity.getUsePrice());
             //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName(), order);
         }
 
         if (CollUtil.isNotEmpty(request.getIpTransformPlanVOS())) {
