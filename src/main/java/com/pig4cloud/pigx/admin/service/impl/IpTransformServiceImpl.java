@@ -27,6 +27,8 @@ import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.jsonflow.service.RunFlowService;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.Lists;
@@ -39,7 +41,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTransformEntity> implements IpTransformService, FlowStatusUpdater {
+public class IpTransformServiceImpl extends OrderCommonServiceImpl<IpTransformMapper, IpTransformEntity> implements IpTransformService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final IpTransformPlanService ipTransformPlanService;
@@ -216,11 +218,10 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
         } else {
             entity.setFlowKey(IpTransformResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            Map<String, Object> order = MapUtil.newHashMap();
-            order.put("usePrice", entity.getUsePrice());
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName(), order);
+            // 设置流程参数
+            Map<String, Object> params = MapUtil.newHashMap();
+            super.saveOrUpdateOrder(params, entity);
+            jsonFlowHandle.doStart(params, entity);
         }
 
         if (CollUtil.isNotEmpty(request.getIpTransformPlanVOS())) {
