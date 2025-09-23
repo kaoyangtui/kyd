@@ -258,7 +258,7 @@ public class IpTransformServiceImpl extends ServiceImpl<IpTransformMapper, IpTra
                 .set(dto.getFlowStatus() != null, IpTransformEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IpTransformEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
-        if (dto.getFlowStatus().equals(FlowStatusEnum.FINISH.getStatus())) {
+        if (dto.getFlowStatus() != null && dto.getFlowStatus().equals(FlowStatusEnum.FINISH.getStatus())) {
             IpTransformEntity ipTransform = this.lambdaQuery()
                     .eq(IpTransformEntity::getFlowInstId, dto.getFlowInstId())
                     .one();
