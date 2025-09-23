@@ -28,7 +28,7 @@ public class DemandCreateRequest {
     private String type;
 
     @Schema(description = "所属领域")
-    private String field;
+    private List<String> field;
 
     @Schema(description = "有效期开始时间")
     private LocalDate validStart;

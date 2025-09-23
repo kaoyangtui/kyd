@@ -146,6 +146,7 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
             entity.setCode(code);
         }
 
+        entity.setField(StrUtil.join(";", request.getField()));
         entity.setTags(StrUtil.join(";", request.getTags()));
 
         if (CollUtil.isNotEmpty(request.getAttachFileUrl())) {
@@ -179,6 +180,7 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
     private DemandInResponse convertToResponse(DemandInEntity entity) {
         DemandInResponse response = BeanUtil.copyProperties(entity, DemandInResponse.class);
         response.setTags(StrUtil.split(entity.getTags(), ";"));
+        response.setField(StrUtil.split(entity.getField(), ";"));
         response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
         return response;
     }

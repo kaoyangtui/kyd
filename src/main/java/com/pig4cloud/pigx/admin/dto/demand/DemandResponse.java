@@ -29,7 +29,7 @@ public class DemandResponse extends BaseResponse {
     @Schema(description = "需求类型")
     private String type;
     @Schema(description = "所属领域")
-    private String field;
+    private List<String> field;
     @Schema(description = "有效期开始时间")
     private LocalDate validStart;
     @Schema(description = "有效期结束时间")

@@ -24,6 +24,10 @@ public class IpTransformResponse extends BaseResponse {
     private Long id;
     @Schema(description = "业务编码")
     private String code;
+    @Schema(description = "流程实例 ID")
+    private String flowInstId;
+    @Schema(description = "流程KEY")
+    private String flowKey;
     @Schema(description = "流程状态")
     private Integer flowStatus;
     @Schema(description = "流程状态触发时间")

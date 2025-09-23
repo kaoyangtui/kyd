@@ -14,10 +14,7 @@ import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.demand.*;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
-import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
@@ -113,7 +110,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
                                 .like(DemandEntity::getTags, request.getKeyword())
                 );
             }
-            wrapper.in(CollUtil.isNotEmpty(request.getType()), DemandEntity::getType, request.getType());
+            wrapper.eq(StrUtil.isNotBlank(request.getType()), DemandEntity::getType, request.getType());
             if (CollUtil.isNotEmpty(request.getField())) {
                 wrapper.and(q -> request.getField().forEach(o -> q.or().like(DemandEntity::getField, o)));
             }
@@ -166,6 +163,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
             entity.setCode(code);
         }
 
+        entity.setField(StrUtil.join(";", request.getField()));
         entity.setTags(StrUtil.join(";", request.getTags()));
 
         if (CollUtil.isNotEmpty(request.getAttachFileUrl())) {
@@ -200,6 +198,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
     private DemandResponse convertToResponse(DemandEntity entity) {
         DemandResponse response = BeanUtil.copyProperties(entity, DemandResponse.class);
         response.setTags(StrUtil.split(entity.getTags(), ";"));
+        response.setField(StrUtil.split(entity.getField(), ";"));
         response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
         return response;
     }

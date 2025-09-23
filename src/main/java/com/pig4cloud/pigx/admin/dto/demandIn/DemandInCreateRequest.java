@@ -23,7 +23,7 @@ public class DemandInCreateRequest {
     private Integer shelfStatus;
 
     @Schema(description = "所属领域")
-    private String field;
+    private List<String> field;
 
     @Schema(description = "需求有效期")
     private LocalDate validUntil;

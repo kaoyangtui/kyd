@@ -24,7 +24,6 @@ public class DemandInResponse extends BaseResponse {
     private String code;
     @Schema(description = "流程状态")
     private Integer flowStatus;
-
     @Schema(description = "流程状态触发时间")
     private LocalDateTime flowStatusTime;
     @Schema(description = "流程节点名称")
@@ -44,7 +43,7 @@ public class DemandInResponse extends BaseResponse {
     @Schema(description = "上下架时间")
     private LocalDateTime shelfTime;
     @Schema(description = "所属领域")
-    private String field;
+    private List<String> field;
     @Schema(description = "需求有效期")
     private LocalDate validUntil;
     @Schema(description = "需求描述")
