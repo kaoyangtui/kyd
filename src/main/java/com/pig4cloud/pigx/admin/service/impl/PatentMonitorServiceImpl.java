@@ -2,8 +2,6 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -11,17 +9,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysMessageEntity;
 import com.pig4cloud.pigx.admin.api.entity.SysMessageRelationEntity;
 import com.pig4cloud.pigx.admin.constants.MessageTemplateEnum;
-import com.pig4cloud.pigx.admin.constants.SysMessageCategoryEnum;
 import com.pig4cloud.pigx.admin.entity.PatentMonitorEntity;
 import com.pig4cloud.pigx.admin.entity.PatentMonitorTransformEntity;
 import com.pig4cloud.pigx.admin.entity.PatentMonitorUserEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PatentMonitorMapper;
-import com.pig4cloud.pigx.admin.mapper.SysMessageRelationMapper;
+import com.pig4cloud.pigx.admin.service.MessageService;
 import com.pig4cloud.pigx.admin.service.PatentMonitorService;
 import com.pig4cloud.pigx.admin.service.PatentMonitorTransformService;
 import com.pig4cloud.pigx.admin.service.PatentMonitorUserService;
-import com.pig4cloud.pigx.admin.service.SysMessageService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -43,17 +39,14 @@ public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, P
 
     private final PatentMonitorUserService patentMonitorUserService;
     private final PatentMonitorTransformService patentMonitorTransformService;
-    private final SysMessageService sysMessageService;
-    private final SysMessageRelationMapper sysMessageRelationMapper;
+    private final MessageService messageService;
 
-    public PatentMonitorServiceImpl(@Lazy SysMessageService sysMessageService,
+    public PatentMonitorServiceImpl(@Lazy MessageService messageService,
                                     @Lazy PatentMonitorUserService patentMonitorUserService,
-                                    @Lazy PatentMonitorTransformService patentMonitorTransformService,
-                                    @Lazy SysMessageRelationMapper sysMessageRelationMapper) {
-        this.sysMessageService = sysMessageService;
+                                    @Lazy PatentMonitorTransformService patentMonitorTransformService) {
         this.patentMonitorUserService = patentMonitorUserService;
         this.patentMonitorTransformService = patentMonitorTransformService;
-        this.sysMessageRelationMapper = sysMessageRelationMapper;
+        this.messageService = messageService;
     }
 
     @SneakyThrows
@@ -112,10 +105,10 @@ public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, P
 
         // 5. 批量入库
         if (CollUtil.isNotEmpty(sysMessageList)) {
-            sysMessageService.saveBatch(sysMessageList);
+            messageService.saveMessage(sysMessageList);
         }
         if (CollUtil.isNotEmpty(sysMessageRelationList)) {
-            sysMessageRelationMapper.insert(sysMessageRelationList);
+            messageService.saveMessageRelation(sysMessageRelationList);
         }
     }
 
@@ -128,14 +121,12 @@ public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, P
         if (CollUtil.isEmpty(monitorUsers)) {
             return;
         }
+        SysMessageEntity msg = messageService.buildMessage(
+                MessageTemplateEnum.PATENT_MONITOR_STATUS_DETAIL,
+                title, eventContent);
+        sysMessageList.add(msg);
         monitorUsers.forEach(user -> {
             user.setEventTime(prsDate);
-            SysMessageEntity msg = buildSysMessage(
-                    SysMessageCategoryEnum.LETTER.getCode(),
-                    MessageTemplateEnum.PATENT_MONITOR_STATUS_DETAIL,
-                    title, eventContent);
-            sysMessageList.add(msg);
-
             SysMessageRelationEntity relation = new SysMessageRelationEntity();
             relation.setMsgId(msg.getId());
             relation.setUserId(user.getCreateUserId());
@@ -154,14 +145,12 @@ public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, P
         if (CollUtil.isEmpty(monitorTransforms)) {
             return;
         }
+        SysMessageEntity msg = messageService.buildMessage(
+                MessageTemplateEnum.TRANSFER_MONITOR_CHANGE,
+                title, eventContent);
+        sysMessageList.add(msg);
         monitorTransforms.forEach(transform -> {
             transform.setEventTime(prsDate);
-            SysMessageEntity msg = buildSysMessage(
-                    SysMessageCategoryEnum.LETTER.getCode(),
-                    MessageTemplateEnum.TRANSFER_MONITOR_CHANGE,
-                    title, eventContent);
-            sysMessageList.add(msg);
-
             SysMessageRelationEntity relation = new SysMessageRelationEntity();
             relation.setMsgId(msg.getId());
             relation.setUserId(transform.getCreateUserId());
@@ -171,17 +160,5 @@ public class PatentMonitorServiceImpl extends ServiceImpl<PatentMonitorMapper, P
         patentMonitorTransformService.updateBatchById(monitorTransforms);
     }
 
-    private SysMessageEntity buildSysMessage(String category, MessageTemplateEnum templateEnum, String title, String eventContent) {
-        long id = IdUtil.getSnowflakeNextId();
-        SysMessageEntity msg = new SysMessageEntity();
-        msg.setId(id);
-        msg.setCategory(category);
-        msg.setTitle(templateEnum.getDescription());
-        msg.setContent(StrUtil.format(templateEnum.getTemplate(), title, eventContent));
-        msg.setSendFlag("1");
-        msg.setAllFlag("0");
-        msg.setSort((int) (System.currentTimeMillis() / 1000));
-        return msg;
-    }
 
 }

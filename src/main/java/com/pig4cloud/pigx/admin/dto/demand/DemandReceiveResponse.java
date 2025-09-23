@@ -11,10 +11,13 @@ import java.time.LocalDateTime;
 @Schema(description = "企业需求接收信息响应")
 public class DemandReceiveResponse {
 
-    public static final String BIZ_CODE = "DEMAND_RECEIVE";  // Add BIZ_CODE constant
+    public static final String BIZ_CODE = "DEMAND_RECEIVE";
 
-    @Schema(description = "主键ID")
+    @Schema(description = "接收记录ID")
     private Long id;
+
+    @Schema(description = "需求ID")
+    private Long demandId;
 
     @Schema(description = "需求名称")
     private String name;
@@ -37,12 +40,15 @@ public class DemandReceiveResponse {
     @Schema(description = "需求摘要")
     private String description;
 
-    @Schema(description = "创建人姓名")
+    @Schema(description = "提交人姓名")
     private String createUserName;
 
     @Schema(description = "所属院系")
     private String deptName;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "提交时间")
     private LocalDateTime createTime;
+
+    @Schema(description = "已读（0否，1是）")
+    private Integer readFlag;
 }

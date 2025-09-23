@@ -10,7 +10,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pig4cloud.pigx.admin.api.entity.SysMessageEntity;
+import com.pig4cloud.pigx.admin.api.entity.SysMessageRelationEntity;
+import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.constants.MessageTemplateEnum;
 import com.pig4cloud.pigx.admin.dto.demand.*;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
@@ -22,10 +26,7 @@ import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.DemandMapper;
-import com.pig4cloud.pigx.admin.service.DemandReceiveService;
-import com.pig4cloud.pigx.admin.service.DemandService;
-import com.pig4cloud.pigx.admin.service.DemandSignupService;
-import com.pig4cloud.pigx.admin.service.FileService;
+import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -45,6 +47,8 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
     private final DemandReceiveService demandReceiveService;
     private final DemandSignupService demandSignupService;
     private final JsonFlowHandle jsonFlowHandle;
+    private final SysUserService sysUserService;
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -71,9 +75,9 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
-        List<DemandReceiveEntity> demandReceiveList = demandReceiveService.lambdaQuery()
-                .eq(DemandReceiveEntity::getDemandId, entity.getId())
-                .list();
+        //List<DemandReceiveEntity> demandReceiveList = demandReceiveService.lambdaQuery()
+        //        .eq(DemandReceiveEntity::getDemandId, entity.getId())
+        //        .list();
         List<DemandSignupEntity> demandSignupList = demandSignupService.lambdaQuery()
                 .eq(DemandSignupEntity::getDemandId, entity.getId())
                 .list();
@@ -83,7 +87,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
                 .update();
         DemandResponse demandResponse = convertToResponse(entity);
         demandResponse.setDemandSignupList(demandSignupList);
-        demandResponse.setDemandReceiveList(demandReceiveList);
+        //demandResponse.setDemandReceiveList(demandReceiveList);
         return demandResponse;
     }
 
@@ -187,13 +191,22 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
         if (!isCreate) {
             this.updateById(entity);
         } else {
-            entity.setFlowKey(DemandResponse.BIZ_CODE);
-            entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+            //需求分类，1 企业需求 2专项需求
+            if (entity.getCategory() == 1) {
+                entity.setFlowKey(DemandResponse.BIZ_CODE);
+                entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
+                this.save(entity);
+                //发起流程
+                jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+            } else if (entity.getCategory() == 2) {
+                this.save(entity);
+                List<SysUser> sysUserList = sysUserService.lambdaQuery().list();
+                demandReceiveService.receive(entity, sysUserList.stream().map(SysUser::getUserId).toList());
+            }
         }
     }
+
+
 
     private DemandResponse convertToResponse(DemandEntity entity) {
         DemandResponse response = BeanUtil.copyProperties(entity, DemandResponse.class);
