@@ -142,7 +142,7 @@ public class DemandController {
     }
 
     @PostMapping("/receive")
-    @Operation(summary = "企业推送")
+    @Operation(summary = "企业需求推送")
     public R<Boolean> receive(@RequestBody DemandReceiveRequest request) {
         return R.ok(demandReceiveService.receive(request));
     }
@@ -154,5 +154,10 @@ public class DemandController {
         return R.ok(demandReceiveService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
-
+    @Operation(summary = "标记已读（支持批量）")
+    @PostMapping("/read")
+    public R<Integer> read(@Valid @RequestBody IdListRequest req) {
+        int rows = demandReceiveService.markReadBatch(req.getIds());
+        return R.ok(rows);
+    }
 }

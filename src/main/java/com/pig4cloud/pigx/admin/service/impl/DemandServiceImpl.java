@@ -10,17 +10,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.api.entity.SysMessageEntity;
-import com.pig4cloud.pigx.admin.api.entity.SysMessageRelationEntity;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
-import com.pig4cloud.pigx.admin.constants.MessageTemplateEnum;
 import com.pig4cloud.pigx.admin.dto.demand.*;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
-import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -38,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -196,12 +190,16 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
         } else {
             //需求分类，1 企业需求 2专项需求
             if (entity.getCategory() == 1) {
-                entity.setFlowKey(DemandResponse.BIZ_CODE);
-                entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-                Map<String, Object> params = MapUtil.newHashMap();
-                params.put("orderName", entity.getName());
-                super.saveOrUpdateOrder(params, entity);
-                jsonFlowHandle.doStart(params, entity);
+                if (null == entity.getUserId()) {
+                    this.save(entity);
+                } else {
+                    entity.setFlowKey(DemandResponse.BIZ_CODE);
+                    entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
+                    Map<String, Object> params = MapUtil.newHashMap();
+                    params.put("orderName", entity.getName());
+                    super.saveOrUpdateOrder(params, entity);
+                    jsonFlowHandle.doStart(params, entity);
+                }
             } else if (entity.getCategory() == 2) {
                 this.save(entity);
                 List<SysUser> sysUserList = sysUserService.lambdaQuery().list();

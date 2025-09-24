@@ -18,4 +18,6 @@ public interface DemandReceiveService extends IService<DemandReceiveEntity> {
     IPage<DemandReceiveResponse> pageResult(Page page, DemandReceivePageRequest request);
 
     void receive(DemandEntity entity, List<Long> userIds);
+
+    int markReadBatch(List<Long> ids);
 }

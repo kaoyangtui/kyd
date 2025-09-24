@@ -27,4 +27,7 @@ public class DemandReceivePageRequest extends BasePageQuery {
 
     @Schema(description = "提交时间止")
     private String endTime;
+
+    @Schema(description = "已读（0否，1是）")
+    private Integer readFlag;
 }

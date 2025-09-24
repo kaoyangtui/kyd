@@ -2,10 +2,8 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.api.entity.SysMessageEntity;
@@ -24,6 +22,7 @@ import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -93,6 +92,24 @@ public class DemandReceiveServiceImpl extends ServiceImpl<DemandReceiveMapper, D
         if (CollUtil.isNotEmpty(sysMessageRelationList)) {
             messageService.saveMessageRelation(sysMessageRelationList);
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int markReadBatch(List<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return 0;
+        }
+        // 只更新未读的记录
+        LambdaUpdateWrapper<DemandReceiveEntity> uw = new LambdaUpdateWrapper<>();
+        uw.in(DemandReceiveEntity::getId, ids);
+        uw.ne(DemandReceiveEntity::getReadFlag, 1);
+
+        DemandReceiveEntity entity = new DemandReceiveEntity();
+        entity.setReadFlag(1);
+
+        // 使用 mapper.update(entity, wrapper) 获取实际影响行数
+        return this.baseMapper.update(entity, uw);
     }
 
 }
