@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -36,6 +37,7 @@ import com.pig4cloud.pigx.admin.service.OwnerService;
 import com.pig4cloud.pigx.admin.service.PlantVarietyService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +53,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, PlantVarietyEntity> implements PlantVarietyService, FlowStatusUpdater {
+public class PlantVarietyServiceImpl extends OrderCommonServiceImpl<PlantVarietyMapper, PlantVarietyEntity> implements PlantVarietyService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final CompleterService completerService;
@@ -110,9 +112,10 @@ public class PlantVarietyServiceImpl extends ServiceImpl<PlantVarietyMapper, Pla
         if (isCreate) {
             entity.setFlowKey(PlantVarietyResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+            Map<String, Object> params = MapUtil.newHashMap();
+            params.put("orderName", entity.getName());
+            super.saveOrUpdateOrder(params, entity);
+            jsonFlowHandle.doStart(params, entity);
         } else {
             this.updateById(entity);
         }

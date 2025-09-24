@@ -218,8 +218,8 @@ public class IpTransformServiceImpl extends OrderCommonServiceImpl<IpTransformMa
         } else {
             entity.setFlowKey(IpTransformResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            // 设置流程参数
             Map<String, Object> params = MapUtil.newHashMap();
+            params.put("orderName", entity.getName());
             super.saveOrUpdateOrder(params, entity);
             jsonFlowHandle.doStart(params, entity);
         }

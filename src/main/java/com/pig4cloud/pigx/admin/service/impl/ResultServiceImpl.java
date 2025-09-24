@@ -3,6 +3,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -29,6 +30,7 @@ import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.ResultService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 科研成果表
@@ -48,7 +51,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> implements ResultService, FlowStatusUpdater {
+public class ResultServiceImpl extends OrderCommonServiceImpl<ResultMapper, ResultEntity> implements ResultService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final JsonFlowHandle jsonFlowHandle;
@@ -119,9 +122,10 @@ public class ResultServiceImpl extends ServiceImpl<ResultMapper, ResultEntity> i
         if (isCreate) {
             entity.setFlowKey(ResultResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+            Map<String, Object> params = MapUtil.newHashMap();
+            params.put("orderName", entity.getName());
+            super.saveOrUpdateOrder(params, entity);
+            jsonFlowHandle.doStart(params, entity);
         } else {
             this.updateById(entity);
         }

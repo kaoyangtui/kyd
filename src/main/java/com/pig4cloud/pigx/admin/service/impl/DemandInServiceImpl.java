@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -28,6 +29,7 @@ import com.pig4cloud.pigx.admin.service.DemandInService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.Lists;
@@ -36,10 +38,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEntity> implements DemandInService, FlowStatusUpdater {
+public class DemandInServiceImpl extends OrderCommonServiceImpl<DemandInMapper, DemandInEntity> implements DemandInService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final JsonFlowHandle jsonFlowHandle;
@@ -171,9 +174,10 @@ public class DemandInServiceImpl extends ServiceImpl<DemandInMapper, DemandInEnt
         } else {
             entity.setFlowKey(DemandInResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+            Map<String, Object> params = MapUtil.newHashMap();
+            params.put("orderName", entity.getName());
+            super.saveOrUpdateOrder(params, entity);
+            jsonFlowHandle.doStart(params, entity);
         }
     }
 

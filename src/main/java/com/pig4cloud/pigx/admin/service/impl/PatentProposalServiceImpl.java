@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -30,6 +31,7 @@ import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.Lists;
@@ -39,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 专利提案表
@@ -48,7 +51,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper, PatentProposalEntity> implements PatentProposalService, FlowStatusUpdater {
+public class PatentProposalServiceImpl extends OrderCommonServiceImpl<PatentProposalMapper, PatentProposalEntity> implements PatentProposalService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final CompleterService completerService;
@@ -196,9 +199,10 @@ public class PatentProposalServiceImpl extends ServiceImpl<PatentProposalMapper,
         } else {
             entity.setFlowKey(PatentProposalResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
+            Map<String, Object> params = MapUtil.newHashMap();
+            params.put("orderName", entity.getTitle());
+            super.saveOrUpdateOrder(params, entity);
+            jsonFlowHandle.doStart(params, entity);
             PatentPreEvalCreateRequest preEvalRequest = new PatentPreEvalCreateRequest();
             preEvalRequest.setCode(entity.getCode());
             preEvalRequest.setTitle(entity.getTitle());

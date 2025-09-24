@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -26,6 +27,7 @@ import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +43,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, PatentClaimEntity> implements PatentClaimService, FlowStatusUpdater {
+public class PatentClaimServiceImpl extends OrderCommonServiceImpl<PatentClaimMapper, PatentClaimEntity> implements PatentClaimService, FlowStatusUpdater {
 
     private final SysUserService sysUserService;
     private final PatentInfoService patentInfoService;
@@ -210,9 +212,10 @@ public class PatentClaimServiceImpl extends ServiceImpl<PatentClaimMapper, Paten
         entity.setInventorName(patentInfo.getInventorName());
         entity.setFlowKey(PatentClaimResponse.BIZ_CODE);
         entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-        this.save(entity);
-        // 10. 发起流程
-        jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getTitle());
+        Map<String, Object> params = MapUtil.newHashMap();
+        params.put("orderName", entity.getTitle());
+        super.saveOrUpdateOrder(params, entity);
+        jsonFlowHandle.doStart(params, entity);
         return true;
     }
 

@@ -2,13 +2,13 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
@@ -33,6 +33,7 @@ import com.pig4cloud.pigx.admin.service.IpAssignService;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -43,11 +44,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEntity> implements IpAssignService, FlowStatusUpdater {
+public class IpAssignServiceImpl extends OrderCommonServiceImpl<IpAssignMapper, IpAssignEntity> implements IpAssignService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final JsonFlowHandle jsonFlowHandle;
@@ -190,9 +192,10 @@ public class IpAssignServiceImpl extends ServiceImpl<IpAssignMapper, IpAssignEnt
         } else {
             entity.setFlowKey(IpAssignResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), "【赋权】" + entity.getIpName());
+            Map<String, Object> params = MapUtil.newHashMap();
+            params.put("orderName", "【赋权】" + entity.getIpName());
+            super.saveOrUpdateOrder(params, entity);
+            jsonFlowHandle.doStart(params, entity);
         }
     }
 

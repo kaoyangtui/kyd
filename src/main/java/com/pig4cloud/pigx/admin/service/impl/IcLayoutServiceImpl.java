@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -36,6 +37,7 @@ import com.pig4cloud.pigx.admin.service.IcLayoutService;
 import com.pig4cloud.pigx.admin.service.OwnerService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.Lists;
@@ -49,7 +51,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEntity> implements IcLayoutService, FlowStatusUpdater {
+public class IcLayoutServiceImpl extends OrderCommonServiceImpl<IcLayoutMapper, IcLayoutEntity> implements IcLayoutService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final CompleterService completerService;
@@ -184,9 +186,10 @@ public class IcLayoutServiceImpl extends ServiceImpl<IcLayoutMapper, IcLayoutEnt
             entity.setFlowKey(IcLayoutResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             entity.setCode(ParamResolver.getStr(IcLayoutResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+            Map<String, Object> params = MapUtil.newHashMap();
+            params.put("orderName", entity.getName());
+            super.saveOrUpdateOrder(params, entity);
+            jsonFlowHandle.doStart(params, entity);
         }
 
         completerService.replaceCompleters(code, request.getCompleters());

@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -31,6 +32,7 @@ import com.pig4cloud.pigx.admin.service.OwnerService;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegService;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +42,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftCopyRegEntity> implements SoftCopyRegService, FlowStatusUpdater {
+public class SoftCopyRegServiceImpl extends OrderCommonServiceImpl<SoftCopyRegMapper, SoftCopyRegEntity> implements SoftCopyRegService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final OwnerService ownerService;
@@ -108,9 +112,10 @@ public class SoftCopyRegServiceImpl extends ServiceImpl<SoftCopyRegMapper, SoftC
         if (isCreate) {
             entity.setFlowKey(SoftCopyRegResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            this.save(entity);
-            //发起流程
-            jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+            Map<String, Object> params = MapUtil.newHashMap();
+            params.put("orderName", entity.getName());
+            super.saveOrUpdateOrder(params, entity);
+            jsonFlowHandle.doStart(params, entity);
         } else {
             this.updateById(entity);
         }

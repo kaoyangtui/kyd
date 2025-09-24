@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -29,6 +30,7 @@ import com.pig4cloud.pigx.admin.mapper.DemandMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.Lists;
@@ -38,10 +40,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> implements DemandService, FlowStatusUpdater {
+public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, DemandEntity> implements DemandService, FlowStatusUpdater {
 
     private final FileService fileService;
     private final DemandReceiveService demandReceiveService;
@@ -195,9 +198,10 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, DemandEntity> i
             if (entity.getCategory() == 1) {
                 entity.setFlowKey(DemandResponse.BIZ_CODE);
                 entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-                this.save(entity);
-                //发起流程
-                jsonFlowHandle.startFlow(BeanUtil.beanToMap(entity), entity.getName());
+                Map<String, Object> params = MapUtil.newHashMap();
+                params.put("orderName", entity.getName());
+                super.saveOrUpdateOrder(params, entity);
+                jsonFlowHandle.doStart(params, entity);
             } else if (entity.getCategory() == 2) {
                 this.save(entity);
                 List<SysUser> sysUserList = sysUserService.lambdaQuery().list();
