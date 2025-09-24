@@ -42,25 +42,31 @@ public class PcServiceImpl implements PcService {
         PortalStatisticResponse resp = new PortalStatisticResponse();
         resp.setPatentCount(
                 ObjectUtil.defaultIfNull(
-                        patentInfoService.count(new LambdaQueryWrapper<PatentInfoEntity>().eq(PatentInfoEntity::getDelFlag, "0")),
+                        patentInfoService.count(new LambdaQueryWrapper<PatentInfoEntity>()
+                                .eq(PatentInfoEntity::getMergeFlag, "1")),
                         0L
                 )
         );
         resp.setResultCount(
                 ObjectUtil.defaultIfNull(
-                        resultService.count(new LambdaQueryWrapper<ResultEntity>().eq(ResultEntity::getShelfStatus, 1)),
+                        resultService.count(new LambdaQueryWrapper<ResultEntity>()
+                                .eq(ResultEntity::getFlowStatus, 1)
+                                .eq(ResultEntity::getShelfStatus, 1)),
                         0L
                 )
         );
         resp.setDemandCount(
                 ObjectUtil.defaultIfNull(
-                        demandService.count(new LambdaQueryWrapper<DemandEntity>().eq(DemandEntity::getDelFlag, "0")),
+                        demandService.count(new LambdaQueryWrapper<DemandEntity>()
+                                .eq(DemandEntity::getFlowStatus, 1)
+                                .eq(DemandEntity::getShelfStatus, 1)),
                         0L
                 )
         );
         resp.setExpertCount(
                 ObjectUtil.defaultIfNull(
-                        expertService.count(new LambdaQueryWrapper<ExpertEntity>().eq(ExpertEntity::getShelfStatus, 1)),
+                        expertService.count(new LambdaQueryWrapper<ExpertEntity>()
+                                .eq(ExpertEntity::getShelfStatus, 1)),
                         0L
                 )
         );

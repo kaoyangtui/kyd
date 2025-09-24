@@ -54,7 +54,7 @@ public class UserController {
     private final EventMeetingApplyService eventMeetingApplyService;
 
     @GetMapping("/customer/page")
-    @Operation(summary = "分页查询user")
+    @Operation(summary = "会员管理")
     public R<IPage<UserResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject UserPageRequest request) {
         return R.ok(userService.pageResult(PageUtil.toPage(pageRequest), request));
     }
