@@ -1,4 +1,4 @@
-package com.pig4cloud.pigx.admin.dto.demand;
+package com.pig4cloud.pigx.admin.dto.demandReceive;
 
 import com.pig4cloud.pigx.admin.dto.BasePageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;

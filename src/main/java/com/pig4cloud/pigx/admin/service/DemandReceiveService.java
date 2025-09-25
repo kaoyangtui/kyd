@@ -3,9 +3,9 @@ package com.pig4cloud.pigx.admin.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.pig4cloud.pigx.admin.dto.demand.DemandReceivePageRequest;
-import com.pig4cloud.pigx.admin.dto.demand.DemandReceiveRequest;
-import com.pig4cloud.pigx.admin.dto.demand.DemandReceiveResponse;
+import com.pig4cloud.pigx.admin.dto.demandReceive.DemandReceivePageRequest;
+import com.pig4cloud.pigx.admin.dto.demandReceive.DemandReceiveRequest;
+import com.pig4cloud.pigx.admin.dto.demandReceive.DemandReceiveResponse;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
 import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 

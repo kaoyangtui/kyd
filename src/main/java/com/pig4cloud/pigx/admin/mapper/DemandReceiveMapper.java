@@ -3,8 +3,8 @@ package com.pig4cloud.pigx.admin.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.pig4cloud.pigx.admin.dto.demand.DemandReceivePageRequest;
-import com.pig4cloud.pigx.admin.dto.demand.DemandReceiveResponse;
+import com.pig4cloud.pigx.admin.dto.demandReceive.DemandReceivePageRequest;
+import com.pig4cloud.pigx.admin.dto.demandReceive.DemandReceiveResponse;
 import com.pig4cloud.pigx.admin.entity.DemandReceiveEntity;
 import org.apache.ibatis.annotations.*;
 

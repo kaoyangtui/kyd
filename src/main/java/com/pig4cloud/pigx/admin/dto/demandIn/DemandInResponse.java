@@ -22,11 +22,15 @@ public class DemandInResponse extends BaseResponse {
     private Long id;
     @Schema(description = "业务编码")
     private String code;
-    @Schema(description = "流程状态")
+    @Schema(description = "流程实例 ID")
+    private String flowInstId;
+    @Schema(description = "流程KEY")
+    private String flowKey;
+    @Schema(description = "流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
     private Integer flowStatus;
     @Schema(description = "流程状态触发时间")
     private LocalDateTime flowStatusTime;
-    @Schema(description = "流程节点名称")
+    @Schema(description = "当前流程节点名称")
     private String currentNodeName;
     @Schema(description = "需求名称")
     private String name;

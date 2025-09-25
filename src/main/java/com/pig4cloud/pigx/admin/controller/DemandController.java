@@ -2,6 +2,7 @@ package com.pig4cloud.pigx.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.dto.demandReceive.DemandReceiveRequest;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.IdRequest;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
@@ -147,17 +148,4 @@ public class DemandController {
         return R.ok(demandReceiveService.receive(request));
     }
 
-    @GetMapping("/receive/page")
-    @Operation(summary = "分页查询需求接收信息")
-    public R<IPage<DemandReceiveResponse>> receivePage(@ParameterObject PageRequest pageRequest,
-                                                       @ParameterObject DemandReceivePageRequest request) {
-        return R.ok(demandReceiveService.pageResult(PageUtil.toPage(pageRequest), request));
-    }
-
-    @Operation(summary = "标记已读（支持批量）")
-    @PostMapping("/read")
-    public R<Integer> read(@Valid @RequestBody IdListRequest req) {
-        int rows = demandReceiveService.markReadBatch(req.getIds());
-        return R.ok(rows);
-    }
 }
