@@ -166,6 +166,7 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
 
         entity.setField(StrUtil.join(";", request.getField()));
         entity.setTags(StrUtil.join(";", request.getTags()));
+        entity.setCompanyArea(StrUtil.join(";", request.getCompanyArea()));
 
         if (CollUtil.isNotEmpty(request.getAttachFileUrl())) {
             List<FileCreateRequest> fileCreateRequestList = Lists.newArrayList();
@@ -214,6 +215,7 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
         DemandResponse response = BeanUtil.copyProperties(entity, DemandResponse.class);
         response.setTags(StrUtil.split(entity.getTags(), ";"));
         response.setField(StrUtil.split(entity.getField(), ";"));
+        response.setCompanyArea(StrUtil.split(entity.getCompanyArea(), ";"));
         response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
         return response;
     }

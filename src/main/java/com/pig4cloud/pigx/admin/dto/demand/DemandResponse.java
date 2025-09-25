@@ -49,7 +49,7 @@ public class DemandResponse extends BaseResponse {
     @Schema(description = "企业类别")
     private String companyType;
     @Schema(description = "企业所属地区")
-    private String companyArea;
+    private List<String> companyArea;
     @Schema(description = "企业地址")
     private String companyAddr;
     @Schema(description = "企业简介")
