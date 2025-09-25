@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.api.entity.SysUser;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.demand.*;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
@@ -192,6 +193,10 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
             //需求分类，1 企业需求 2专项需求
             if (entity.getCategory() == 1) {
                 if (null == entity.getUserId()) {
+                    entity.setFlowKey(DemandResponse.BIZ_CODE);
+                    entity.setFlowStatus(FlowStatusEnum.FINISH.getStatus());
+                    entity.setFlowStatusTime(LocalDateTime.now());
+                    entity.setCurrentNodeName("完成");
                     this.save(entity);
                 } else {
                     entity.setFlowKey(DemandResponse.BIZ_CODE);
