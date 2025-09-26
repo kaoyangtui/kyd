@@ -59,12 +59,6 @@ public class PatentInfoController {
         return R.ok(patentInfoService.patentTypeSummary(request));
     }
 
-    @Operation(summary = "全国专利查询")
-    @PostMapping("/search")
-    public R<IPage<PatentSearchListRes>> search(@RequestBody PatentSearchListReq req) {
-        return R.ok(patentInfoService.searchList(req));
-    }
-
     @PostMapping("/shelf")
     @Operation(summary = "专利上下架")
     public R<Boolean> shelf(@RequestBody PatentShelfRequest request) {

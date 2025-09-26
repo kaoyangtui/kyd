@@ -3,7 +3,7 @@ package com.pig4cloud.pigx.admin.dto.patentProposal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.pig4cloud.pigx.admin.dto.BaseResponse;
-import com.pig4cloud.pigx.admin.dto.PatentPreEval.PatentPreEvalResponse;
+import com.pig4cloud.pigx.admin.dto.patentPreEval.PatentPreEvalResponse;
 import com.pig4cloud.pigx.admin.entity.CompleterEntity;
 import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;

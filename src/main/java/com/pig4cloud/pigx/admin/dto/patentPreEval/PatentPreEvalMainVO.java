@@ -1,4 +1,4 @@
-package com.pig4cloud.pigx.admin.dto.PatentPreEval;
+package com.pig4cloud.pigx.admin.dto.patentPreEval;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

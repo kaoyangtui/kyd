@@ -2,7 +2,7 @@ package com.pig4cloud.pigx.admin.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.pig4cloud.pigx.admin.dto.PatentPreEval.*;
+import com.pig4cloud.pigx.admin.dto.patentPreEval.*;
 import com.pig4cloud.pigx.admin.entity.PatentPreEvalEntity;
 
 /**

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pigx.admin.mapper.NationalPatentDetailMapper">
+
+  <resultMap id="nationalPatentDetailMap" type="com.pig4cloud.pigx.admin.entity.NationalPatentDetailEntity">
+        <id property="id" column="id"/>
+        <result property="pid" column="pid"/>
+        <result property="claimsPath" column="claims_path"/>
+        <result property="claimsType" column="claims_type"/>
+        <result property="independentClaims" column="independent_claims"/>
+        <result property="instrPath" column="instr_path"/>
+        <result property="instrTif" column="instr_tif"/>
+        <result property="cl" column="cl"/>
+        <result property="draws" column="draws"/>
+        <result property="tifDistributePath" column="tif_distribute_path"/>
+        <result property="drawsPic" column="draws_pic"/>
+        <result property="absPic" column="abs_pic"/>
+        <result property="designPic" column="design_pic"/>
+        <result property="incPic" column="inc_pic"/>
+        <result property="simpleFamilyList" column="simple_family_list"/>
+        <result property="extendFamilyList" column="extend_family_list"/>
+        <result property="applicantInfo" column="applicant_info"/>
+        <result property="citationIpc" column="citation_ipc"/>
+        <result property="citationNo" column="citation_no"/>
+        <result property="citationApplicant" column="citation_applicant"/>
+        <result property="citationCountry" column="citation_country"/>
+        <result property="citationOther" column="citation_other"/>
+        <result property="citationForward" column="citation_forward"/>
+        <result property="citationForwardCountry" column="citation_forward_country"/>
+        <result property="citationInfo" column="citation_info"/>
+        <result property="legalStatus" column="legal_status"/>
+        <result property="legalList" column="legal_list"/>
+        <result property="transferList" column="transfer_list"/>
+        <result property="preservationList" column="preservation_list"/>
+        <result property="exploitationList" column="exploitation_list"/>
+        <result property="priorityInfo" column="priority_info"/>
+        <result property="invalidList" column="invalid_list"/>
+        <result property="reexamList" column="reexam_list"/>
+        <result property="judgmentList" column="judgment_list"/>
+        <result property="customList" column="custom_list"/>
+        <result property="overseasFamilyInfo" column="overseas_family_info"/>
+        <result property="firstJudgmentList" column="first_judgment_list"/>
+        <result property="secondJudgmentList" column="second_judgment_list"/>
+        <result property="emergingIndustriesClassifications" column="emerging_industries_classifications"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="tenantId" column="tenant_id"/>
+  </resultMap>
+</mapper>

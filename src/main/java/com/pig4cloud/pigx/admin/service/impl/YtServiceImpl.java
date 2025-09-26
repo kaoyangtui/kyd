@@ -1,13 +1,18 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.config.YtConfig;
+import com.pig4cloud.pigx.admin.constants.QuotaPeriodType;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.service.ApiQuotaService;
+import com.pig4cloud.pigx.admin.service.NationalPatentDetailService;
+import com.pig4cloud.pigx.admin.service.NationalPatentInfoService;
 import com.pig4cloud.pigx.admin.service.YtService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -15,25 +20,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-/**
- * @author zhaoliang
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class YtServiceImpl implements YtService {
 
     private final YtConfig ytConfig;
+    private final ApiQuotaService apiQuotaService;
+
+    private static final String API_CODE_SF1V1 = "YT_SF1V1";
 
     @Override
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
     public Page<PatentLogEntity> page(String exp, String dbs, int option, String order, int from, int size, String displayCols, boolean highLight, boolean isDbAgg) {
+        Long userId = getCurrentUserId();
+
+        apiQuotaService.checkLimitOrThrow(API_CODE_SF1V1, userId, QuotaPeriodType.TOTAL);
+
         Map<String, Object> param = new HashMap<>();
         param.put("exp", exp);
         param.put("dbs", dbs);
@@ -44,17 +54,29 @@ public class YtServiceImpl implements YtService {
         param.put("displayCols", displayCols);
         param.put("highLight", highLight);
         param.put("isDbAgg", isDbAgg);
+
         JSONObject patentResult = this.doPost(ytConfig.getSf1V1Url(), param);
+
         Page<JSONObject> jsonPage = JSONUtil.toBean(patentResult.getJSONObject("data"), Page.class);
-        List<PatentLogEntity> entityList = jsonPage.getRecords().stream()
-                .map(obj -> JSONUtil.toBean((JSONObject) obj, PatentLogEntity.class))
-                .collect(Collectors.toList());
+        List<JSONObject> rawRecords = jsonPage.getRecords() != null ? jsonPage.getRecords() : Collections.emptyList();
+
+        List<PatentLogEntity> patentLogList = new ArrayList<>(rawRecords.size());
+        for (JSONObject obj : rawRecords) {
+            PatentLogEntity logEntity = JSONUtil.toBean(obj, PatentLogEntity.class);
+            patentLogList.add(logEntity);
+        }
+
+        // 按“实际返回条数”扣额（不落库）
+        int actualCount = patentLogList.size();
+        if (actualCount > 0) {
+            apiQuotaService.consumeOrThrow(API_CODE_SF1V1, userId, QuotaPeriodType.TOTAL, actualCount);
+        }
 
         Page<PatentLogEntity> page = new Page<>();
         page.setCurrent(jsonPage.getCurrent());
         page.setSize(jsonPage.getSize());
         page.setTotal(jsonPage.getTotal());
-        page.setRecords(entityList);
+        page.setRecords(patentLogList);
         return page;
     }
 
@@ -87,22 +109,14 @@ public class YtServiceImpl implements YtService {
         return patentResult.getStr("data");
     }
 
-    /**
-     * 带参数的post请求（使用 Hutool）
-     *
-     * @param url 请求地址
-     * @param map 请求参数
-     * @return 请求返回的响应体
-     */
     private JSONObject doPost(String url, Map<String, Object> map) throws BizException {
-        // 使用 Hutool HttpRequest 发起 POST 请求，自动构造 form 表单数据
         HttpResponse response = HttpRequest.post(url)
                 .body(JSONUtil.toJsonStr(map))
                 .timeout(20000)
                 .execute();
         JSONObject result = JSONUtil.parseObj(response.body());
         Long code = result.getLong("code");
-        if (code == 0) {
+        if (code != null && code == 0) {
             return result;
         } else {
             throw new BizException("接口调用失败，地址：{}，响应：{}", url, result);
@@ -115,7 +129,7 @@ public class YtServiceImpl implements YtService {
                 .execute()) {
             JSONObject result = JSONUtil.parseObj(response.body());
             Long status = result.getLong("code");
-            if (status == 0) {
+            if (status != null && status == 0) {
                 return result;
             } else {
                 throw new BizException("接口调用失败，地址：{}，响应：{}", url, result);
@@ -123,5 +137,9 @@ public class YtServiceImpl implements YtService {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    private Long getCurrentUserId() {
+        return null;
     }
 }

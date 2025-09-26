@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pigx.admin.mapper.ApiQuotaMapper">
+
+  <resultMap id="apiQuotaMap" type="com.pig4cloud.pigx.admin.entity.ApiQuotaEntity">
+        <id property="id" column="id"/>
+        <result property="apiCode" column="api_code"/>
+        <result property="userId" column="user_id"/>
+        <result property="periodType" column="period_type"/>
+        <result property="periodStart" column="period_start"/>
+        <result property="periodEnd" column="period_end"/>
+        <result property="limitTotal" column="limit_total"/>
+        <result property="usedCount" column="used_count"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="tenantId" column="tenant_id"/>
+  </resultMap>
+</mapper>
