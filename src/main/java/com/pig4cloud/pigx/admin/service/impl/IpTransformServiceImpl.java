@@ -9,7 +9,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
@@ -27,7 +26,6 @@ import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
-import com.pig4cloud.pigx.jsonflow.service.RunFlowService;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -36,8 +34,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -259,41 +257,73 @@ public class IpTransformServiceImpl extends OrderCommonServiceImpl<IpTransformMa
                 .set(dto.getFlowStatus() != null, IpTransformEntity::getFlowStatusTime, LocalDateTime.now())
                 .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), IpTransformEntity::getCurrentNodeName, dto.getCurrentNodeName())
                 .update();
+
         if (dto.getFlowStatus() != null && dto.getFlowStatus().equals(FlowStatusEnum.FINISH.getStatus())) {
             IpTransformEntity ipTransform = this.lambdaQuery()
                     .eq(IpTransformEntity::getFlowInstId, dto.getFlowInstId())
                     .one();
-            String pid = ipTransform.getIpCode();
+            if (ipTransform == null) return;
+
+            // 1) 解析多选 pid（兼容中英文分号/逗号与空白）
+            String raw = StrUtil.nullToEmpty(ipTransform.getIpCode());
+            raw = StrUtil.replace(raw, "；", ";");
+            raw = StrUtil.replace(raw, "，", ";");
+            raw = StrUtil.replace(raw, ",", ";");
+            Set<String> pidSet = Arrays.stream(raw.split(";"))
+                    .map(StrUtil::trim)
+                    .filter(StrUtil::isNotEmpty)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            if (CollUtil.isEmpty(pidSet)) return;
+
             String code = ipTransform.getCode();
             String name = ipTransform.getName();
-            //流程完毕创建转化专利监控
-            PatentMonitorTransformEntity entity = patentMonitorTransformService.lambdaQuery()
-                    .eq(PatentMonitorTransformEntity::getPid, pid)
+
+            // 2) 一次性查出这些 pid 对应的专利信息，转 map
+            Map<String, PatentInfoEntity> pid2Patent = patentInfoService.lambdaQuery()
+                    .in(PatentInfoEntity::getPid, pidSet)
+                    .select(PatentInfoEntity::getPid, PatentInfoEntity::getAppNumber, PatentInfoEntity::getTitle, PatentInfoEntity::getPatType)
+                    .list()
+                    .stream()
+                    .collect(Collectors.toMap(PatentInfoEntity::getPid, e -> e, (a, b) -> a));
+
+            if (pid2Patent.isEmpty()) return;
+
+            // 3) 已存在的监控记录（同 code 下已建立的 pid），避免重复创建
+            Set<String> existsPid = patentMonitorTransformService.lambdaQuery()
                     .eq(PatentMonitorTransformEntity::getCode, code)
-                    .last("limit 1")
-                    .one();
-            if (entity == null) {
-                PatentInfoEntity patentInfo = patentInfoService.lambdaQuery()
-                        .eq(PatentInfoEntity::getPid, pid).one();
-                if (patentInfo == null) {
-                    return;
-                }
-                entity = new PatentMonitorTransformEntity();
-                entity.setPid(pid);
-                entity.setAppNumber(patentInfo.getAppNumber());
-                entity.setTitle(patentInfo.getTitle());
-                entity.setCode(code);
-                entity.setName(name);
-                entity.setPatType(patentInfo.getPatType());
-                entity.setSignDate(ipTransform.getContractSignTime());
-                entity.setExpireDate(ipTransform.getContractExpireTime());
-                entity.setDeptId(ipTransform.getDeptId());
-                entity.setDeptName(ipTransform.getDeptName());
-                entity.setCreateBy(ipTransform.getCreateBy());
-                entity.setCreateUserId(ipTransform.getCreateUserId());
-                patentMonitorTransformService.save(entity);
+                    .in(PatentMonitorTransformEntity::getPid, pidSet)
+                    .select(PatentMonitorTransformEntity::getPid)
+                    .list()
+                    .stream()
+                    .map(PatentMonitorTransformEntity::getPid)
+                    .collect(Collectors.toSet());
+
+            // 4) 构建待保存列表
+            List<PatentMonitorTransformEntity> toSave = new ArrayList<>();
+            for (String pid : pidSet) {
+                if (existsPid.contains(pid)) continue;
+                PatentInfoEntity p = pid2Patent.get(pid);
+                if (p == null) continue;
+
+                PatentMonitorTransformEntity e = new PatentMonitorTransformEntity();
+                e.setPid(pid);
+                e.setAppNumber(p.getAppNumber());
+                e.setTitle(p.getTitle());
+                e.setCode(code);
+                e.setName(name);
+                e.setPatType(p.getPatType());
+                e.setSignDate(ipTransform.getContractSignTime());
+                e.setExpireDate(ipTransform.getContractExpireTime());
+                e.setDeptId(ipTransform.getDeptId());
+                e.setDeptName(ipTransform.getDeptName());
+                e.setCreateBy(ipTransform.getCreateBy());
+                e.setCreateUserId(ipTransform.getCreateUserId());
+                toSave.add(e);
+            }
+
+            if (CollUtil.isNotEmpty(toSave)) {
+                patentMonitorTransformService.saveBatch(toSave);
             }
         }
-
     }
 }

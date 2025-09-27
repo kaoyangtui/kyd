@@ -45,7 +45,6 @@ public class ExternalPatentMonitorController {
      */
     @Operation(summary = "分页查询" , description = "分页查询" )
     @GetMapping("/page" )
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentMonitor_view')" )
     public R getExternalPatentMonitorPage(@ParameterObject Page page, @ParameterObject ExternalPatentMonitorEntity externalPatentMonitor) {
         LambdaQueryWrapper<ExternalPatentMonitorEntity> wrapper = Wrappers.lambdaQuery();
         return R.ok(externalPatentMonitorService.page(page, wrapper));
@@ -59,7 +58,6 @@ public class ExternalPatentMonitorController {
      */
     @Operation(summary = "通过id查询" , description = "通过id查询" )
     @GetMapping("/{id}" )
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentMonitor_view')" )
     public R getById(@PathVariable("id" ) Long id) {
         return R.ok(externalPatentMonitorService.getById(id));
     }
@@ -72,7 +70,6 @@ public class ExternalPatentMonitorController {
     @Operation(summary = "新增专利监控表" , description = "新增专利监控表" )
     @SysLog("新增专利监控表" )
     @PostMapping
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentMonitor_add')" )
     public R save(@RequestBody ExternalPatentMonitorEntity externalPatentMonitor) {
         return R.ok(externalPatentMonitorService.save(externalPatentMonitor));
     }
@@ -85,7 +82,6 @@ public class ExternalPatentMonitorController {
     @Operation(summary = "修改专利监控表" , description = "修改专利监控表" )
     @SysLog("修改专利监控表" )
     @PutMapping
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentMonitor_edit')" )
     public R updateById(@RequestBody ExternalPatentMonitorEntity externalPatentMonitor) {
         return R.ok(externalPatentMonitorService.updateById(externalPatentMonitor));
     }
@@ -98,7 +94,6 @@ public class ExternalPatentMonitorController {
     @Operation(summary = "通过id删除专利监控表" , description = "通过id删除专利监控表" )
     @SysLog("通过id删除专利监控表" )
     @DeleteMapping
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentMonitor_del')" )
     public R removeById(@RequestBody Long[] ids) {
         return R.ok(externalPatentMonitorService.removeBatchByIds(CollUtil.toList(ids)));
     }
@@ -112,7 +107,6 @@ public class ExternalPatentMonitorController {
      */
     @ResponseExcel
     @GetMapping("/export")
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentMonitor_export')" )
     public List<ExternalPatentMonitorEntity> export(ExternalPatentMonitorEntity externalPatentMonitor,Long[] ids) {
         return externalPatentMonitorService.list(Wrappers.lambdaQuery(externalPatentMonitor).in(ArrayUtil.isNotEmpty(ids), ExternalPatentMonitorEntity::getId, ids));
     }

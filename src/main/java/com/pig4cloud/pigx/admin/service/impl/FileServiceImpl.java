@@ -63,26 +63,46 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean batchCreate(List<FileCreateRequest> requestList) {
+        // 为空或空列表，直接视为成功
         if (CollUtil.isEmpty(requestList)) {
             return Boolean.TRUE;
         }
 
-        // 提取所有 code 字段，非空去重
-        List<String> codeList = requestList.stream()
+        // 1) 过滤掉 null 的请求项
+        List<FileCreateRequest> validList = requestList.stream()
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (CollUtil.isEmpty(validList)) {
+            return Boolean.TRUE;
+        }
+
+        // 2) 提取 code，非空去重
+        List<String> codeList = validList.stream()
                 .map(FileCreateRequest::getCode)
                 .filter(StrUtil::isNotBlank)
                 .distinct()
                 .toList();
 
+        // 3) 先删同 code 的旧记录
         if (CollUtil.isNotEmpty(codeList)) {
-            // 先删除已有的相同 code 的记录
             this.remove(Wrappers.<FileEntity>lambdaQuery().in(FileEntity::getCode, codeList));
         }
 
-        // 执行批量保存
-        List<FileEntity> entityList = BeanUtil.copyToList(requestList, FileEntity.class);
+        // 4) 拷贝并过滤掉可能拷贝失败/为空的实体；如需只插入有 code 的项，可再加一层过滤
+        List<FileEntity> entityList = validList.stream()
+                .map(req -> BeanUtil.copyProperties(req, FileEntity.class))
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (CollUtil.isEmpty(entityList)) {
+            return Boolean.TRUE;
+        }
+
+        // 5) 执行批量保存
         return this.saveBatch(entityList);
     }
+
 
 
     @Override

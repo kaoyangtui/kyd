@@ -45,7 +45,6 @@ public class ExternalPatentUserMonitorConfigController {
      */
     @Operation(summary = "分页查询" , description = "分页查询" )
     @GetMapping("/page" )
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentUserMonitorConfig_view')" )
     public R getExternalPatentUserMonitorConfigPage(@ParameterObject Page page, @ParameterObject ExternalPatentUserMonitorConfigEntity externalPatentUserMonitorConfig) {
         LambdaQueryWrapper<ExternalPatentUserMonitorConfigEntity> wrapper = Wrappers.lambdaQuery();
         return R.ok(externalPatentUserMonitorConfigService.page(page, wrapper));
@@ -59,7 +58,6 @@ public class ExternalPatentUserMonitorConfigController {
      */
     @Operation(summary = "通过id查询" , description = "通过id查询" )
     @GetMapping("/{id}" )
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentUserMonitorConfig_view')" )
     public R getById(@PathVariable("id" ) Long id) {
         return R.ok(externalPatentUserMonitorConfigService.getById(id));
     }
@@ -72,7 +70,6 @@ public class ExternalPatentUserMonitorConfigController {
     @Operation(summary = "新增用户监控配置（企业/技术，单值）" , description = "新增用户监控配置（企业/技术，单值）" )
     @SysLog("新增用户监控配置（企业/技术，单值）" )
     @PostMapping
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentUserMonitorConfig_add')" )
     public R save(@RequestBody ExternalPatentUserMonitorConfigEntity externalPatentUserMonitorConfig) {
         return R.ok(externalPatentUserMonitorConfigService.save(externalPatentUserMonitorConfig));
     }
@@ -85,7 +82,6 @@ public class ExternalPatentUserMonitorConfigController {
     @Operation(summary = "修改用户监控配置（企业/技术，单值）" , description = "修改用户监控配置（企业/技术，单值）" )
     @SysLog("修改用户监控配置（企业/技术，单值）" )
     @PutMapping
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentUserMonitorConfig_edit')" )
     public R updateById(@RequestBody ExternalPatentUserMonitorConfigEntity externalPatentUserMonitorConfig) {
         return R.ok(externalPatentUserMonitorConfigService.updateById(externalPatentUserMonitorConfig));
     }
@@ -98,7 +94,6 @@ public class ExternalPatentUserMonitorConfigController {
     @Operation(summary = "通过id删除用户监控配置（企业/技术，单值）" , description = "通过id删除用户监控配置（企业/技术，单值）" )
     @SysLog("通过id删除用户监控配置（企业/技术，单值）" )
     @DeleteMapping
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentUserMonitorConfig_del')" )
     public R removeById(@RequestBody Long[] ids) {
         return R.ok(externalPatentUserMonitorConfigService.removeBatchByIds(CollUtil.toList(ids)));
     }
@@ -112,7 +107,6 @@ public class ExternalPatentUserMonitorConfigController {
      */
     @ResponseExcel
     @GetMapping("/export")
-    @PreAuthorize("@pms.hasPermission('admin_externalPatentUserMonitorConfig_export')" )
     public List<ExternalPatentUserMonitorConfigEntity> export(ExternalPatentUserMonitorConfigEntity externalPatentUserMonitorConfig,Long[] ids) {
         return externalPatentUserMonitorConfigService.list(Wrappers.lambdaQuery(externalPatentUserMonitorConfig).in(ArrayUtil.isNotEmpty(ids), ExternalPatentUserMonitorConfigEntity::getId, ids));
     }
