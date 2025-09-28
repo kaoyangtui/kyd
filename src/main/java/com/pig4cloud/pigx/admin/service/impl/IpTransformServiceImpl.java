@@ -210,10 +210,10 @@ public class IpTransformServiceImpl extends OrderCommonServiceImpl<IpTransformMa
         if (!fileList.isEmpty()) {
             fileService.batchCreate(fileList);
         }
-
         if (!isCreate) {
             this.updateById(entity);
         } else {
+            entity.setTransPrice(request.getUsePrice());
             entity.setFlowKey(IpTransformResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             Map<String, Object> params = MapUtil.newHashMap();
@@ -326,4 +326,29 @@ public class IpTransformServiceImpl extends OrderCommonServiceImpl<IpTransformMa
             }
         }
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean confirmPayment(Long id) {
+        if (id == null) {
+            return Boolean.FALSE;
+        }
+
+        // 可选：存在性校验（你项目里常用 BizException）
+        IpTransformEntity exist = this.getById(id);
+        if (exist == null) {
+            return Boolean.FALSE; // 或者：throw new BizException("记录不存在");
+        }
+        // 已经是已到款则直接返回成功（幂等）
+        if (Integer.valueOf(1).equals(exist.getHasReceivedPayment())) {
+            return Boolean.TRUE;
+        }
+
+        return this.lambdaUpdate()
+                .eq(IpTransformEntity::getId, id)
+                .set(IpTransformEntity::getHasReceivedPayment, 1)
+                .set(IpTransformEntity::getUpdateTime, LocalDateTime.now()) // 可选，若有自动填充可去掉
+                .update();
+    }
+
 }

@@ -22,4 +22,6 @@ public interface IpTransformService extends IService<IpTransformEntity> {
     Boolean removeByIds(List<Long> ids);
 
     IPage<IpTransformResponse> pageResult(Page page, IpTransformPageRequest request);
+
+    Boolean confirmPayment(Long id);
 }

@@ -122,4 +122,12 @@ public class IpTransformController {
                 IpTransformResponse.class
         );
     }
+
+    @PostMapping("/confirmPayment")
+    @Operation(summary = "到款确认（将到款状态置为已到款）")
+//@PreAuthorize("@pms.hasPermission('ip_transform_pay_confirm')")
+    public R<Boolean> confirmPayment(@RequestBody IdRequest request) {
+        return R.ok(ipTransformService.confirmPayment(request.getId()));
+    }
+
 }
