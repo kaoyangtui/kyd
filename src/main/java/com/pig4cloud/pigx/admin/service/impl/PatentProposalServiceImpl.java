@@ -12,9 +12,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
+import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentPreEval.PatentPreEvalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentPreEval.PatentPreEvalDetailRequest;
-import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalPageRequest;
 import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
@@ -109,11 +109,11 @@ public class PatentProposalServiceImpl extends OrderCommonServiceImpl<PatentProp
         res.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
         res.setOwners(ownerService.lambdaQuery().eq(OwnerEntity::getCode, code).list());
         //提交人不可以看申请前评估结果
-        if (!SecurityUtils.getUser().getId().equals(entity.getCreateUserId())) {
-            PatentPreEvalDetailRequest patentPreEvalDetailRequest = new PatentPreEvalDetailRequest();
-            patentPreEvalDetailRequest.setCode(code);
-            res.setPatentPreEval(patentPreEvalService.detail(patentPreEvalDetailRequest));
-        }
+        //if (!SecurityUtils.getUser().getId().equals(entity.getCreateUserId())) {
+        PatentPreEvalDetailRequest patentPreEvalDetailRequest = new PatentPreEvalDetailRequest();
+        patentPreEvalDetailRequest.setCode(code);
+        res.setPatentPreEval(patentPreEvalService.detail(patentPreEvalDetailRequest));
+        //}
         return res;
     }
 
