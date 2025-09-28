@@ -65,7 +65,7 @@ public class PatentPreEvalConsumer implements RocketMQListener<String> {
             // 3) 组装仅更新“结果字段”的请求并调用
             PatentPreEvalUpdateResultRequest req = new PatentPreEvalUpdateResultRequest();
             req.setId(id);
-            req.setStatus(0);
+            req.setStatus(1);
             req.setLevel(mq.getLevel());
             req.setReportDate(mq.getReportDate());
             req.setViability(mq.getViability());
