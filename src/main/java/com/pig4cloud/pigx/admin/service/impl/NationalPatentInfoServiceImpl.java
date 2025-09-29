@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import com.pig4cloud.pigx.admin.constants.*;
 import com.pig4cloud.pigx.admin.dto.nationalPatent.NationalPatentFollowPageReq;
 import com.pig4cloud.pigx.admin.dto.patent.PatentDetailResponse;
@@ -48,7 +49,7 @@ public class NationalPatentInfoServiceImpl extends ServiceImpl<NationalPatentInf
     @Override
     public IPage<PatentInfoResponse> searchList(PatentSearchListReq req) {
         // === 1) 条件表达式构建 ===
-        List<String> exps = new ArrayList<>();
+        List<String> exps = Lists.newArrayList("申请国代码=(CN)");
 
         // 1) 专利名称
         addEq(exps, CnirpExpConstants.TITLE, req.getPatentTitle());
