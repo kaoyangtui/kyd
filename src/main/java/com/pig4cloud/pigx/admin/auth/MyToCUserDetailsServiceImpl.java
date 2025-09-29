@@ -1,4 +1,4 @@
-package com.pig4cloud.pigx.admin.config;
+package com.pig4cloud.pigx.admin.auth;
 
 import com.pig4cloud.pigx.admin.entity.UserEntity;
 import com.pig4cloud.pigx.admin.service.UserService;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class MyUserDetailsService implements PigxUserDetailsService {
+public class MyToCUserDetailsServiceImpl implements PigxUserDetailsService {
 
     private final UserService userService;
 

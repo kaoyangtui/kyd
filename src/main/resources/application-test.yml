@@ -72,6 +72,10 @@ model:
   huoshan:
     modelApiKey: 0ef4713a-70c1-4d45-9226-f6dade8d9026
 
+cas:
+  host: "https://cas.example.com/"
+  service: "https://kjcgzs.kmmu.edu.cn"
+
 # =========================
 # 🐷 PigX 配置
 # =========================
