@@ -59,7 +59,7 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
         String content = StrUtil.format(MatchPrompt.VALUE, supplyContent, demandContent);
 
         ModelLogEntity modelLog = modelLogService.modelVolcCall(
-                ModelBizNameEnum.MATCH, ModelVolcEnum.DEEP_SEEK_R1, code, 0L, content
+                ModelBizNameEnum.MATCH, ModelVolcEnum.DOUBAO_SEED_1_6, code, 0L, content
         );
 
         SupplyDemandMatchResultEntity entity = JSONUtil.toBean(modelLog.getOutputContent(), SupplyDemandMatchResultEntity.class);

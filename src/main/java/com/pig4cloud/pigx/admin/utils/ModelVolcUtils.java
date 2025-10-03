@@ -3,8 +3,6 @@ package com.pig4cloud.pigx.admin.utils;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.yulichang.toolkit.StrUtils;
-import com.pig4cloud.pigx.admin.constants.ModelBizNameEnum;
-import com.pig4cloud.pigx.admin.constants.ModelVolcEnum;
 import com.pig4cloud.pigx.admin.dto.match.DemandMatchDTO;
 import com.pig4cloud.pigx.admin.dto.match.PatentMatchDTO;
 import com.pig4cloud.pigx.admin.prompt.MatchPrompt;
@@ -13,14 +11,18 @@ import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -38,6 +40,151 @@ public class ModelVolcUtils {
     public void init() {
         staticModelApiKey = modelApiKey;
     }
+
+    /**
+     * 批量提交到 Ark Batch Chat，并“同步拿结果”。
+     * <p>
+     * 关键点：
+     * 1) Batch Chat 只支持非流式：必须 stream(false)
+     * 2) model 必须是“批量推理接入点 ID”（形如 ep-bi-xxxx），不是在线推理的 ep-xxxx
+     * 3) 为 Batch Chat 单独初始化 ArkService（连接池/dispatcher 单独配置）
+     * 4) 每条请求的返回体就是一个 ChatCompletion，同步解析 choices[0].message.content
+     * <p>
+     * 返回结构：
+     * - success_count / fail_count
+     * - results: List<Map>，每项含 index/prompt/id/result/usage/model
+     * - failures: List<Map>，每项含 index/prompt/error
+     */
+    public static Map<String, Object> modelCallBatch(
+            List<String> prompts,                 // 需要批量提交的用户内容
+            String model,                         // 模型名称：必须是批量接入点 ID，如 "ep-bi-xxxx"
+            int maxConcurrency,                   // 最大并发，建议 <= 5000，按机器能力设置
+            Duration timeout,                     // 总体超时，建议 >= 10 分钟
+            String systemPrompt                   // 可选的 system 提示词，传 null/空则不加
+    ) {
+        if (prompts == null || prompts.isEmpty()) {
+            Map<String, Object> empty = new HashMap<>();
+            empty.put("success_count", 0);
+            empty.put("fail_count", 0);
+            empty.put("results", Collections.emptyList());
+            empty.put("failures", Collections.emptyList());
+            return empty;
+        }
+        // 默认参数兜底
+        if (timeout == null) {
+            timeout = Duration.ofHours(1); // 批量场景建议拉长
+        }
+        if (maxConcurrency <= 0) {
+            maxConcurrency = Math.min(prompts.size(), 512); // 稳妥默认并发
+        }
+
+        // 1) 为 Batch Chat 单独实例化 ArkService（避免与在线流式互相影响）
+        ConnectionPool connectionPool = new ConnectionPool(maxConcurrency, 10, TimeUnit.MINUTES);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(maxConcurrency);
+        dispatcher.setMaxRequestsPerHost(maxConcurrency);
+
+        ArkService service = ArkService.builder()
+                .dispatcher(dispatcher)
+                .timeout(timeout)
+                .connectionPool(connectionPool)
+                .apiKey(staticModelApiKey) // 使用 @PostConstruct 注入的静态 key
+                .build();
+
+        // 2) 并发执行
+        ExecutorService executor = Executors.newFixedThreadPool(maxConcurrency);
+        CountDownLatch latch = new CountDownLatch(prompts.size());
+
+        AtomicLong success = new AtomicLong(0);
+        AtomicLong failure = new AtomicLong(0);
+
+        // 结果与失败列表：并发安全
+        List<Map<String, Object>> results = Collections.synchronizedList(new ArrayList<>());
+        List<Map<String, Object>> failures = Collections.synchronizedList(new ArrayList<>());
+
+        for (int i = 0; i < prompts.size(); i++) {
+            final int idx = i;
+            final String prompt = prompts.get(i);
+
+            executor.submit(() -> {
+                try {
+                    // 3) 组装 messages（可选的 system prompt）
+                    final List<ChatMessage> messages = new ArrayList<>();
+                    if (StrUtils.isNotBlank(systemPrompt)) {
+                        messages.add(ChatMessage.builder()
+                                .role(ChatMessageRole.SYSTEM)
+                                .content(systemPrompt)
+                                .build());
+                    }
+                    messages.add(ChatMessage.builder()
+                            .role(ChatMessageRole.USER)
+                            .content(prompt)
+                            .build());
+
+                    // 4) 构造 Batch Chat 请求：必须非流式
+                    ChatCompletionRequest req = ChatCompletionRequest.builder()
+                            .model(model)      // 注意：需要 ep-bi-... 批量接入点 ID
+                            .messages(messages)
+                            .stream(false)     // 关键：Batch Chat 不支持流式
+                            .build();
+
+                    // 5) 同步拿返回体（即 ChatCompletion 对象）
+                    var completion = service.createBatchChatCompletion(req);
+
+                    // 6) 解析返回
+                    String text = "";
+                    if (completion != null
+                            && completion.getChoices() != null
+                            && !completion.getChoices().isEmpty()
+                            && completion.getChoices().get(0).getMessage() != null) {
+                        text = completion.getChoices().get(0).getMessage().stringContent();
+                    }
+
+                    Map<String, Object> one = new HashMap<>();
+                    one.put("index", idx);
+                    one.put("prompt", prompt);
+                    one.put("id", completion != null ? completion.getId() : null);
+                    one.put("result", text);
+                    one.put("usage", completion != null ? completion.getUsage() : null);
+                    one.put("model", completion != null ? completion.getModel() : null);
+                    results.add(one);
+
+                    success.incrementAndGet();
+                } catch (Exception e) {
+                    failure.incrementAndGet();
+                    Map<String, Object> fail = new HashMap<>();
+                    fail.put("index", idx);
+                    fail.put("prompt", prompt);
+                    fail.put("error", e.getMessage());
+                    failures.add(fail);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        // 7) 等待全部完成，关闭资源
+        try {
+            latch.await();
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
+        executor.shutdown();
+        service.shutdownExecutor();
+
+        // 8) 结果按原输入顺序排序（index 升序）
+        results.sort(Comparator.comparingInt(m -> ((Number) m.getOrDefault("index", 0)).intValue()));
+        failures.sort(Comparator.comparingInt(m -> ((Number) m.getOrDefault("index", 0)).intValue()));
+
+        // 9) 聚合返回
+        Map<String, Object> res = new HashMap<>();
+        res.put("success_count", success.get());
+        res.put("fail_count", failure.get());
+        res.put("results", results);
+        res.put("failures", failures);
+        return res;
+    }
+
 
     public static Map<String, Object> modelCall(String content, String model) {
         ArkService service = ArkService.builder().apiKey(staticModelApiKey).build();

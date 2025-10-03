@@ -191,4 +191,10 @@ public class ResultResponse extends BaseResponse {
 
     @Schema(description="匹配度分数 0-100")
     private Integer matchScore;
+
+    /**
+     * 供需匹配的最高得分，用于排序查询
+     */
+    @Schema(description = "供需匹配的最高得分，用于排序查询")
+    private Long maxMatchScore;
 }

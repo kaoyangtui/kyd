@@ -856,6 +856,12 @@ public class PatentInfoEntity extends Model<PatentInfoEntity> {
     private Long viewCount;
 
     /**
+     * 供需匹配的最高得分，用于排序查询
+     */
+    @Schema(description = "供需匹配的最高得分，用于排序查询")
+    private Long maxMatchScore;
+
+    /**
      * 负责人编码
      */
     @Schema(description = "负责人编码")

@@ -1,6 +1,8 @@
 package com.pig4cloud.pigx.admin.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoResponse;
@@ -108,19 +110,27 @@ public class MatchController {
 
     @PostMapping("/patent")
     @Operation(summary = "专利列表")
-    public R<IPage<PatentInfoResponse>> patentPage(@ParameterObject PageRequest pageRequest) {
-        List<Long> ids = supplyDemandMatchResultService.getMatchId(PatentInfoResponse.BIZ_CODE);
-        PatentPageRequest request = new PatentPageRequest();
-        request.setIds(ids);
+    public R<IPage<PatentInfoResponse>> patentPage(@ParameterObject PageRequest pageRequest,
+                                                   @ParameterObject PatentPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("max_match_score");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
         return R.ok(patentInfoService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
     @PostMapping("/result")
     @Operation(summary = "成果列表")
-    public R<IPage<ResultResponse>> resultPage(@ParameterObject PageRequest pageRequest) {
-        List<Long> ids = supplyDemandMatchResultService.getMatchId(ResultResponse.BIZ_CODE);
-        ResultPageRequest request = new ResultPageRequest();
-        request.setIds(ids);
+    public R<IPage<ResultResponse>> resultPage(@ParameterObject PageRequest pageRequest,
+                                               @ParameterObject ResultPageRequest request) {
+        List<OrderItem> orders = CollUtil.newArrayList();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setColumn("max_match_score");
+        orderItem.setAsc(false);
+        orders.add(orderItem);
+        pageRequest.setOrders(orders);
         return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request, true));
     }
     /**

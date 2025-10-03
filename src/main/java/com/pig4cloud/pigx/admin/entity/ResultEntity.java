@@ -214,6 +214,12 @@ public class ResultEntity extends Model<ResultEntity> {
     private Long viewCount;
 
     /**
+     * 供需匹配的最高得分，用于排序查询
+     */
+    @Schema(description = "供需匹配的最高得分，用于排序查询")
+    private Long maxMatchScore;
+
+    /**
      * 创建/提交时间
      */
     @TableField(fill = FieldFill.INSERT)

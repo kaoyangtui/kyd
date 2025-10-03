@@ -820,4 +820,10 @@ public class PatentInfoResponse {
 
     @Schema(description = "关注标识,1已关注")
     private String followFlag;
+
+    /**
+     * 供需匹配的最高得分，用于排序查询
+     */
+    @Schema(description = "供需匹配的最高得分，用于排序查询")
+    private Long maxMatchScore;
 }

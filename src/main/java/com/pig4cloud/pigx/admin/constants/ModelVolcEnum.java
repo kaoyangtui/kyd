@@ -9,7 +9,9 @@ import lombok.Getter;
 public enum ModelVolcEnum {
 
     DEEP_SEEK_R1("ep-20250731154231-nn5qb"),
-    DEEP_SEEK_V3("ep-20250731155108-98sm4");
+    DEEP_SEEK_V3("ep-20250731155108-98sm4"),
+    DOUBAO_SEED_1_6("ep-20250930133740-w4l6h"),
+    ;
 
     // 获取枚举值
     private final String value;
