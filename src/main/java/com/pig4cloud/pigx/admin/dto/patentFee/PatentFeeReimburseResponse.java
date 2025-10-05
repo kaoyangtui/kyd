@@ -33,8 +33,8 @@ public class PatentFeeReimburseResponse {
     @Schema(description = "知识产权类型")
     private String ipType;
 
-    @Schema(description = "知识产权ID")
-    private Long ipId;
+    @Schema(description = "知识产权编码，多个以分号分隔")
+    private List<String> ipCode;
 
     @Schema(description = "专利申请号")
     private String appNumber;
