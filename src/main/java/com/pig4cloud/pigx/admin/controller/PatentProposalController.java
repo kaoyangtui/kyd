@@ -44,7 +44,8 @@ public class PatentProposalController {
     @GetMapping("/page")
     @Operation(summary = "分页查询专利提案")
     //@PreAuthorize("@pms.hasPermission('patent_proposal_view')")
-    public R<IPage<PatentProposalResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject PatentProposalPageRequest request) {
+    public R<IPage<PatentProposalResponse>> page(@ParameterObject PageRequest pageRequest,
+                                                 @ParameterObject PatentProposalPageRequest request) {
         return R.ok(patentProposalService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 

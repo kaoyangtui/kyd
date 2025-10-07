@@ -38,13 +38,19 @@ public class StandardResponse extends BaseResponse {
     @Schema(description = "实施时间")
     private String implDate;
 
-    @Schema(description = "流程状态")
+    @Schema(description = "流程实例 ID")
+    private String flowInstId;
+
+    @Schema(description = "流程KEY")
+    private String flowKey;
+
+    @Schema(description = "流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
     private Integer flowStatus;
 
     @Schema(description = "流程状态触发时间")
     private LocalDateTime flowStatusTime;
 
-    @Schema(description = "当前流程节点")
+    @Schema(description = "当前流程节点名称")
     private String currentNodeName;
 
     @Schema(description = "校外起草人（多个用分号分隔）")
