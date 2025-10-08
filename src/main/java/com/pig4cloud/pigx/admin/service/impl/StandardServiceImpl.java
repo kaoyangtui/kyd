@@ -9,7 +9,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
@@ -120,6 +119,8 @@ public class StandardServiceImpl extends OrderCommonServiceImpl<StandardMapper, 
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
             Map<String, Object> params = MapUtil.newHashMap();
             params.put("orderName", entity.getName());
+            params.put("owners", request.getOwners());
+            params.put("completers", request.getCompleters());
             super.saveOrUpdateOrder(params, entity);
             jsonFlowHandle.doStart(params, entity);
         } else {
