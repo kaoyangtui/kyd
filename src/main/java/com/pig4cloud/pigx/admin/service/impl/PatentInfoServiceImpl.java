@@ -668,7 +668,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
      */
     private PatentDetailResponse toImgResponse(String drawsPic, String tifDistributePath) {
         PatentDetailResponse resp = new PatentDetailResponse();
-        resp.setDrawsPic(StrUtil.isBlank(drawsPic) ? java.util.Collections.emptyList() : StrUtil.split(drawsPic, ';'));
+        resp.setDrawsPic(StrUtil.isBlank(drawsPic) ? StrUtil.split(tifDistributePath, ';') : StrUtil.split(drawsPic, ';'));
         resp.setTifDistributePath(StrUtil.isBlank(tifDistributePath) ? java.util.Collections.emptyList() : StrUtil.split(tifDistributePath, ';'));
         return resp;
     }
