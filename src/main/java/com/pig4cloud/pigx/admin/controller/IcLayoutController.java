@@ -88,7 +88,6 @@ public class IcLayoutController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "集成电路布图登记导出", sheets = {@Sheet(sheetName = "集成电路布图登记")})
     @Operation(summary = "导出")
     //@PreAuthorize("@pms.hasPermission('ic_layout_export')")
     public void export(@RequestBody IcLayoutExportWrapperRequest request) throws IOException {

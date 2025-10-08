@@ -89,7 +89,6 @@ public class StandardController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "标准信息导出", sheets = {@Sheet(sheetName = "标准信息列表")})
     @Operation(summary = "导出")
     //@PreAuthorize("@pms.hasPermission('standard_export')")
     public void export(@RequestBody StandardExportWrapperRequest request) throws IOException {

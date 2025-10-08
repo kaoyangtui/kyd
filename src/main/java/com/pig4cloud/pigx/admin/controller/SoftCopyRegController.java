@@ -89,7 +89,6 @@ public class SoftCopyRegController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "软著登记导出", sheets = {@Sheet(sheetName = "软著登记列表")})
     @Operation(summary = "导出软著登记")
     //@PreAuthorize("@pms.hasPermission('soft_copy_reg_export')")
     public void export(@RequestBody SoftCopyRegExportWrapperRequest request) throws IOException {

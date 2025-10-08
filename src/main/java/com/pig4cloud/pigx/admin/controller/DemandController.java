@@ -98,7 +98,6 @@ public class DemandController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "企业需求导出", sheets = {@Sheet(sheetName = "需求列表")})
     @Operation(summary = "导出企业需求")
     //@PreAuthorize("@pms.hasPermission('demand_export')")
     public void export(@RequestBody DemandExportWrapperRequest request) throws IOException {

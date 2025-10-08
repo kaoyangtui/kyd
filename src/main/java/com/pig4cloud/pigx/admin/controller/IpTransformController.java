@@ -85,9 +85,7 @@ public class IpTransformController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "知识产权转化导出", sheets = {@Sheet(sheetName = "转化列表")})
-    @Operation(summary = "导出记录")
-    //@PreAuthorize("@pms.hasPermission('ip_transform_export')")
+    @Operation(summary = "知识产权转化导出")
     public void export(@RequestBody IpTransformExportWrapperRequest request) throws IOException {
         // 1. 拿到 ServletRequestAttributes
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder

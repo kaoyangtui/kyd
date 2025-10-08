@@ -88,7 +88,6 @@ public class IpAssignController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "知识产权赋权导出", sheets = {@Sheet(sheetName = "赋权列表")})
     @Operation(summary = "导出赋权记录")
     //@PreAuthorize("@pms.hasPermission('ip_assign_export')")
     public void export(@RequestBody IpAssignExportWrapperRequest request) throws IOException {

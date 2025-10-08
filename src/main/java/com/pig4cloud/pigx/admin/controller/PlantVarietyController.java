@@ -87,7 +87,6 @@ public class PlantVarietyController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "植物新品种权登记导出", sheets = {@Sheet(sheetName = "植物新品种权列表")})
     @Operation(summary = "导出")
     //@PreAuthorize("@pms.hasPermission('plant_variety_export')")
     public void export(@RequestBody PlantVarietyExportWrapperRequest request) throws IOException {

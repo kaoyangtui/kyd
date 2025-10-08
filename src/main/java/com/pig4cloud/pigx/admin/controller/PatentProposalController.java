@@ -91,7 +91,6 @@ public class PatentProposalController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "专利提案导出", sheets = {@Sheet(sheetName = "提案列表")})
     @Operation(summary = "导出专利提案")
     //@PreAuthorize("@pms.hasPermission('patent_proposal_export')")
     public void export(@RequestBody PatentProposalExportWrapperRequest request) throws IOException {

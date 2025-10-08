@@ -69,7 +69,6 @@ public class DemandReceiveController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "企业需求接收导出", sheets = {@Sheet(sheetName = "需求列表")})
     @Operation(summary = "导出企业需求接收")
     //@PreAuthorize("@pms.hasPermission('demand_export')")
     public void export(@RequestBody DemandReceiveExportWrapperRequest request) throws IOException {

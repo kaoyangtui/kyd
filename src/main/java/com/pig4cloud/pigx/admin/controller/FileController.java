@@ -75,7 +75,6 @@ public class FileController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "文档导出", sheets = {@Sheet(sheetName = "文档列表")})
     @Operation(summary = "导出文档")
     //@PreAuthorize("@pms.hasPermission('file_export')")
     public void export(@RequestBody FileExportWrapperRequest request) throws IOException {

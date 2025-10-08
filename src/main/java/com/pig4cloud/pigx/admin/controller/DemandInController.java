@@ -84,9 +84,7 @@ public class DemandInController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "校内需求导出", sheets = {@Sheet(sheetName = "需求列表")})
     @Operation(summary = "导出需求记录")
-    //@PreAuthorize("@pms.hasPermission('demand_in_export')")
     public void export(@RequestBody DemandInExportWrapperRequest request) throws IOException {
         // 1. 拿到 ServletRequestAttributes
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder

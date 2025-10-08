@@ -90,7 +90,6 @@ public class PerfSchemeController {
 
     // ====== 方案导出 ======
     @PostMapping("/export")
-    @ResponseExcel(name = "业绩点方案导出", sheets = {@Sheet(sheetName = "业绩点方案列表")})
     @Operation(summary = "导出方案")
     public void exportScheme(@RequestBody PerfSchemeExportWrapperRequest request) throws IOException {
         // 1) 取响应对象

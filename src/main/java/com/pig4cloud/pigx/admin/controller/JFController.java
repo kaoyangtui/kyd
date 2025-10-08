@@ -129,7 +129,6 @@ public class JFController {
 
 
     @PostMapping("/export")
-    @ResponseExcel(name = "我的申请导出", sheets = {@Sheet(sheetName = "我的申请导出")})
     @Operation(summary = "我的申请导出")
     //@PreAuthorize("@pms.hasPermission('result_export')")
     public void export(@RequestBody MyFlowExportWrapperRequest request) throws IOException {

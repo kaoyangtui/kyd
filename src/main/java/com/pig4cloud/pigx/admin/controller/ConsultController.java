@@ -88,7 +88,6 @@ public class ConsultController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "咨询信息导出", sheets = {@Sheet(sheetName = "咨询列表")})
     @Operation(summary = "导出咨询信息")
     public List<Map<String, Object>> export(@RequestBody ConsultExportWrapperRequest request) {
         IPage<ConsultResponse> pageData = consultService.pageResult(new Page<>(), request.getQuery());

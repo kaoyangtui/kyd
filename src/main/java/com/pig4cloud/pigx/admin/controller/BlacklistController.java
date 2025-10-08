@@ -73,7 +73,6 @@ public class BlacklistController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "黑名单导出", sheets = {@Sheet(sheetName = "黑名单列表")})
     @Operation(summary = "导出黑名单")
     public void export(@RequestBody BlacklistExportWrapperRequest request) throws IOException {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

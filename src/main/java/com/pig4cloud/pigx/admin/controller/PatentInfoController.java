@@ -77,7 +77,6 @@ public class PatentInfoController {
 
 
     @PostMapping("/export")
-    @ResponseExcel(name = "专利数据导出", sheets = {@Sheet(sheetName = "专利列表")})
     @Operation(summary = "专利数据导出")
     public void export(@RequestBody PatentExportWrapperRequest request) throws IOException {
         // 1. 拿到 ServletRequestAttributes

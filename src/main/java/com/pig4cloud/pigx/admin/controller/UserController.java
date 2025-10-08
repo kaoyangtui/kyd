@@ -43,7 +43,7 @@ import java.io.IOException;
  */
 @RestController
 @RequestMapping("/user")
-@Tag(name = "用户相关", description = "用户注册与密码管理")
+@Tag(name = "门户用户相关", description = "用户注册与密码管理")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -77,7 +77,6 @@ public class UserController {
     }
 
     @PostMapping("/customer/export")
-    @ResponseExcel(name = "用户导出", sheets = {@Sheet(sheetName = "用户列表")})
     @Operation(summary = "导出用户")
     public void export(@RequestBody @Valid UserExportWrapperRequest request) throws IOException {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

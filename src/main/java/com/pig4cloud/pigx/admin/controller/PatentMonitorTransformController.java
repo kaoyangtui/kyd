@@ -62,7 +62,6 @@ public class PatentMonitorTransformController {
     }
 
     @PostMapping("/export")
-    @ResponseExcel(name = "专利转化监控导出", sheets = {@Sheet(sheetName = "监控列表")})
     @Operation(summary = "导出专利转化监控列表")
     public void export(@RequestBody PatentMonitorTransformExportWrapperRequest request) throws IOException {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
