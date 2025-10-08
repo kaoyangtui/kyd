@@ -82,3 +82,10 @@ cas:
 pigx:
   mybatis:
     show-sql: false
+
+# 文件上传配置
+file:
+  bucketName: test # 上文创建的桶名称
+  local:
+    enable: true
+    base-path: /data/kyd
