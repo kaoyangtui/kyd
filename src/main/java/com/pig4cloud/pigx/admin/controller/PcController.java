@@ -168,6 +168,13 @@ public class PcController {
         return R.ok(demandInService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
+    @PostMapping("/demand/create")
+    @Operation(summary = "需求发布")
+    public R<Boolean> demandCreate(@RequestBody @Valid DemandCreateRequest request) {
+        request.setCategory(1);
+        return R.ok(demandService.create(request));
+    }
+
     @GetMapping("/expert")
     @Operation(summary = "专家名片")
     public R<IPage<ExpertResponse>> expert(@ParameterObject PageRequest pageRequest,

@@ -85,6 +85,12 @@ public class ResearchPlatformEntity extends Model<ResearchPlatformEntity> {
     private Integer shelfStatus;
 
     /**
+     * 上下架时间
+     */
+    @Schema(description = "上下架时间")
+    private LocalDateTime shelfTime;
+
+    /**
      * 所属组织ID
      */
     @TableField(fill = FieldFill.INSERT)

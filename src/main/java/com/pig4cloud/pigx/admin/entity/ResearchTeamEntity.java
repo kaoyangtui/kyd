@@ -84,6 +84,12 @@ public class ResearchTeamEntity extends Model<ResearchTeamEntity> {
     private Integer shelfStatus;
 
     /**
+     * 上下架时间
+     */
+    @Schema(description = "上下架时间")
+    private LocalDateTime shelfTime;
+
+    /**
      * 所属组织ID
      */
     @TableField(fill = FieldFill.INSERT)

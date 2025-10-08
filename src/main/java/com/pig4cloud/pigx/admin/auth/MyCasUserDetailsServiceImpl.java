@@ -51,11 +51,11 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
     @Override
     @SneakyThrows
     public UserDetails loadUserByUsername(String ticket) {
-        String username = "admin";
-//        String username = validateTicket(ticket);
-//        if (StrUtil.isBlank(username)) {
-//            throw new BizException("用户不存在");
-//        }
+        //String username = "admin";
+        String username = validateTicket(ticket);
+        if (StrUtil.isBlank(username)) {
+            throw new BizException("用户不存在");
+        }
         Cache cache = cacheManager.getCache(CacheConstants.USER_DETAILS);
         if (Objects.nonNull(cache) && Objects.nonNull(cache.get(username))) {
             UserInfo userInfo = cache.get(username, UserInfo.class);

@@ -14,7 +14,6 @@ import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformCreateReque
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformResponse;
 import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.ResearchNewsEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchPlatformEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchPlatformMapper;
@@ -25,6 +24,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -73,9 +73,11 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean shelfByIds(List<Long> ids, Integer shelfStatus) {
-        return this.update(Wrappers.<ResearchPlatformEntity>lambdaUpdate()
+        return this.lambdaUpdate()
                 .in(ResearchPlatformEntity::getId, ids)
-                .set(ResearchPlatformEntity::getShelfStatus, shelfStatus));
+                .set(ResearchPlatformEntity::getShelfStatus, shelfStatus)
+                .set(ResearchPlatformEntity::getShelfTime, LocalDateTime.now())
+                .update();
     }
 
     @Override

@@ -27,6 +27,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -150,9 +151,11 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean shelfByIds(List<Long> ids, Integer shelfStatus) {
-        return this.updateBatchById(
-                this.listByIds(ids).stream().peek(e -> e.setShelfStatus(shelfStatus)).toList()
-        );
+        return this.lambdaUpdate()
+                .in(ResearchTeamEntity::getId, ids)
+                .set(ResearchTeamEntity::getShelfStatus, shelfStatus)
+                .set(ResearchTeamEntity::getShelfTime, LocalDateTime.now())
+                .update();
     }
 
     @Override
