@@ -3,7 +3,6 @@ package com.pig4cloud.pigx.admin.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -24,7 +23,6 @@ import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.mapper.PatentMonitorUserMapper;
 import com.pig4cloud.pigx.admin.service.*;
-import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
@@ -439,9 +437,17 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
 
     @Override
     public PatentDetailResponse getDetailByPid(String pid) {
-        PatentInfoEntity info = this.lambdaQuery().eq(PatentInfoEntity::getPid, pid).one();
-        PatentDetailEntity detail = patentDetailService.lambdaQuery().eq(PatentDetailEntity::getPid, pid).one();
-        PatentDetailCacheEntity cache = patentDetailCacheService.lambdaQuery().eq(PatentDetailCacheEntity::getPid, pid).one();
+        PatentInfoEntity info = this.lambdaQuery()
+                .eq(PatentInfoEntity::getPid, pid)
+                .one();
+
+        PatentDetailEntity detail = patentDetailService.lambdaQuery()
+                .eq(PatentDetailEntity::getPid, pid)
+                .one();
+
+        PatentDetailCacheEntity existing = patentDetailCacheService.lambdaQuery()
+                .eq(PatentDetailCacheEntity::getPid, pid)
+                .one();
 
         PatentDetailResponse resp = new PatentDetailResponse();
         if (info != null) {
@@ -451,87 +457,297 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             BeanUtil.copyProperties(detail, resp, CopyOptions.create().ignoreError());
         }
 
-        // 新建或补全缓存
-        if (cache == null) {
-            cache = new PatentDetailCacheEntity();
-            cache.setPid(pid);
-            String absUrl = ytService.absUrl(pid);
-            if (StrUtil.isNotBlank(absUrl)) {
-                cache.setDraws(fileService.uploadFileByUrl(absUrl, "abstract", FileGroupTypeEnum.IMAGE));
+        /*
+         * 仅处理 cache.draws
+         * 约定：null 表示从未尝试；"" 表示确认无资源；非空表示已缓存
+         */
+        if (existing == null) {
+            PatentDetailCacheEntity toInsert = new PatentDetailCacheEntity();
+            toInsert.setPid(pid);
+            toInsert.setTenantId(1L);
+            toInsert.setStatus(0);
+            toInsert.setDraws(null);
+
+            String stored = "";
+            try {
+                String absUrl = ytService.absUrl(pid);
+                if (StrUtil.isNotBlank(absUrl)) {
+                    String uploaded = fileService.uploadFileByUrl(absUrl, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE);
+                    if (StrUtil.isNotBlank(uploaded)) {
+                        stored = uploaded;
+                    } else {
+                        log.warn("uploadFileByUrl 返回空, pid={}, absUrl={}", pid, absUrl);
+                    }
+                } else {
+                    log.warn("absUrl 为空, pid={}", pid);
+                }
+            } catch (Exception e) {
+                log.warn("获取/上传摘要图失败, pid={}, err={}", pid, e.getMessage(), e);
             }
-            cache.setTenantId(1L);
-            cache.setStatus(0);
-            patentDetailCacheService.save(cache);
+            toInsert.setDraws(stored);
+
+            try {
+                patentDetailCacheService.save(toInsert);
+            } catch (org.springframework.dao.DuplicateKeyException dup) {
+                patentDetailCacheService.lambdaUpdate()
+                        .eq(PatentDetailCacheEntity::getPid, pid)
+                        .isNull(PatentDetailCacheEntity::getDraws)
+                        .set(PatentDetailCacheEntity::getDraws, stored)
+                        .update();
+            }
+        } else if (existing.getDraws() == null) {
+            String stored = "";
+            try {
+                String absUrl = ytService.absUrl(pid);
+                if (StrUtil.isNotBlank(absUrl)) {
+                    String uploaded = fileService.uploadFileByUrl(absUrl, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE);
+                    if (StrUtil.isNotBlank(uploaded)) {
+                        stored = uploaded;
+                    } else {
+                        log.warn("uploadFileByUrl 返回空, pid={}, absUrl={}", pid, absUrl);
+                    }
+                } else {
+                    log.warn("absUrl 为空, pid={}", pid);
+                }
+            } catch (Exception e) {
+                log.warn("获取/上传摘要图失败, pid={}, err={}", pid, e.getMessage(), e);
+            }
+
+            patentDetailCacheService.lambdaUpdate()
+                    .eq(PatentDetailCacheEntity::getPid, pid)
+                    .isNull(PatentDetailCacheEntity::getDraws)
+                    .set(PatentDetailCacheEntity::getDraws, stored)
+                    .update();
         }
-        resp.setCover(cache.getDraws());
-        resp.setId(info.getId());
+
+        PatentDetailCacheEntity latest = patentDetailCacheService.lambdaQuery()
+                .eq(PatentDetailCacheEntity::getPid, pid)
+                .one();
+
+        resp.setCover(latest != null ? latest.getDraws() : null);
+        if (info != null) {
+            resp.setId(info.getId());
+        }
 
         this.lambdaUpdate()
                 .eq(PatentInfoEntity::getPid, pid)
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
+
         return resp;
     }
 
+
     @Override
     public PatentDetailResponse getDetailImgByPid(String pid) {
-        PatentDetailEntity detail = patentDetailService.lambdaQuery().eq(PatentDetailEntity::getPid, pid).one();
-        PatentDetailCacheEntity cache = patentDetailCacheService.lambdaQuery().eq(PatentDetailCacheEntity::getPid, pid).one();
-        PatentDetailResponse resp = new PatentDetailResponse();
+        /*
+         * 读取基础信息与缓存
+         */
+        PatentDetailEntity detail = patentDetailService.lambdaQuery()
+                .eq(PatentDetailEntity::getPid, pid)
+                .one();
 
-        // 新建或补全缓存
-        if (cache == null) {
-            cache = new PatentDetailCacheEntity();
-            cache.setPid(pid);
-            String absUrl = ytService.absUrl(pid);
-            if (StrUtil.isNotBlank(absUrl)) {
-                cache.setDraws(fileService.uploadFileByUrl(absUrl, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE));
+        PatentDetailCacheEntity existing = patentDetailCacheService.lambdaQuery()
+                .eq(PatentDetailCacheEntity::getPid, pid)
+                .one();
+
+        /*
+         * 若已有记录且两列都已经尝试过，直接返回
+         */
+        if (existing != null
+                && existing.getDrawsPic() != null
+                && existing.getTifDistributePath() != null) {
+            return toImgResponse(existing.getDrawsPic(), existing.getTifDistributePath());
+        }
+
+        /*
+         * 计算需要构建的列，仅对值为 null 的列做一次构建
+         */
+        String nextDraws = (existing == null || existing.getDrawsPic() == null)
+                ? safeBuildBatchPicUrls(
+                pid,
+                detail != null ? detail.getIncPic() : null,
+                PatentFileTypeEnum.SPECIFICATION.getCode(),
+                FileGroupTypeEnum.IMAGE,
+                ytService)
+                : existing.getDrawsPic();
+
+        String nextTif = (existing == null || existing.getTifDistributePath() == null)
+                ? safeBuildBatchPicUrls(
+                pid,
+                detail != null ? detail.getDesignPic() : null,
+                PatentFileTypeEnum.DESIGN.getCode(),
+                FileGroupTypeEnum.IMAGE,
+                ytService)
+                : existing.getTifDistributePath();
+
+        /*
+         * 将未取到的列落库为空串，以“确认无资源”
+         */
+        if (existing == null) {
+            PatentDetailCacheEntity toInsert = new PatentDetailCacheEntity();
+            toInsert.setPid(pid);
+            toInsert.setTenantId(1L);
+            toInsert.setDrawsPic(StrUtil.emptyToDefault(nextDraws, ""));
+            toInsert.setTifDistributePath(StrUtil.emptyToDefault(nextTif, ""));
+            try {
+                patentDetailCacheService.save(toInsert);
+            } catch (org.springframework.dao.DuplicateKeyException dup) {
+                /*
+                 * 并发下他人先插入，转为条件更新：
+                 * 仅当相应列为 NULL 时才写入，避免覆盖他人已写入的值
+                 */
+                if (nextDraws != null) {
+                    patentDetailCacheService.lambdaUpdate()
+                            .eq(PatentDetailCacheEntity::getPid, pid)
+                            .isNull(PatentDetailCacheEntity::getDrawsPic)
+                            .set(PatentDetailCacheEntity::getDrawsPic, StrUtil.emptyToDefault(nextDraws, ""))
+                            .update();
+                }
+                if (nextTif != null) {
+                    patentDetailCacheService.lambdaUpdate()
+                            .eq(PatentDetailCacheEntity::getPid, pid)
+                            .isNull(PatentDetailCacheEntity::getTifDistributePath)
+                            .set(PatentDetailCacheEntity::getTifDistributePath, StrUtil.emptyToDefault(nextTif, ""))
+                            .update();
+                }
             }
-            cache.setDrawsPic(buildBatchPicUrls(pid, detail.getIncPic(), PatentFileTypeEnum.SPECIFICATION.getCode(), FileGroupTypeEnum.IMAGE, ytService));
-            cache.setTifDistributePath(buildBatchPicUrls(pid, detail.getDesignPic(), PatentFileTypeEnum.DESIGN.getCode(), FileGroupTypeEnum.IMAGE, ytService));
-            //cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), "pdf", FileGroupTypeEnum.FILE));
-            cache.setTenantId(1L);
-            cache.setStatus(1);
-            patentDetailCacheService.save(cache);
         } else {
-            if (cache.getStatus() != 1) {
-                cache.setDrawsPic(buildBatchPicUrls(pid, detail.getIncPic(), PatentFileTypeEnum.SPECIFICATION.getCode(), FileGroupTypeEnum.IMAGE, ytService));
-                cache.setTifDistributePath(buildBatchPicUrls(pid, detail.getDesignPic(), PatentFileTypeEnum.DESIGN.getCode(), FileGroupTypeEnum.IMAGE, ytService));
-                //cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), "pdf", FileGroupTypeEnum.FILE));
-                cache.setStatus(1);
-                patentDetailCacheService.updateById(cache);
+            /*
+             * 已有记录：对每一列分别执行“仅当列为 NULL 时更新”
+             */
+            if (existing.getDrawsPic() == null) {
+                patentDetailCacheService.lambdaUpdate()
+                        .eq(PatentDetailCacheEntity::getPid, pid)
+                        .isNull(PatentDetailCacheEntity::getDrawsPic)
+                        .set(PatentDetailCacheEntity::getDrawsPic, StrUtil.emptyToDefault(nextDraws, ""))
+                        .update();
+            }
+            if (existing.getTifDistributePath() == null) {
+                patentDetailCacheService.lambdaUpdate()
+                        .eq(PatentDetailCacheEntity::getPid, pid)
+                        .isNull(PatentDetailCacheEntity::getTifDistributePath)
+                        .set(PatentDetailCacheEntity::getTifDistributePath, StrUtil.emptyToDefault(nextTif, ""))
+                        .update();
             }
         }
 
-        resp.setDrawsPic(StrUtil.split(cache.getDrawsPic(), ";"));
-        resp.setTifDistributePath(StrUtil.split(cache.getTifDistributePath(), ";"));
+        /*
+         * 读取最新值用于返回；也可直接用 next* 与 existing 组合，但再次读取更稳
+         */
+        PatentDetailCacheEntity latest = patentDetailCacheService.lambdaQuery()
+                .eq(PatentDetailCacheEntity::getPid, pid)
+                .one();
+
+        String draws = latest != null ? latest.getDrawsPic() : StrUtil.emptyToDefault(nextDraws, "");
+        String tif = latest != null ? latest.getTifDistributePath() : StrUtil.emptyToDefault(nextTif, "");
+        return toImgResponse(draws, tif);
+    }
+
+    /*
+     * 安全封装：入参空直接返回空字符串；异常记录并返回空字符串
+     */
+    private String safeBuildBatchPicUrls(String pid,
+                                         String picSpec,
+                                         String fileTypeCode,
+                                         FileGroupTypeEnum groupType,
+                                         YtService ytService) {
+        if (StrUtil.isBlank(picSpec)) {
+            return "";
+        }
+        try {
+            return buildBatchPicUrls(pid, picSpec, fileTypeCode, groupType, ytService);
+        } catch (Exception e) {
+            log.warn("buildBatchPicUrls 失败，pid={}, picSpecLen={}, err={}", pid, picSpec.length(), e.getMessage(), e);
+            return "";
+        }
+    }
+
+    /*
+     * 将分号字符串转为响应对象；空或空白返回空列表
+     */
+    private PatentDetailResponse toImgResponse(String drawsPic, String tifDistributePath) {
+        PatentDetailResponse resp = new PatentDetailResponse();
+        resp.setDrawsPic(StrUtil.isBlank(drawsPic) ? java.util.Collections.emptyList() : StrUtil.split(drawsPic, ';'));
+        resp.setTifDistributePath(StrUtil.isBlank(tifDistributePath) ? java.util.Collections.emptyList() : StrUtil.split(tifDistributePath, ';'));
         return resp;
     }
 
     @Override
     public String getDetailPdfByPid(String pid) {
-        PatentDetailCacheEntity cache = patentDetailCacheService.lambdaQuery().eq(PatentDetailCacheEntity::getPid, pid).one();
+        /*
+         * 读取现有缓存。
+         * 约定：pdf=null 表示从未尝试；pdf="" 表示已确认无资源；pdf=非空URL 表示已缓存。
+         * 只要不为 null，就直接返回（包括空串），确保“只拉一次”。
+         */
+        PatentDetailCacheEntity existing = patentDetailCacheService.lambdaQuery()
+                .eq(PatentDetailCacheEntity::getPid, pid)
+                .one();
+        if (existing != null && existing.getPdf() != null) {
+            return StrUtil.emptyToDefault(existing.getPdf(), "");
+        }
 
-        // 新建或补全缓存
-        if (cache == null) {
-            cache = new PatentDetailCacheEntity();
+        /*
+         * 准备待保存的实体。
+         * 若不存在记录，则新建并初始化基础字段；pdf 先置为 null 表示尚未尝试。
+         */
+        PatentDetailCacheEntity cache = (existing != null) ? existing : new PatentDetailCacheEntity();
+        if (existing == null) {
             cache.setPid(pid);
-            String absUrl = ytService.absUrl(pid);
-            if (StrUtil.isNotBlank(absUrl)) {
-                cache.setDraws(fileService.uploadFileByUrl(absUrl, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE));
-            }
-            cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), PatentFileTypeEnum.PDF.getCode(), FileGroupTypeEnum.FILE));
             cache.setTenantId(1L);
             cache.setStatus(0);
-            patentDetailCacheService.save(cache);
-        } else {
-            if (cache.getStatus() != 1) {
-                cache.setPdf(fileService.uploadFileByUrl(ytService.pdfUrl(pid), PatentFileTypeEnum.PDF.getCode(), FileGroupTypeEnum.FILE));
-                cache.setStatus(1);
-                patentDetailCacheService.updateById(cache);
+            cache.setPdf(null);
+        }
+
+        /*
+         * 执行一次获取与上传。
+         * 成功则得到上传后的地址；任何失败或无资源情况，统一落库为空串，表示已确认无。
+         */
+        String stored = "";
+        try {
+            String srcUrl = ytService.pdfUrl(pid);
+            if (StrUtil.isNotBlank(srcUrl)) {
+                String uploaded = fileService.uploadFileByUrl(srcUrl, PatentFileTypeEnum.PDF.getCode(), FileGroupTypeEnum.FILE);
+                if (StrUtil.isNotBlank(uploaded)) {
+                    stored = uploaded;
+                } else {
+                    log.warn("uploadFileByUrl 返回空，pid={}, srcUrl={}", pid, srcUrl);
+                }
+            } else {
+                log.warn("pdfUrl 为空，pid={}", pid);
+            }
+        } catch (Exception e) {
+            log.warn("获取/上传 PDF 失败，pid={}，err={}", pid, e.getMessage(), e);
+        }
+        cache.setPdf(stored);
+
+        /*
+         * 并发安全的 upsert。
+         * 先按 pid 更新；若未命中，再尝试插入；
+         * 插入若遇唯一键冲突，说明并发下他人已插入，则回退为按 pid 再次更新。
+         * 建议为 pid 建立唯一索引以保障幂等。
+         */
+        boolean updated = patentDetailCacheService.lambdaUpdate()
+                .eq(PatentDetailCacheEntity::getPid, pid)
+                .set(PatentDetailCacheEntity::getPdf, cache.getPdf())
+                .update();
+
+        if (!updated) {
+            try {
+                patentDetailCacheService.save(cache);
+            } catch (org.springframework.dao.DuplicateKeyException dup) {
+                patentDetailCacheService.lambdaUpdate()
+                        .eq(PatentDetailCacheEntity::getPid, pid)
+                        .set(PatentDetailCacheEntity::getPdf, cache.getPdf())
+                        .update();
             }
         }
-        return cache.getPdf();
+
+        /*
+         * 返回结果。
+         * 空串代表已确认无资源，调用方可据此展示“无”或占位。
+         */
+        return StrUtil.emptyToDefault(cache.getPdf(), "");
     }
 
     private String buildBatchPicUrls(String pid, String picJson, String group, FileGroupTypeEnum type, YtService ytService) {

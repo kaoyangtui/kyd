@@ -79,18 +79,33 @@ public class PatentConsumer implements RocketMQListener<String> {
             }
 
             //处理详情缓存中的主图
-            PatentDetailCacheEntity detailCache = patentDetailCacheService.lambdaQuery()
-                    .eq(PatentDetailCacheEntity::getPid, patentInfo.getPid()).one();
-            if (ObjectUtil.isEmpty(detailCache)) {
-                detailCache = new PatentDetailCacheEntity();
-                detailCache.setPid(patentInfo.getPid());
-                String absUrl = ytService.absUrl(patentInfo.getPid());
-                if (StrUtil.isNotBlank(absUrl)) {
-                    detailCache.setDraws(fileService.uploadFileByUrl(absUrl, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE));
+            String pid = patentInfo.getPid();
+            PatentDetailCacheEntity c = patentDetailCacheService.lambdaQuery()
+                    .eq(PatentDetailCacheEntity::getPid, pid).one();
+
+            if (c == null) {
+                String stored = uploadAbsOrEmpty(pid);
+                PatentDetailCacheEntity ins = new PatentDetailCacheEntity();
+                ins.setPid(pid);
+                ins.setDraws(stored);
+                ins.setStatus(0);
+                ins.setTenantId(1L);
+                try {
+                    patentDetailCacheService.save(ins);
+                } catch (org.springframework.dao.DuplicateKeyException ignore) {
+                    patentDetailCacheService.lambdaUpdate()
+                            .eq(PatentDetailCacheEntity::getPid, pid)
+                            .isNull(PatentDetailCacheEntity::getDraws)
+                            .set(PatentDetailCacheEntity::getDraws, stored)
+                            .update();
                 }
-                detailCache.setStatus(0);
-                detailCache.setTenantId(1L);
-                patentDetailCacheService.save(detailCache);
+            } else if (c.getDraws() == null) {
+                String stored = uploadAbsOrEmpty(pid);
+                patentDetailCacheService.lambdaUpdate()
+                        .eq(PatentDetailCacheEntity::getPid, pid)
+                        .isNull(PatentDetailCacheEntity::getDraws)
+                        .set(PatentDetailCacheEntity::getDraws, stored)
+                        .update();
             }
 
             // 发明人处理
@@ -109,6 +124,21 @@ public class PatentConsumer implements RocketMQListener<String> {
             log.error("========== 【专利消息处理异常】==========");
             log.error("消息内容: {}", message);
             log.error("异常信息: {}", e.getMessage(), e);
+        }
+    }
+
+    /*
+     * 拉取并上传摘要图；失败或无资源返回空串
+     */
+    private String uploadAbsOrEmpty(String pid) {
+        try {
+            String url = ytService.absUrl(pid);
+            if (StrUtil.isBlank(url)) return "";
+            String uploaded = fileService.uploadFileByUrl(url, PatentFileTypeEnum.ABSTRACT.getCode(), FileGroupTypeEnum.IMAGE);
+            return StrUtil.emptyToDefault(uploaded, "");
+        } catch (Exception e) {
+            log.warn("摘要图获取/上传失败, pid={}, err={}", pid, e.getMessage(), e);
+            return "";
         }
     }
 
