@@ -54,9 +54,22 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
     @Override
     @SneakyThrows
     public UserDetails loadUserByUsername(String ticket) {
+        Cache cache = cacheManager.getCache(CacheConstants.USER_DETAILS);
+        if (cache != null && cache.get(ticket) != null) {
+            log.info("[CAS-LOGIN] cache hit for username={}", ticket);
+            UserInfo userInfo = cache.get(ticket, UserInfo.class);
+            if (userInfo == null) {
+                log.warn("[CAS-LOGIN] cache entry for username={} is null, will refetch", ticket);
+            } else {
+                userInfo.setPassword(ticket); // 不记录明文
+                return getUserDetails(Optional.ofNullable(userInfo));
+            }
+        } else {
+            log.info("[CAS-LOGIN] cache miss for username={}", ticket);
+        }
         final String ticketMask = maskTicket(ticket);
-        log.info("[CAS-LOGIN] loadUserByUsername start, ticketLen={}, ticketHash8={}",
-                StrUtil.length(ticket), shortHash(ticket));
+        log.info("[CAS-LOGIN] loadUserByUsername start, ticketLen={}, ticketHash8={} ,ticketMask={}",
+                StrUtil.length(ticket), shortHash(ticket), ticketMask);
 
         long t0 = System.currentTimeMillis();
         String username = validateTicket(ticket);
@@ -68,19 +81,6 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
             throw new BizException("用户不存在");
         }
 
-        Cache cache = cacheManager.getCache(CacheConstants.USER_DETAILS);
-        if (cache != null && cache.get(username) != null) {
-            log.info("[CAS-LOGIN] cache hit for username={}", username);
-            UserInfo userInfo = cache.get(username, UserInfo.class);
-            if (userInfo == null) {
-                log.warn("[CAS-LOGIN] cache entry for username={} is null, will refetch", username);
-            } else {
-                userInfo.setPassword(ticket); // 不记录明文
-                return getUserDetails(Optional.ofNullable(userInfo));
-            }
-        } else {
-            log.info("[CAS-LOGIN] cache miss for username={}", username);
-        }
 
         // 远程用户信息查询
         UserDTO userDTO = new UserDTO();
