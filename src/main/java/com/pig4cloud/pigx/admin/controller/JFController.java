@@ -24,8 +24,6 @@ import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import com.pig4cloud.pigx.common.data.datascope.DataScopeTypeEnum;
-import com.pig4cloud.pigx.common.excel.annotation.ResponseExcel;
-import com.pig4cloud.pigx.common.excel.annotation.Sheet;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import com.pig4cloud.pigx.jsonflow.api.entity.DefFlow;
 import com.pig4cloud.pigx.jsonflow.api.vo.ToDoneJobVO;
@@ -188,9 +186,10 @@ public class JFController {
      *   6. 按 dsType 规则过滤，得到最终可审批用户
      */
     public List<Long> getApproverUserIds(String roleCode, Long createUserId) {
-        Long createDeptId = sysUserService.lambdaQuery()
+        SysUser sysUser = sysUserService.lambdaQuery()
                 .eq(SysUser::getUserId, createUserId)
-                .one().getDeptId();
+                .one();
+        Long createDeptId = null == sysUser ? null : sysUser.getDeptId();
         SysRole targetRole = sysRoleService.lambdaQuery()
                 .eq(SysRole::getRoleCode, roleCode)
                 .one();
@@ -295,12 +294,12 @@ public class JFController {
             return Objects.equals(sysUser.getUserId(), createUserId);
         }
 
-        if (Objects.equals(dsType, DataScopeTypeEnum.OWN_LEVEL.getType())) {
+        if (null != createDeptId && Objects.equals(dsType, DataScopeTypeEnum.OWN_LEVEL.getType())) {
             Long selfDept = sysUser.getDeptId();
             return selfDept != null && Objects.equals(selfDept, createDeptId);
         }
 
-        if (Objects.equals(dsType, DataScopeTypeEnum.OWN_CHILD_LEVEL.getType())) {
+        if (null != createDeptId && Objects.equals(dsType, DataScopeTypeEnum.OWN_CHILD_LEVEL.getType())) {
             Long selfDept = sysUser.getDeptId();
             if (selfDept == null) {
                 return false;
@@ -309,7 +308,7 @@ public class JFController {
             return cover.contains(createDeptId);
         }
 
-        if (Objects.equals(dsType, DataScopeTypeEnum.CUSTOM.getType())) {
+        if (null != createDeptId && Objects.equals(dsType, DataScopeTypeEnum.CUSTOM.getType())) {
             SysRole maxRole = findUserMaxRole(sysUser.getUserId());
             if (maxRole == null || StrUtil.isBlank(maxRole.getDsScope())) {
                 return false;
