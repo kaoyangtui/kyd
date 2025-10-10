@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandPageRequest;
@@ -65,6 +66,9 @@ public class UserFollowController {
     @Operation(summary = "我的关注-专利")
     public R<IPage<PatentInfoResponse>> followPatentPage(@ParameterObject PageRequest pageRequest) {
         List<Long> followIds = userFollowService.getFollowIds(PatentInfoResponse.BIZ_CODE);
+        if (CollUtil.isEmpty(followIds)) {
+            return R.ok();
+        }
         PatentPageRequest request = new PatentPageRequest();
         request.setIds(followIds);
         return R.ok(patentInfoService.pageResult(PageUtil.toPage(pageRequest), request));
@@ -74,6 +78,9 @@ public class UserFollowController {
     @Operation(summary = "我的关注-成果")
     public R<IPage<ResultResponse>> followResultPage(@ParameterObject PageRequest pageRequest) {
         List<Long> followIds = userFollowService.getFollowIds(ResultResponse.BIZ_CODE);
+        if (CollUtil.isEmpty(followIds)) {
+            return R.ok();
+        }
         ResultPageRequest request = new ResultPageRequest();
         request.setIds(followIds);
         return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request, false));
@@ -84,6 +91,9 @@ public class UserFollowController {
     @Operation(summary = "我的关注-企业需求")
     public R<IPage<DemandResponse>> followDemandPage(@ParameterObject PageRequest pageRequest) {
         List<Long> followIds = userFollowService.getFollowIds(DemandResponse.BIZ_CODE);
+        if (CollUtil.isEmpty(followIds)) {
+            return R.ok();
+        }
         DemandPageRequest request = new DemandPageRequest();
         request.setIds(followIds);
         return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request));
@@ -93,6 +103,9 @@ public class UserFollowController {
     @Operation(summary = "我的关注-校内需求")
     public R<IPage<DemandInResponse>> followDemandInPage(@ParameterObject PageRequest pageRequest) {
         List<Long> followIds = userFollowService.getFollowIds(DemandInResponse.BIZ_CODE);
+        if (CollUtil.isEmpty(followIds)) {
+            return R.ok();
+        }
         DemandInPageRequest request = new DemandInPageRequest();
         request.setIds(followIds);
         return R.ok(demandInService.pageResult(PageUtil.toPage(pageRequest), request));
@@ -103,6 +116,9 @@ public class UserFollowController {
     @Operation(summary = "我的关注-专家")
     public R<IPage<ExpertResponse>> followExpertPage(@ParameterObject PageRequest pageRequest) {
         List<Long> followIds = userFollowService.getFollowIds(ExpertResponse.BIZ_CODE);
+        if (CollUtil.isEmpty(followIds)) {
+            return R.ok();
+        }
         ExpertPageRequest request = new ExpertPageRequest();
         request.setIds(followIds);
         return R.ok(expertService.pageResult(PageUtil.toPage(pageRequest), request));
