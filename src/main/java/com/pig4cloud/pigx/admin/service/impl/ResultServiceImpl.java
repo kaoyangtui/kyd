@@ -156,7 +156,7 @@ public class ResultServiceImpl extends OrderCommonServiceImpl<ResultMapper, Resu
 
             if (CollUtil.isNotEmpty(request.getTechArea())) {
                 String regex = "(^|;)(" + CollUtil.join(request.getTechArea(), "|") + ")";
-                wrapper.apply("techArea REGEXP {0}", regex);
+                wrapper.apply("tech_area REGEXP {0}", regex);
             }
             if (CollUtil.isNotEmpty(request.getTransWay())) {
                 wrapper.in(ResultEntity::getTransWay, request.getTransWay());

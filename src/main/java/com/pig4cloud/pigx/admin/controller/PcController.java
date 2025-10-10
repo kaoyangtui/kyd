@@ -7,8 +7,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.dto.PageRequest;
-import com.pig4cloud.pigx.admin.dto.demand.DemandCreateRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandPageRequest;
+import com.pig4cloud.pigx.admin.dto.demand.DemandQueryRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertPageRequest;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertResponse;
+import com.pig4cloud.pigx.admin.dto.patent.PatentKeywordQuery;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchRequest;
 import com.pig4cloud.pigx.admin.dto.patent.PatentSearchResponse;
 import com.pig4cloud.pigx.admin.dto.pc.NewsResponse;
@@ -28,6 +29,7 @@ import com.pig4cloud.pigx.admin.dto.researchPlatform.ResearchPlatformResponse;
 import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamPageRequest;
 import com.pig4cloud.pigx.admin.dto.researchTeam.ResearchTeamResponse;
 import com.pig4cloud.pigx.admin.dto.result.ResultPageRequest;
+import com.pig4cloud.pigx.admin.dto.result.ResultQueryRequest;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCasePageRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
@@ -37,9 +39,9 @@ import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -113,10 +115,11 @@ public class PcController {
         return R.ok(result);
     }
 
-    @GetMapping("/result")
+    @PostMapping(value = "/result", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "科研成果查询")
-    public R<IPage<ResultResponse>> result(@ParameterObject PageRequest pageRequest,
-                                           @ParameterObject ResultPageRequest request) {
+    public R<IPage<ResultResponse>> result(@RequestBody ResultQueryRequest body) {
+        PageRequest pageRequest = body.getPageRequest();
+        ResultPageRequest request = body.getRequest();
         if (CollUtil.isEmpty(pageRequest.getOrders())) {
             List<OrderItem> orders = CollUtil.newArrayList();
             OrderItem orderItem = new OrderItem();
@@ -130,26 +133,34 @@ public class PcController {
     }
 
 
-    @GetMapping("/patent/keyword")
+    @PostMapping(value = "/patent/keyword", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "专利查询")
-    public R<IPage<PatentSearchResponse>> patentKeyword(
-            @ParameterObject PageRequest pageRequest,
-            @ParameterObject PatentSearchRequest request) {
+    public R<IPage<PatentSearchResponse>> patentKeyword(@RequestBody PatentKeywordQuery body) {
+        PageRequest pageRequest = body.getPageRequest();
+        PatentSearchRequest request = body.getRequest();
         return R.ok(patentInfoService.searchPatent(PageUtil.toPage(pageRequest), request));
     }
 
-    @GetMapping("/demand")
+
+    @PostMapping(value = "/demand", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "企业技术需求查询")
-    public R<IPage<DemandResponse>> demand(@ParameterObject PageRequest pageRequest,
-                                           @ParameterObject DemandPageRequest request) {
+    public R<IPage<DemandResponse>> demand(@RequestBody DemandQueryRequest body) {
+
+        PageRequest pageRequest = body.getPageRequest();
+        DemandPageRequest request = body.getRequest();
+
+        // 排序：shelf_time desc
         List<OrderItem> orders = CollUtil.newArrayList();
         OrderItem orderItem = new OrderItem();
         orderItem.setColumn("shelf_time");
         orderItem.setAsc(false);
         orders.add(orderItem);
         pageRequest.setOrders(orders);
+
+        // 固定条件
         request.setShelfStatus(1);
         request.setCategory(1);
+
         return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
