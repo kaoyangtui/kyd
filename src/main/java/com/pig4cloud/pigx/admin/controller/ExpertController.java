@@ -51,7 +51,11 @@ public class ExpertController {
     @PostMapping("/detail")
     @Operation(summary = "详情")
     public R<ExpertResponse> detail(@RequestBody IdRequest request) {
-        return R.ok(expertService.getDetail(request.getId()));
+        if (request.getId() != null) {
+            return R.ok(expertService.getDetail(request.getId()));
+        } else {
+            return R.ok(expertService.getDetailByCode(request.getCode()));
+        }
     }
 
     @PostMapping("/create")

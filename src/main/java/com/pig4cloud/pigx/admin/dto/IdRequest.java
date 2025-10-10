@@ -10,4 +10,5 @@ import lombok.Data;
 @Schema(description = "ID请求")
 public class IdRequest {
     private Long id;
+    private String code;
 }

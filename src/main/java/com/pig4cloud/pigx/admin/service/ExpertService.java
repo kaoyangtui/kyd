@@ -8,6 +8,7 @@ import com.pig4cloud.pigx.admin.dto.expert.ExpertPageRequest;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertResponse;
 import com.pig4cloud.pigx.admin.dto.expert.ExpertUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.ExpertEntity;
+import lombok.SneakyThrows;
 
 import java.util.List;
 
@@ -21,6 +22,8 @@ public interface ExpertService extends IService<ExpertEntity> {
     IPage<ExpertResponse> pageResult(Page page, ExpertPageRequest request);
 
     ExpertResponse getDetail(Long id);
+
+    ExpertResponse getDetailByCode(String code);
 
     Boolean create(ExpertCreateRequest request);
 

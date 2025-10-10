@@ -81,6 +81,16 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
         return BeanUtil.copyProperties(entity, ExpertResponse.class);
     }
 
+    @SneakyThrows
+    @Override
+    public ExpertResponse getDetailByCode(String code) {
+        ExpertEntity entity = this.lambdaQuery().eq(ExpertEntity::getCode, code).one();
+        if (entity == null) {
+            return null;
+        }
+        return BeanUtil.copyProperties(entity, ExpertResponse.class);
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(ExpertCreateRequest request) {
