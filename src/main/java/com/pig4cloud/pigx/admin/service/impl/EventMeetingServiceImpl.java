@@ -13,22 +13,29 @@ import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingCreateRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.DemandInEntity;
 import com.pig4cloud.pigx.admin.entity.EventMeetingApplyEntity;
 import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.EventMeetingMapper;
 import com.pig4cloud.pigx.admin.service.EventMeetingService;
+import com.pig4cloud.pigx.admin.service.EventMeetingApplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, EventMeetingEntity> implements EventMeetingService {
+
+    private final EventMeetingApplyService eventMeetingApplyService;
+
+    private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
     public IPage<EventMeetingResponse> pageResult(Page page, EventMeetingPageRequest request) {
@@ -69,7 +76,9 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
         }
 
         IPage<EventMeetingEntity> entityPage = this.page(page, wrapper);
-        return entityPage.convert(this::convertToResponse);
+        // 这里把 userId 透传给转换方法，用于计算 signUpStatus
+        Long userId = request.getUserId();
+        return entityPage.convert(e -> convertToResponse(e, userId));
     }
 
     @SneakyThrows
@@ -83,7 +92,8 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
                 .eq(EventMeetingEntity::getId, id)
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
-        return convertToResponse(entity);
+        // 未提供 userId 的场景，仅按时间窗口判断可报名/不可报名（0/2）
+        return convertToResponse(entity, null);
     }
 
     @Override
@@ -121,12 +131,73 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
         }
     }
 
+    /** 原有签名保留，用于兼容 */
     private EventMeetingResponse convertToResponse(EventMeetingEntity entity) {
-        EventMeetingResponse response = BeanUtil.copyProperties(entity, EventMeetingResponse.class);
+        return convertToResponse(entity, null);
+    }
+
+    /** 新增重载：带 userId 以便计算 signUpStatus */
+    private EventMeetingResponse convertToResponse(EventMeetingEntity entity, Long userId) {
+        EventMeetingResponse response = new EventMeetingResponse();
+        // 先做普通属性拷贝（相同类型字段）
+        BeanUtil.copyProperties(entity, response);
+
+        // 处理附件 -> List
         response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
-                ? StrUtil.split(entity.getFileUrl(), ";")
+                ? Arrays.stream(entity.getFileUrl().split(";"))
+                .map(String::trim)
+                .filter(StrUtil::isNotBlank)
+                .toList()
                 : null);
+
+        // 时间字段格式化为字符串
+        response.setEventTime(format(entity.getEventTime()));
+        response.setSignUpStart(format(entity.getSignUpStart()));
+        response.setSignUpEnd(format(entity.getSignUpEnd()));
+
+        // 计算报名状态
+        response.setSignUpStatus(calcSignUpStatus(entity, userId));
+
         return response;
     }
-}
 
+    private String format(LocalDateTime dt) {
+        return dt == null ? null : dt.format(DT_FMT);
+    }
+
+    /**
+     * 报名状态：
+     * 0 可报名：在报名窗口内，且（未提供 userId 或者）未报名
+     * 1 已报名：在报名窗口内，且该 userId 已报名
+     * 2 不可报名：不在报名窗口内（未开始或已结束）
+     *
+     * 窗口判定：start <= now <= end；start/end 允许为空（为空则不限制该端）
+     */
+    private int calcSignUpStatus(EventMeetingEntity e, Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = e.getSignUpStart();
+        LocalDateTime end = e.getSignUpEnd();
+
+        boolean afterStart = (start == null) || !now.isBefore(start); // now >= start
+        boolean beforeEnd  = (end == null)   || !now.isAfter(end);     // now <= end
+        boolean inWindow   = afterStart && beforeEnd;
+
+        if (!inWindow) {
+            return 2; // 不可报名
+        }
+
+        if (userId == null) {
+            // 未提供用户，只能判定“在窗口期内”，视为可报名
+            return 0;
+        }
+
+        long exists = eventMeetingApplyService.count(
+                new LambdaQueryWrapper<EventMeetingApplyEntity>()
+                        .eq(EventMeetingApplyEntity::getMeetingId, e.getId())
+                        .eq(EventMeetingApplyEntity::getUserId, userId)
+                        .last("limit 1")
+        );
+
+        return exists > 0 ? 1 : 0;
+    }
+}

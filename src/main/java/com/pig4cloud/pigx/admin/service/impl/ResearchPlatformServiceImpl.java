@@ -19,6 +19,8 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchPlatformMapper;
 import com.pig4cloud.pigx.admin.service.ResearchPlatformService;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
+import com.pig4cloud.pigx.common.security.service.PigxUser;
+import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,9 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
         // 业务主键编码（如需编码可加）
         entity.setCode(ParamResolver.getStr(ResearchPlatformResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
         entity.setShelfStatus(0);
+        //PigxUser pigxUser = SecurityUtils.getUser();
+        //entity.setLeaderCode(pigxUser.getUsername());
+        //entity.setLeaderName(pigxUser.getNickname());
         return this.save(entity);
     }
 

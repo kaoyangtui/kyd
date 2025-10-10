@@ -41,6 +41,9 @@ public class EventMeetingResponse extends BaseResponse {
     @Schema(description = "报名截止时间")
     private String signUpEnd;
 
+    @Schema(description = "报名状态，0可报名 1已报名 2不可报名")
+    private Integer  signUpStatus;
+
     @Schema(description = "附件路径（多个用;分隔）")
     private List<String> fileUrl;
 

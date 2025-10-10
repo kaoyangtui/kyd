@@ -119,7 +119,8 @@ public class EventMeetingController {
     // 报名分页列表
     @GetMapping("/apply/page")
     @Operation(summary = "活动报名信息分页查询")
-    public R<IPage<EventMeetingApplyResponse>> applyPage(@ParameterObject PageRequest pageRequest, @ParameterObject EventMeetingApplyPageRequest request) {
+    public R<IPage<EventMeetingApplyResponse>> applyPage(@ParameterObject PageRequest pageRequest,
+                                                         @ParameterObject EventMeetingApplyPageRequest request) {
         return R.ok(eventMeetingApplyService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 
