@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.EventMeetingMapper;
 import com.pig4cloud.pigx.admin.service.EventMeetingApplyService;
 import com.pig4cloud.pigx.admin.service.EventMeetingService;
+import com.pig4cloud.pigx.common.security.service.PigxUser;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -93,7 +94,11 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
         // 未提供 userId 的场景，仅按时间窗口判断可报名/不可报名（0/2）
-        return convertToResponse(entity, SecurityUtils.getUser().getId());
+        PigxUser user = SecurityUtils.getUser();
+        if (user == null) {
+            return convertToResponse(entity, null);
+        }
+        return convertToResponse(entity, user.getId());
     }
 
     @Override

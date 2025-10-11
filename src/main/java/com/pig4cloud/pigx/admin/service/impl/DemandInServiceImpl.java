@@ -114,8 +114,12 @@ public class DemandInServiceImpl extends OrderCommonServiceImpl<DemandInMapper, 
         if (CollUtil.isEmpty(page.orders())) {
             wrapper.orderByDesc(DemandInEntity::getCreateTime);
         }
-
-        Page<DemandInEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<DemandInEntity> entityPage;
+        if (isByScope) {
+            entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        } else {
+            entityPage = baseMapper.selectPage(page, wrapper);
+        }
         return entityPage.convert(this::convertToResponse);
     }
 
