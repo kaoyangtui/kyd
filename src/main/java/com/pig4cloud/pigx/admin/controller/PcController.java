@@ -11,6 +11,7 @@ import com.pig4cloud.pigx.admin.dto.demand.DemandPageRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandQueryRequest;
 import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
+import com.pig4cloud.pigx.admin.dto.demandIn.DemandInQueryRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
@@ -164,18 +165,24 @@ public class PcController {
         return R.ok(demandService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
-
-    @GetMapping("/demandIn")
+    @PostMapping(value = "/demandIn", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "校内科研需求")
-    public R<IPage<DemandInResponse>> demandIn(@ParameterObject PageRequest pageRequest,
-                                               @ParameterObject DemandInPageRequest request) {
+    public R<IPage<DemandInResponse>> demandIn(@RequestBody DemandInQueryRequest body) {
+
+        PageRequest pageRequest = body.getPageRequest();
+        DemandInPageRequest request = body.getRequest();
+
+        // 排序：shelf_time desc
         List<OrderItem> orders = CollUtil.newArrayList();
         OrderItem orderItem = new OrderItem();
         orderItem.setColumn("shelf_time");
         orderItem.setAsc(false);
         orders.add(orderItem);
         pageRequest.setOrders(orders);
+
+        // 固定条件
         request.setShelfStatus(1);
+
         return R.ok(demandInService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 

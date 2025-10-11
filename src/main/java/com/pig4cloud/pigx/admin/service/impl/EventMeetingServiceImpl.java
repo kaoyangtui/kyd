@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingCreateRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingPageRequest;
 import com.pig4cloud.pigx.admin.dto.eventMeeting.EventMeetingResponse;
@@ -17,8 +16,9 @@ import com.pig4cloud.pigx.admin.entity.EventMeetingApplyEntity;
 import com.pig4cloud.pigx.admin.entity.EventMeetingEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.EventMeetingMapper;
-import com.pig4cloud.pigx.admin.service.EventMeetingService;
 import com.pig4cloud.pigx.admin.service.EventMeetingApplyService;
+import com.pig4cloud.pigx.admin.service.EventMeetingService;
+import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -93,7 +93,7 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
         // 未提供 userId 的场景，仅按时间窗口判断可报名/不可报名（0/2）
-        return convertToResponse(entity, null);
+        return convertToResponse(entity, SecurityUtils.getUser().getId());
     }
 
     @Override
@@ -131,10 +131,6 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
         }
     }
 
-    /** 原有签名保留，用于兼容 */
-    private EventMeetingResponse convertToResponse(EventMeetingEntity entity) {
-        return convertToResponse(entity, null);
-    }
 
     /** 新增重载：带 userId 以便计算 signUpStatus */
     private EventMeetingResponse convertToResponse(EventMeetingEntity entity, Long userId) {
