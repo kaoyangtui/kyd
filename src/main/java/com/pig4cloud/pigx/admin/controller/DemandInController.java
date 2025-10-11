@@ -124,7 +124,7 @@ public class DemandInController {
     @Operation(summary = "上下架")
     //@PreAuthorize("@pms.hasPermission('demand_in_edit')")
     public R<Boolean> updateShelfStatus(@RequestBody ShelfStatusRequest request) {
-        return R.ok(demandInService.updateShelfStatus(request.getId(), request.getShelfStatus()));
+        return R.ok(demandInService.updateShelfStatus(request.getIds(), request.getShelfStatus()));
     }
 
 }

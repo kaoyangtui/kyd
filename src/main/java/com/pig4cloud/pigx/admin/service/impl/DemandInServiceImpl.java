@@ -9,17 +9,13 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInCreateRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInPageRequest;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegResponse;
-import com.pig4cloud.pigx.admin.dto.softCopyReg.SoftCopyRegUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
-import com.pig4cloud.pigx.admin.entity.PatentClaimEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -126,16 +122,14 @@ public class DemandInServiceImpl extends OrderCommonServiceImpl<DemandInMapper, 
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean updateShelfStatus(Long id, Integer shelfStatus) {
-        if (ObjectUtil.isNull(id)) {
+    public Boolean updateShelfStatus(List<Long> ids, Integer shelfStatus) {
+        if (CollUtil.isEmpty(ids)) {
             throw new BizException("ID不能为空");
         }
-        DemandInEntity entity = this.getById(id);
-        if (entity == null) {
-            throw new BizException("数据不存在");
-        }
-        entity.setShelfStatus(shelfStatus);
-        return this.updateById(entity);
+        return this.lambdaUpdate()
+                .in(DemandInEntity::getId, ids)
+                .set(DemandInEntity::getShelfStatus, shelfStatus)
+                .update();
     }
 
     private void doSaveOrUpdate(DemandInCreateRequest request, boolean isCreate) {

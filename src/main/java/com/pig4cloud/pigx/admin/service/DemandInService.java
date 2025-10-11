@@ -26,5 +26,5 @@ public interface DemandInService extends IService<DemandInEntity> {
     IPage<DemandInResponse> pageResult(Page page, DemandInPageRequest request, boolean isByScope);
 
     @Transactional
-    Boolean updateShelfStatus(Long id, Integer shelfStatus);
+    Boolean updateShelfStatus(List<Long> ids, Integer shelfStatus);
 }
