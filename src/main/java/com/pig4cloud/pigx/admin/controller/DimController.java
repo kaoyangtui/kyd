@@ -32,6 +32,7 @@ public class DimController {
     private final DimAreaService dimAreaService;
     private final SysUserService sysUserService;
     private final DimMajorService dimMajorService;
+    private final DimStandardTypeService dimStandardTypeService;
     private final ResearchProjectService researchProjectService;
     private final FlowNodeService flowNodeService;
 
@@ -51,6 +52,12 @@ public class DimController {
     @PostMapping("/major/tree")
     public R<List<Tree<String>>> majorTree() {
         return R.ok(dimMajorService.tree());
+    }
+
+    @Operation(summary = "标准类型")
+    @PostMapping("/standardType/tree")
+    public R<List<Tree<String>>> standardType() {
+        return R.ok(dimStandardTypeService.tree());
     }
 
     @Operation(summary = "获取用户列表")
