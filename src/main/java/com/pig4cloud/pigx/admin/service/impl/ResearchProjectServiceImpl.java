@@ -68,7 +68,7 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
             wrapper.orderByDesc(ResearchProjectEntity::getCreateTime);
         }
 
-        IPage<ResearchProjectEntity> resultPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<ResearchProjectEntity> resultPage = baseMapper.selectPage(page, wrapper);
         return resultPage.convert(entity ->
                 extracted(entity)
         );
