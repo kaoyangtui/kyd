@@ -24,6 +24,7 @@ public class JsonFlowHandle {
         Long id = MapUtil.getLong(order, OrderEntityInfoConstants.ID);
         Long flowInstId = MapUtil.getLong(order, OrderEntityInfoConstants.FLOW_INST_ID);
         String flowKey = MapUtil.getStr(order, OrderEntityInfoConstants.FLOW_KEY);
+        order.put("orderName", params.get("orderName"));
         Boolean res = runFlowService.startFlow(order, params);
         if (!res) {
             throw new ValidationException("发起流程失败: " + res);

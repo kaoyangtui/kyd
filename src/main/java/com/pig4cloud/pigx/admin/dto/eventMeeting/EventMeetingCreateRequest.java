@@ -13,7 +13,6 @@ import java.util.List;
 @Schema(description = "活动会议创建请求")
 public class EventMeetingCreateRequest {
 
-    @NotBlank(message = "图片地址不能为空")
     @Schema(description = "图片地址")
     private String imgUrl;
 
