@@ -39,7 +39,7 @@ public class MyToCUserDetailsServiceImpl implements PigxUserDetailsService {
                 "1",
                 true,
                 true,
-                AuthorityUtils.NO_AUTHORITIES);
+                AuthorityUtils.NO_AUTHORITIES, "");
     }
 
     // check-token 使用

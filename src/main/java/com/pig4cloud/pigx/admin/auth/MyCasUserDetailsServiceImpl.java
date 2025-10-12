@@ -155,7 +155,7 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
                 true, true, UserTypeEnum.TOB.getStatus(),
                 !CommonConstants.STATUS_LOCK.equals(info.getPasswordExpireFlag()),
                 !CommonConstants.STATUS_LOCK.equals(info.getLockFlag()),
-                authorities
+                authorities, info.getCode()
         );
     }
 
