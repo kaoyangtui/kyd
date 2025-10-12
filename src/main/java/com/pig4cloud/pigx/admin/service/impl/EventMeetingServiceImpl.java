@@ -25,6 +25,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -152,18 +153,14 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
                 : null);
 
         // 时间字段格式化为字符串
-        response.setEventTime(format(entity.getEventTime()));
-        response.setSignUpStart(format(entity.getSignUpStart()));
-        response.setSignUpEnd(format(entity.getSignUpEnd()));
+        response.setEventTime(entity.getEventTime());
+        response.setSignUpStart(entity.getSignUpStart());
+        response.setSignUpEnd(entity.getSignUpEnd());
 
         // 计算报名状态
         response.setSignUpStatus(calcSignUpStatus(entity, userId));
 
         return response;
-    }
-
-    private String format(LocalDateTime dt) {
-        return dt == null ? null : dt.format(DT_FMT);
     }
 
     /**
@@ -175,9 +172,9 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
      * 窗口判定：start <= now <= end；start/end 允许为空（为空则不限制该端）
      */
     private int calcSignUpStatus(EventMeetingEntity e, Long userId) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = e.getSignUpStart();
-        LocalDateTime end = e.getSignUpEnd();
+        LocalDate now = LocalDate.now();
+        LocalDate start = e.getSignUpStart();
+        LocalDate end = e.getSignUpEnd();
 
         boolean afterStart = (start == null) || !now.isBefore(start); // now >= start
         boolean beforeEnd  = (end == null)   || !now.isAfter(end);     // now <= end

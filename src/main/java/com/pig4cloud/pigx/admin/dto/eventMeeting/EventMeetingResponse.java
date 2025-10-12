@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -27,7 +28,7 @@ public class EventMeetingResponse extends BaseResponse {
     private String organizer;
 
     @Schema(description = "活动时间")
-    private String eventTime;
+    private LocalDate eventTime;
 
     @Schema(description = "活动地点")
     private String location;
@@ -36,10 +37,10 @@ public class EventMeetingResponse extends BaseResponse {
     private String content;
 
     @Schema(description = "报名开始时间")
-    private String signUpStart;
+    private LocalDate signUpStart;
 
     @Schema(description = "报名截止时间")
-    private String signUpEnd;
+    private LocalDate signUpEnd;
 
     @Schema(description = "报名状态，0可报名 1已报名 2不可报名")
     private Integer  signUpStatus;

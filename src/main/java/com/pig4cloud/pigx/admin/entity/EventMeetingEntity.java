@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -52,7 +53,7 @@ public class EventMeetingEntity extends Model<EventMeetingEntity> {
      * 活动时间
      */
     @Schema(description = "活动时间")
-    private LocalDateTime eventTime;
+    private LocalDate eventTime;
 
     /**
      * 活动地点
@@ -70,13 +71,13 @@ public class EventMeetingEntity extends Model<EventMeetingEntity> {
      * 报名开始时间
      */
     @Schema(description = "报名开始时间")
-    private LocalDateTime signUpStart;
+    private LocalDate signUpStart;
 
     /**
      * 报名截止时间
      */
     @Schema(description = "报名截止时间")
-    private LocalDateTime signUpEnd;
+    private LocalDate signUpEnd;
 
     @Schema(description = "附件URL，多文件用;分隔，DTO用List")
     private String fileUrl;
