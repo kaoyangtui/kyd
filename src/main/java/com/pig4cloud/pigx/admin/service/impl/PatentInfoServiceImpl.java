@@ -110,6 +110,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             // 上下架标识
             boolean shelfFlag = patentShelfService.lambdaQuery()
                     .eq(PatentShelfEntity::getPid, entity.getPid())
+                    .eq(PatentShelfEntity::getShelfStatus, 1)
                     .exists();
             response.setShelfFlag(shelfFlag ? "1" : "0");
             // 监控标识
