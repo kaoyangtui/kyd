@@ -1,7 +1,6 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -11,12 +10,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalResponse;
-import com.pig4cloud.pigx.admin.dto.patentProposal.PatentProposalUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
 import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.exception.BizException;
@@ -28,6 +24,7 @@ import com.pig4cloud.pigx.admin.mapper.ResultMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.ResultService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -77,7 +74,7 @@ public class ResultServiceImpl extends OrderCommonServiceImpl<ResultMapper, Resu
     }
 
     private ResultResponse doSaveOrUpdate(ResultCreateRequest request, boolean isCreate) throws BizException {
-        ResultEntity entity = BeanUtil.copyProperties(request, ResultEntity.class);
+        ResultEntity entity = CopyUtil.copyProperties(request, ResultEntity.class);
         String code;
         if (!isCreate && request instanceof ResultUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
