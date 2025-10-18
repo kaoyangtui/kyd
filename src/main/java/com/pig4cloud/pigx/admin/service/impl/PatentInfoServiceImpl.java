@@ -24,6 +24,7 @@ import com.pig4cloud.pigx.admin.mapper.PatentInfoMapper;
 import com.pig4cloud.pigx.admin.mapper.PatentMonitorUserMapper;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -96,7 +97,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                         .collect(Collectors.groupingBy(PatentInventorEntity::getPid));
         String code = SecurityUtils.getUser().getUsername();
         return entityPage.convert(entity -> {
-            PatentInfoResponse response = BeanUtil.copyProperties(entity, PatentInfoResponse.class);
+            PatentInfoResponse response = CopyUtil.copyProperties(entity, PatentInfoResponse.class);
             PatentDetailCacheEntity detailCacheEntity = cacheMap.get(entity.getPid());
             if (detailCacheEntity != null) {
                 response.setDraws(detailCacheEntity.getDraws());

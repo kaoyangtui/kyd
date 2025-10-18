@@ -20,6 +20,7 @@ import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.service.PatentFeeReimburseService;
 import com.pig4cloud.pigx.admin.service.PatentProposalService;
 import com.pig4cloud.pigx.admin.service.ResearchProjectService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -85,7 +86,7 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
     }
 
     private ResearchProjectResponse extracted(ResearchProjectEntity entity) {
-        ResearchProjectResponse researchProjectResponse = BeanUtil.copyProperties(entity, ResearchProjectResponse.class);
+        ResearchProjectResponse researchProjectResponse = CopyUtil.copyProperties(entity, ResearchProjectResponse.class);
         Long resultCount = resultService.lambdaQuery()
                 .eq(ResultEntity::getResearchProjectId, entity.getId())
                 .eq(ResultEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
@@ -108,14 +109,14 @@ public class ResearchProjectServiceImpl extends ServiceImpl<ResearchProjectMappe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean createProject(ResearchProjectCreateRequest request) {
-        ResearchProjectEntity entity = BeanUtil.copyProperties(request, ResearchProjectEntity.class);
+        ResearchProjectEntity entity = CopyUtil.copyProperties(request, ResearchProjectEntity.class);
         return this.save(entity);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateProject(ResearchProjectUpdateRequest request) {
-        ResearchProjectEntity entity = BeanUtil.copyProperties(request, ResearchProjectEntity.class);
+        ResearchProjectEntity entity = CopyUtil.copyProperties(request, ResearchProjectEntity.class);
         entity.setId(request.getId());
         return this.updateById(entity);
     }

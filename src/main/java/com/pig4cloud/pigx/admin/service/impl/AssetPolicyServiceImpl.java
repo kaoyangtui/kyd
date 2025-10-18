@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.AssetPolicyMapper;
 import com.pig4cloud.pigx.admin.service.AssetPolicyService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -102,7 +103,7 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
     }
 
     private void doSaveOrUpdate(AssetPolicyCreateRequest request, boolean isCreate) {
-        AssetPolicyEntity entity = BeanUtil.copyProperties(request, AssetPolicyEntity.class);
+        AssetPolicyEntity entity = CopyUtil.copyProperties(request, AssetPolicyEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
@@ -117,7 +118,7 @@ public class AssetPolicyServiceImpl extends ServiceImpl<AssetPolicyMapper, Asset
     }
 
     private AssetPolicyResponse convertToResponse(AssetPolicyEntity entity) {
-        AssetPolicyResponse res = BeanUtil.copyProperties(entity, AssetPolicyResponse.class);
+        AssetPolicyResponse res = CopyUtil.copyProperties(entity, AssetPolicyResponse.class);
         res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
         return res;
     }

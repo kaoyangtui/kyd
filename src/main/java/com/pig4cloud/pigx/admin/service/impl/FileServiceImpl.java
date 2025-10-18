@@ -1,13 +1,11 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
-import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,25 +18,21 @@ import com.pig4cloud.pigx.admin.dto.file.FilePageRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.FileEntity;
-import com.pig4cloud.pigx.admin.entity.IcLayoutEntity;
 import com.pig4cloud.pigx.admin.mapper.FileMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.SysFileGroupService;
 import com.pig4cloud.pigx.admin.service.SysFileService;
-import com.pig4cloud.pigx.common.core.util.WebUtils;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.file.core.FileProperties;
 import com.pig4cloud.pigx.common.file.core.FileTemplate;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +50,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(FileCreateRequest request) {
-        FileEntity entity = BeanUtil.copyProperties(request, FileEntity.class);
+        FileEntity entity = CopyUtil.copyProperties(request, FileEntity.class);
         return this.save(entity);
     }
 
@@ -91,7 +85,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
         // 4) 拷贝并过滤掉可能拷贝失败/为空的实体；如需只插入有 code 的项，可再加一层过滤
         List<FileEntity> entityList = validList.stream()
-                .map(req -> BeanUtil.copyProperties(req, FileEntity.class))
+                .map(req -> CopyUtil.copyProperties(req, FileEntity.class))
                 .filter(Objects::nonNull)
                 .toList();
 
@@ -108,7 +102,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean update(FileUpdateRequest request) {
-        FileEntity entity = BeanUtil.copyProperties(request, FileEntity.class);
+        FileEntity entity = CopyUtil.copyProperties(request, FileEntity.class);
         return this.updateById(entity);
     }
 
@@ -143,7 +137,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
 
         Page<FileEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
 
-        return resPage.convert(e -> BeanUtil.copyProperties(e, FileResponse.class));
+        return resPage.convert(e -> CopyUtil.copyProperties(e, FileResponse.class));
     }
 
     @Override

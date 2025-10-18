@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.entity.ConsultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ConsultMapper;
 import com.pig4cloud.pigx.admin.service.ConsultService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
     @Override
     @Transactional
     public Boolean create(ConsultCreateRequest request) {
-        ConsultEntity entity = BeanUtil.copyProperties(request, ConsultEntity.class);
+        ConsultEntity entity = CopyUtil.copyProperties(request, ConsultEntity.class);
         entity.setStatus(0);
         entity.setReplyStatus(0);
         return this.save(entity);
@@ -44,7 +45,7 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
         if (ObjectUtil.isNull(request.getId())) {
             throw new BizException("ID不能为空");
         }
-        ConsultEntity entity = BeanUtil.copyProperties(request, ConsultEntity.class);
+        ConsultEntity entity = CopyUtil.copyProperties(request, ConsultEntity.class);
         return this.updateById(entity);
     }
 
@@ -73,7 +74,7 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
-        return BeanUtil.copyProperties(entity, ConsultResponse.class);
+        return CopyUtil.copyProperties(entity, ConsultResponse.class);
     }
 
     @Override
@@ -110,7 +111,7 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
         }
 
         IPage<ConsultEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return entityPage.convert(e -> BeanUtil.copyProperties(e, ConsultResponse.class));
+        return entityPage.convert(e -> CopyUtil.copyProperties(e, ConsultResponse.class));
     }
 
     @SneakyThrows
@@ -126,6 +127,6 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
                     .set(ConsultEntity::getStatus, 1)
                     .update();
         }
-        return BeanUtil.copyProperties(entity, ConsultResponse.class);
+        return CopyUtil.copyProperties(entity, ConsultResponse.class);
     }
 }

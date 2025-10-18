@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -16,6 +15,7 @@ import com.pig4cloud.pigx.admin.entity.AssetNewsEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.AssetNewsMapper;
 import com.pig4cloud.pigx.admin.service.AssetNewsService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -109,7 +109,7 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
     }
 
     private void doSaveOrUpdate(AssetNewsCreateRequest request, boolean isCreate) {
-        AssetNewsEntity entity = BeanUtil.copyProperties(request, AssetNewsEntity.class);
+        AssetNewsEntity entity = CopyUtil.copyProperties(request, AssetNewsEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
@@ -124,7 +124,7 @@ public class AssetNewsServiceImpl extends ServiceImpl<AssetNewsMapper, AssetNews
     }
 
     private AssetNewsResponse convertToResponse(AssetNewsEntity entity) {
-        AssetNewsResponse res = BeanUtil.copyProperties(entity, AssetNewsResponse.class);
+        AssetNewsResponse res = CopyUtil.copyProperties(entity, AssetNewsResponse.class);
         res.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
         return res;
     }

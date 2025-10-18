@@ -30,6 +30,7 @@ import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.OwnerService;
 import com.pig4cloud.pigx.admin.service.SoftCopyRegService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -73,7 +74,7 @@ public class SoftCopyRegServiceImpl extends OrderCommonServiceImpl<SoftCopyRegMa
     }
 
     private void doSaveOrUpdate(SoftCopyRegCreateRequest request, boolean isCreate) {
-        SoftCopyRegEntity entity = BeanUtil.copyProperties(request, SoftCopyRegEntity.class);
+        SoftCopyRegEntity entity = CopyUtil.copyProperties(request, SoftCopyRegEntity.class);
         String code;
         if (!isCreate && request instanceof SoftCopyRegUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -175,7 +176,7 @@ public class SoftCopyRegServiceImpl extends OrderCommonServiceImpl<SoftCopyRegMa
     }
 
     private SoftCopyRegResponse convertToResponse(SoftCopyRegEntity entity) {
-        SoftCopyRegResponse res = BeanUtil.copyProperties(entity, SoftCopyRegResponse.class);
+        SoftCopyRegResponse res = CopyUtil.copyProperties(entity, SoftCopyRegResponse.class);
         res.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
         return res;
     }

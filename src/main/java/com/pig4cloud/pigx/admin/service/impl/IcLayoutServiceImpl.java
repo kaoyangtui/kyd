@@ -35,6 +35,7 @@ import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IcLayoutService;
 import com.pig4cloud.pigx.admin.service.OwnerService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -131,7 +132,7 @@ public class IcLayoutServiceImpl extends OrderCommonServiceImpl<IcLayoutMapper, 
     }
 
     private void doSaveOrUpdate(IcLayoutCreateRequest request, boolean isCreate) {
-        IcLayoutEntity entity = BeanUtil.copyProperties(request, IcLayoutEntity.class);
+        IcLayoutEntity entity = CopyUtil.copyProperties(request, IcLayoutEntity.class);
         String code;
         if (!isCreate && request instanceof IcLayoutUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -197,7 +198,7 @@ public class IcLayoutServiceImpl extends OrderCommonServiceImpl<IcLayoutMapper, 
     }
 
     private IcLayoutResponse convertToResponse(IcLayoutEntity entity) {
-        IcLayoutResponse response = BeanUtil.copyProperties(entity, IcLayoutResponse.class);
+        IcLayoutResponse response = CopyUtil.copyProperties(entity, IcLayoutResponse.class);
         response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
         return response;
     }

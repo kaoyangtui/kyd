@@ -31,6 +31,7 @@ import com.pig4cloud.pigx.admin.mapper.IpAssignMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.IpAssignService;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -135,7 +136,7 @@ public class IpAssignServiceImpl extends OrderCommonServiceImpl<IpAssignMapper, 
     }
 
     private void doSaveOrUpdate(IpAssignCreateRequest request, boolean isCreate) throws BizException {
-        IpAssignEntity entity = BeanUtil.copyProperties(request, IpAssignEntity.class);
+        IpAssignEntity entity = CopyUtil.copyProperties(request, IpAssignEntity.class);
         String code;
         if (!isCreate && request instanceof IpAssignUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -200,7 +201,7 @@ public class IpAssignServiceImpl extends OrderCommonServiceImpl<IpAssignMapper, 
     }
 
     private IpAssignResponse convertToResponse(IpAssignEntity entity) {
-        IpAssignResponse response = BeanUtil.copyProperties(entity, IpAssignResponse.class);
+        IpAssignResponse response = CopyUtil.copyProperties(entity, IpAssignResponse.class);
         response.setProofFileUrl(StrUtil.split(entity.getProofFileUrl(), ";"));
         response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
         return response;

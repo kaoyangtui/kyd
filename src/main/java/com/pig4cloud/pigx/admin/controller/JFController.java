@@ -19,6 +19,7 @@ import com.pig4cloud.pigx.admin.service.SysDeptService;
 import com.pig4cloud.pigx.admin.service.SysRoleService;
 import com.pig4cloud.pigx.admin.service.SysUserRoleService;
 import com.pig4cloud.pigx.admin.service.SysUserService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.admin.utils.ExcelExportUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
@@ -101,7 +102,7 @@ public class JFController {
                         .orderByDesc(DefFlow::getCreateTime)
         );
         return R.ok(list.stream()
-                .map(item -> BeanUtil.copyProperties(item, DefFlowOptionResponse.class))
+                .map(item -> CopyUtil.copyProperties(item, DefFlowOptionResponse.class))
                 .collect(Collectors.toList()));
     }
 

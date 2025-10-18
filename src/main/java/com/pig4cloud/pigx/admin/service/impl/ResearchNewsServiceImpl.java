@@ -21,6 +21,7 @@ import com.pig4cloud.pigx.admin.entity.ResearchNewsEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchNewsMapper;
 import com.pig4cloud.pigx.admin.service.ResearchNewsService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
     }
 
     private void doSaveOrUpdate(ResearchNewsCreateRequest request, boolean isCreate) {
-        ResearchNewsEntity entity = BeanUtil.copyProperties(request, ResearchNewsEntity.class);
+        ResearchNewsEntity entity = CopyUtil.copyProperties(request, ResearchNewsEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
@@ -118,7 +119,7 @@ public class ResearchNewsServiceImpl extends ServiceImpl<ResearchNewsMapper, Res
     }
 
     private ResearchNewsResponse convertToResponse(ResearchNewsEntity entity) {
-        ResearchNewsResponse response = BeanUtil.copyProperties(entity, ResearchNewsResponse.class);
+        ResearchNewsResponse response = CopyUtil.copyProperties(entity, ResearchNewsResponse.class);
         response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl()) ? StrUtil.split(entity.getFileUrl(), ";") : null);
         return response;
     }

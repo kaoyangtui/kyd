@@ -29,6 +29,7 @@ import com.pig4cloud.pigx.admin.service.NationalPatentInfoService;
 import com.pig4cloud.pigx.admin.service.YtService;
 import com.pig4cloud.pigx.admin.utils.CniprExpUtils;
 import com.pig4cloud.pigx.admin.utils.CodeUtils;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

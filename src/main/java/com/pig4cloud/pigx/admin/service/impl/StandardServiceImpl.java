@@ -33,6 +33,7 @@ import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.OwnerService;
 import com.pig4cloud.pigx.admin.service.StandardService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -76,7 +77,7 @@ public class StandardServiceImpl extends OrderCommonServiceImpl<StandardMapper, 
 
     @SneakyThrows
     private void doSaveOrUpdate(StandardCreateRequest request, boolean isCreate) {
-        StandardEntity entity = BeanUtil.copyProperties(request, StandardEntity.class);
+        StandardEntity entity = CopyUtil.copyProperties(request, StandardEntity.class);
         String code;
         if (!isCreate && request instanceof StandardUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -183,7 +184,7 @@ public class StandardServiceImpl extends OrderCommonServiceImpl<StandardMapper, 
     }
 
     private StandardResponse convertToResponse(StandardEntity entity) {
-        StandardResponse response = BeanUtil.copyProperties(entity, StandardResponse.class);
+        StandardResponse response = CopyUtil.copyProperties(entity, StandardResponse.class);
         response.setFileUrls(StrUtil.split(entity.getFileUrl(), ";"));
         return response;
     }

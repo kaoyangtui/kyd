@@ -74,7 +74,7 @@ public class PatentConsumer implements RocketMQListener<String> {
                 patentDetailService.save(newDetail);
             } else {
                 newDetail.setId(oldDetail.getId());
-                // 如果只想部分字段更新，建议用 BeanUtil.copyProperties(newDetail, oldDetail, CopyOptions.create().ignoreNullValue());
+                // 如果只想部分字段更新，建议用 CopyUtil.copyProperties(newDetail, oldDetail, CopyOptions.create().ignoreNullValue());
                 patentDetailService.updateById(newDetail);
             }
 

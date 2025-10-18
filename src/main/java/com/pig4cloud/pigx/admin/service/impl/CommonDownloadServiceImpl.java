@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.entity.CommonDownloadEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.CommonDownloadMapper;
 import com.pig4cloud.pigx.admin.service.CommonDownloadService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -95,7 +96,7 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
     }
 
     private void doSaveOrUpdate(CommonDownloadCreateRequest request, boolean isCreate) {
-        CommonDownloadEntity entity = BeanUtil.copyProperties(request, CommonDownloadEntity.class);
+        CommonDownloadEntity entity = CopyUtil.copyProperties(request, CommonDownloadEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
@@ -110,7 +111,7 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
     }
 
     private CommonDownloadResponse convertToResponse(CommonDownloadEntity entity) {
-        CommonDownloadResponse response = BeanUtil.copyProperties(entity, CommonDownloadResponse.class);
+        CommonDownloadResponse response = CopyUtil.copyProperties(entity, CommonDownloadResponse.class);
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
         return response;
     }

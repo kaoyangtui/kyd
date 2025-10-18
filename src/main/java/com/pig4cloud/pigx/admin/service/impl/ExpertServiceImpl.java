@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.entity.ExpertEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ExpertMapper;
 import com.pig4cloud.pigx.admin.service.ExpertService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -68,7 +69,7 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
 
         IPage<ExpertEntity> entityPage = baseMapper.selectPage(page, wrapper);
 
-        return entityPage.convert(entity -> BeanUtil.copyProperties(entity, ExpertResponse.class));
+        return entityPage.convert(entity -> CopyUtil.copyProperties(entity, ExpertResponse.class));
     }
 
     @SneakyThrows
@@ -78,7 +79,7 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
         if (entity == null) {
             throw new BizException("专家数据不存在");
         }
-        return BeanUtil.copyProperties(entity, ExpertResponse.class);
+        return CopyUtil.copyProperties(entity, ExpertResponse.class);
     }
 
     @SneakyThrows
@@ -88,13 +89,13 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
         if (entity == null) {
             return null;
         }
-        return BeanUtil.copyProperties(entity, ExpertResponse.class);
+        return CopyUtil.copyProperties(entity, ExpertResponse.class);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(ExpertCreateRequest request) {
-        ExpertEntity entity = BeanUtil.copyProperties(request, ExpertEntity.class);
+        ExpertEntity entity = CopyUtil.copyProperties(request, ExpertEntity.class);
         this.save(entity);
         return Boolean.TRUE;
     }
@@ -102,7 +103,7 @@ public class ExpertServiceImpl extends ServiceImpl<ExpertMapper, ExpertEntity> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean update(ExpertUpdateRequest request) {
-        ExpertEntity entity = BeanUtil.copyProperties(request, ExpertEntity.class);
+        ExpertEntity entity = CopyUtil.copyProperties(request, ExpertEntity.class);
         this.updateById(entity);
         return Boolean.TRUE;
     }

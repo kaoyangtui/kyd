@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.entity.PatentPreEvalEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.PatentPreEvalMapper;
 import com.pig4cloud.pigx.admin.service.PatentPreEvalService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
@@ -109,7 +110,7 @@ public class PatentPreEvalServiceImpl extends ServiceImpl<PatentPreEvalMapper, P
     @Override
     public boolean create(PatentPreEvalCreateRequest req) {
         PatentPreEvalEntity entity = new PatentPreEvalEntity();
-        BeanUtil.copyProperties(req, entity);
+        CopyUtil.copyProperties(req, entity);
         if (StrUtil.isBlank(entity.getCode())) {
             entity.setCode("PPE" + IdUtil.getSnowflakeNextIdStr());
         }
@@ -202,7 +203,7 @@ public class PatentPreEvalServiceImpl extends ServiceImpl<PatentPreEvalMapper, P
 
     private PatentPreEvalResponse convertToResponse(PatentPreEvalEntity e) {
         PatentPreEvalResponse r = new PatentPreEvalResponse();
-        BeanUtil.copyProperties(e, r);
+        CopyUtil.copyProperties(e, r);
         r.setAppDate(e.getAppDate());
         r.setReportDate(e.getReportDate());
         r.setCreateBy(e.getCreateUser());

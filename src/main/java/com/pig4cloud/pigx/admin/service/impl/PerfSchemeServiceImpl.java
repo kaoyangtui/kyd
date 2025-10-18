@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.mapper.PerfRuleResultMapper;
 import com.pig4cloud.pigx.admin.mapper.PerfSchemeMapper;
 import com.pig4cloud.pigx.admin.service.PerfRuleService;
 import com.pig4cloud.pigx.admin.service.PerfSchemeService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +77,7 @@ public class PerfSchemeServiceImpl extends ServiceImpl<PerfSchemeMapper, PerfSch
             throw new BizException("方案不存在");
         }
         PerfSchemeWithRulesResponse resp = new PerfSchemeWithRulesResponse();
-        BeanUtil.copyProperties(entity, resp);
+        CopyUtil.copyProperties(entity, resp);
 
         List<PerfRuleEntity> rules = perfRuleService.lambdaQuery()
                 .eq(PerfRuleEntity::getSchemeId, id)
@@ -86,7 +87,7 @@ public class PerfSchemeServiceImpl extends ServiceImpl<PerfSchemeMapper, PerfSch
 
         List<PerfRuleResponse> ruleRes = rules.stream().map(r -> {
             PerfRuleResponse x = new PerfRuleResponse();
-            BeanUtil.copyProperties(r, x);
+            CopyUtil.copyProperties(r, x);
             return x;
         }).collect(Collectors.toList());
 
@@ -113,7 +114,7 @@ public class PerfSchemeServiceImpl extends ServiceImpl<PerfSchemeMapper, PerfSch
 
         // 2) 保存/更新方案
         PerfSchemeEntity entity = new PerfSchemeEntity();
-        BeanUtil.copyProperties(req, entity);
+        CopyUtil.copyProperties(req, entity);
         boolean ok = (entity.getId() == null) ? this.save(entity) : this.updateById(entity);
         if (!ok) throw new BizException("保存方案失败");
         Long schemeId = entity.getId();
@@ -212,7 +213,7 @@ public class PerfSchemeServiceImpl extends ServiceImpl<PerfSchemeMapper, PerfSch
     // -------------------- 辅助 --------------------
     private PerfSchemeResponse convertToResponse(PerfSchemeEntity e) {
         PerfSchemeResponse r = new PerfSchemeResponse();
-        BeanUtil.copyProperties(e, r);
+        CopyUtil.copyProperties(e, r);
         return r;
     }
 }

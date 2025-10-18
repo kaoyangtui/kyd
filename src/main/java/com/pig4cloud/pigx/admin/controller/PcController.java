@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -36,6 +35,7 @@ import com.pig4cloud.pigx.admin.dto.transformCase.TransformCasePageRequest;
 import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
 import com.pig4cloud.pigx.admin.entity.WebFooterInfoEntity;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import io.swagger.v3.oas.annotations.Operation;
@@ -87,21 +87,21 @@ public class PcController {
         // 转换每种数据为 NewsResponse 并添加 sourceType
         if (CollUtil.isNotEmpty(newsResponsePage.getRecords())) {
             newsResponsePage.getRecords().forEach(item -> {
-                NewsResponse news = BeanUtil.copyProperties(item, NewsResponse.class);
+                NewsResponse news = CopyUtil.copyProperties(item, NewsResponse.class);
                 news.setSourceType(ResearchNewsResponse.BIZ_CODE);
                 newsList.add(news);
             });
         }
         if (CollUtil.isNotEmpty(transformCaseResponsePage.getRecords())) {
             transformCaseResponsePage.getRecords().forEach(item -> {
-                NewsResponse news = BeanUtil.copyProperties(item, NewsResponse.class);
+                NewsResponse news = CopyUtil.copyProperties(item, NewsResponse.class);
                 news.setSourceType(TransformCaseResponse.BIZ_CODE);
                 newsList.add(news);
             });
         }
         if (CollUtil.isNotEmpty(eventMeetingResponsePage.getRecords())) {
             eventMeetingResponsePage.getRecords().forEach(item -> {
-                NewsResponse news = BeanUtil.copyProperties(item, NewsResponse.class);
+                NewsResponse news = CopyUtil.copyProperties(item, NewsResponse.class);
                 news.setSourceType(EventMeetingResponse.BIZ_CODE);
                 newsList.add(news);
             });

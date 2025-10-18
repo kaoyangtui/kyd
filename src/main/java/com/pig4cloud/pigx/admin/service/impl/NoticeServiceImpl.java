@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.entity.NoticeEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.NoticeMapper;
 import com.pig4cloud.pigx.admin.service.NoticeService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -99,7 +100,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
     }
 
     private void doSaveOrUpdate(NoticeCreateRequest request, boolean isCreate) {
-        NoticeEntity entity = BeanUtil.copyProperties(request, NoticeEntity.class);
+        NoticeEntity entity = CopyUtil.copyProperties(request, NoticeEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
@@ -114,7 +115,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
     }
 
     private NoticeResponse convertToResponse(NoticeEntity entity) {
-        NoticeResponse response = BeanUtil.copyProperties(entity, NoticeResponse.class);
+        NoticeResponse response = CopyUtil.copyProperties(entity, NoticeResponse.class);
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
         return response;
     }

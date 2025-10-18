@@ -24,6 +24,7 @@ import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.DemandMapper;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -155,7 +156,7 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
     }
 
     private void doSaveOrUpdate(DemandCreateRequest request, boolean isCreate) {
-        DemandEntity entity = BeanUtil.copyProperties(request, DemandEntity.class);
+        DemandEntity entity = CopyUtil.copyProperties(request, DemandEntity.class);
         String code;
         if (!isCreate && request instanceof DemandUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -217,7 +218,7 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
 
 
     private DemandResponse convertToResponse(DemandEntity entity) {
-        DemandResponse response = BeanUtil.copyProperties(entity, DemandResponse.class);
+        DemandResponse response = CopyUtil.copyProperties(entity, DemandResponse.class);
         response.setTags(StrUtil.split(entity.getTags(), ";"));
         response.setField(StrUtil.split(entity.getField(), ";"));
         response.setCompanyArea(StrUtil.split(entity.getCompanyArea(), ";"));

@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -23,6 +22,7 @@ import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.DemandInMapper;
 import com.pig4cloud.pigx.admin.service.DemandInService;
 import com.pig4cloud.pigx.admin.service.FileService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -137,7 +137,7 @@ public class DemandInServiceImpl extends OrderCommonServiceImpl<DemandInMapper, 
     }
 
     private void doSaveOrUpdate(DemandInCreateRequest request, boolean isCreate) {
-        DemandInEntity entity = BeanUtil.copyProperties(request, DemandInEntity.class);
+        DemandInEntity entity = CopyUtil.copyProperties(request, DemandInEntity.class);
         String code;
         if (!isCreate && request instanceof DemandInUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -180,7 +180,7 @@ public class DemandInServiceImpl extends OrderCommonServiceImpl<DemandInMapper, 
     }
 
     private DemandInResponse convertToResponse(DemandInEntity entity) {
-        DemandInResponse response = BeanUtil.copyProperties(entity, DemandInResponse.class);
+        DemandInResponse response = CopyUtil.copyProperties(entity, DemandInResponse.class);
         response.setTags(StrUtil.split(entity.getTags(), ";"));
         response.setField(StrUtil.split(entity.getField(), ";"));
         response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));

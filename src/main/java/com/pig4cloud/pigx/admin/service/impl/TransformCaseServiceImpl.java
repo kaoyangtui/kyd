@@ -19,6 +19,7 @@ import com.pig4cloud.pigx.admin.entity.TransformCaseEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.TransformCaseMapper;
 import com.pig4cloud.pigx.admin.service.TransformCaseService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,7 @@ public class TransformCaseServiceImpl extends ServiceImpl<TransformCaseMapper, T
     }
 
     private void doSaveOrUpdate(TransformCaseCreateRequest request, boolean isCreate) {
-        TransformCaseEntity entity = BeanUtil.copyProperties(request, TransformCaseEntity.class);
+        TransformCaseEntity entity = CopyUtil.copyProperties(request, TransformCaseEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
@@ -121,7 +122,7 @@ public class TransformCaseServiceImpl extends ServiceImpl<TransformCaseMapper, T
     }
 
     private TransformCaseResponse convertToResponse(TransformCaseEntity entity) {
-        TransformCaseResponse response = BeanUtil.copyProperties(entity, TransformCaseResponse.class);
+        TransformCaseResponse response = CopyUtil.copyProperties(entity, TransformCaseResponse.class);
         response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())
                 ? StrUtil.split(entity.getFileUrl(), ";")
                 : null);

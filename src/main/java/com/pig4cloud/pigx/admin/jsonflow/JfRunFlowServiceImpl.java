@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.jsonflow.api.constant.CommonNbrPool;
 import com.pig4cloud.pigx.jsonflow.api.constant.enums.NodeJobStatusEnum;
 import com.pig4cloud.pigx.jsonflow.api.entity.RunJob;
@@ -59,7 +60,7 @@ public class JfRunFlowServiceImpl implements JfRunFlowService {
      */
     private QueryWrapper<RunJob> copyRunJobDoneQueryWrapper(ToDoneJobVO toDoneJobVO) {
         RunJob runJob = new RunJob();
-        BeanUtil.copyProperties(toDoneJobVO, runJob);
+        CopyUtil.copyProperties(toDoneJobVO, runJob);
         runJob.setSignatureType(null);
         runJob.setBelongType(null);
         return Wrappers.query(runJob);

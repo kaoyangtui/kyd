@@ -14,6 +14,7 @@ import com.pig4cloud.pigx.admin.api.entity.SysUserRole;
 import com.pig4cloud.pigx.admin.api.vo.UserVO;
 import com.pig4cloud.pigx.admin.dto.sys.SysUserPageRequest;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -83,7 +84,7 @@ public class SystemServiceImpl implements SystemService {
         // 4) 组装 UserVO
         List<UserVO> voList = users.stream().map(u -> {
             UserVO vo = new UserVO();
-            BeanUtil.copyProperties(u, vo);
+            CopyUtil.copyProperties(u, vo);
             vo.setDeptList(userDeptMap.getOrDefault(u.getUserId(), Collections.emptyList()));
             vo.setRoleList(userRoleMap.getOrDefault(u.getUserId(), Collections.emptyList()));
             // 岗位不处理

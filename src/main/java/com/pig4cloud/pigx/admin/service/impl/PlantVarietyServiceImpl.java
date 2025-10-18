@@ -35,6 +35,7 @@ import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.OwnerService;
 import com.pig4cloud.pigx.admin.service.PlantVarietyService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -79,7 +80,7 @@ public class PlantVarietyServiceImpl extends OrderCommonServiceImpl<PlantVariety
     }
 
     private void doSaveOrUpdate(PlantVarietyCreateRequest request, boolean isCreate) {
-        PlantVarietyEntity entity = BeanUtil.copyProperties(request, PlantVarietyEntity.class);
+        PlantVarietyEntity entity = CopyUtil.copyProperties(request, PlantVarietyEntity.class);
         String code;
         if (!isCreate && request instanceof PlantVarietyUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -180,7 +181,7 @@ public class PlantVarietyServiceImpl extends OrderCommonServiceImpl<PlantVariety
     }
 
     private PlantVarietyResponse convertToResponse(PlantVarietyEntity entity) {
-        PlantVarietyResponse response = BeanUtil.copyProperties(entity, PlantVarietyResponse.class);
+        PlantVarietyResponse response = CopyUtil.copyProperties(entity, PlantVarietyResponse.class);
         response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
         return response;
     }

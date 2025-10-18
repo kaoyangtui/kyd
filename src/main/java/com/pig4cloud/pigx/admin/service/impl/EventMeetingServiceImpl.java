@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.EventMeetingMapper;
 import com.pig4cloud.pigx.admin.service.EventMeetingApplyService;
 import com.pig4cloud.pigx.admin.service.EventMeetingService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.security.service.PigxUser;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -123,7 +124,7 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
     }
 
     private void doSaveOrUpdate(EventMeetingCreateRequest request, boolean isCreate) {
-        EventMeetingEntity entity = BeanUtil.copyProperties(request, EventMeetingEntity.class);
+        EventMeetingEntity entity = CopyUtil.copyProperties(request, EventMeetingEntity.class);
 
         if (CollUtil.isNotEmpty(request.getFileUrl())) {
             entity.setFileUrl(StrUtil.join(";", request.getFileUrl()));
@@ -142,7 +143,7 @@ public class EventMeetingServiceImpl extends ServiceImpl<EventMeetingMapper, Eve
     private EventMeetingResponse convertToResponse(EventMeetingEntity entity, Long userId) {
         EventMeetingResponse response = new EventMeetingResponse();
         // 先做普通属性拷贝（相同类型字段）
-        BeanUtil.copyProperties(entity, response);
+        CopyUtil.copyProperties(entity, response);
 
         // 处理附件 -> List
         response.setFileUrl(StrUtil.isNotBlank(entity.getFileUrl())

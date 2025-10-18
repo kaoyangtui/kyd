@@ -7,6 +7,7 @@ import com.pig4cloud.pigx.admin.dto.platformInfo.PlatformInfoUpdateRequest;
 import com.pig4cloud.pigx.admin.entity.PlatformInfoEntity;
 import com.pig4cloud.pigx.admin.mapper.PlatformInfoMapper;
 import com.pig4cloud.pigx.admin.service.PlatformInfoService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class PlatformInfoServiceImpl extends ServiceImpl<PlatformInfoMapper, Pla
         if (entity == null) {
             return null;
         }
-        return BeanUtil.copyProperties(entity, PlatformInfoResponse.class);
+        return CopyUtil.copyProperties(entity, PlatformInfoResponse.class);
     }
 
 
@@ -36,10 +37,10 @@ public class PlatformInfoServiceImpl extends ServiceImpl<PlatformInfoMapper, Pla
     public boolean updateInfo(PlatformInfoUpdateRequest request) {
         PlatformInfoEntity entity = this.lambdaQuery().one();
         if (entity == null) {
-            entity = BeanUtil.copyProperties(request, PlatformInfoEntity.class);
+            entity = CopyUtil.copyProperties(request, PlatformInfoEntity.class);
             return this.save(entity);
         } else {
-            BeanUtil.copyProperties(request, entity);
+            CopyUtil.copyProperties(request, entity);
             return this.updateById(entity);
         }
     }

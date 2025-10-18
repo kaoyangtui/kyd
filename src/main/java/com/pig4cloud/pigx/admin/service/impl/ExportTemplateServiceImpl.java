@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.entity.ExportTemplateEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ExportTemplateMapper;
 import com.pig4cloud.pigx.admin.service.ExportTemplateService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -46,26 +47,26 @@ public class ExportTemplateServiceImpl extends ServiceImpl<ExportTemplateMapper,
                 DataScope.of()
         );
 
-        return page.convert(e -> BeanUtil.copyProperties(e, ExportTemplateResponse.class));
+        return page.convert(e -> CopyUtil.copyProperties(e, ExportTemplateResponse.class));
     }
 
     @Override
     public ExportTemplateResponse getDetail(Long id) {
         ExportTemplateEntity entity = this.getById(id);
         return Optional.ofNullable(entity)
-                .map(e -> BeanUtil.copyProperties(e, ExportTemplateResponse.class))
+                .map(e -> CopyUtil.copyProperties(e, ExportTemplateResponse.class))
                 .orElse(null);
     }
 
     @Override
     public Boolean createTemplate(ExportTemplateCreateRequest request) {
-        ExportTemplateEntity entity = BeanUtil.copyProperties(request, ExportTemplateEntity.class);
+        ExportTemplateEntity entity = CopyUtil.copyProperties(request, ExportTemplateEntity.class);
         return this.save(entity);
     }
 
     @Override
     public Boolean updateTemplate(ExportTemplateUpdateRequest request) {
-        ExportTemplateEntity entity = BeanUtil.copyProperties(request, ExportTemplateEntity.class);
+        ExportTemplateEntity entity = CopyUtil.copyProperties(request, ExportTemplateEntity.class);
         return this.updateById(entity);
     }
 

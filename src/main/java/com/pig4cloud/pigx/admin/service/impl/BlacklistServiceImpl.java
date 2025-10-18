@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.BlacklistMapper;
 import com.pig4cloud.pigx.admin.service.BlacklistService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class BlacklistServiceImpl extends ServiceImpl<BlacklistMapper, Blacklist
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BlacklistResponse createBlacklist(BlacklistCreateRequest request) {
-        BlacklistEntity entity = BeanUtil.copyProperties(request, BlacklistEntity.class);
+        BlacklistEntity entity = CopyUtil.copyProperties(request, BlacklistEntity.class);
         this.save(entity);
         return convertToResponse(entity);
     }
@@ -50,7 +51,7 @@ public class BlacklistServiceImpl extends ServiceImpl<BlacklistMapper, Blacklist
         if (entity == null) {
             throw new BizException("黑名单记录不存在");
         }
-        BeanUtil.copyProperties(request, entity);
+        CopyUtil.copyProperties(request, entity);
         this.updateById(entity);
         return true;
     }
@@ -91,6 +92,6 @@ public class BlacklistServiceImpl extends ServiceImpl<BlacklistMapper, Blacklist
     }
 
     private BlacklistResponse convertToResponse(BlacklistEntity entity) {
-        return BeanUtil.copyProperties(entity, BlacklistResponse.class);
+        return CopyUtil.copyProperties(entity, BlacklistResponse.class);
     }
 }

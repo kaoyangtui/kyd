@@ -22,6 +22,7 @@ import com.pig4cloud.pigx.admin.mapper.PatentFeeReimburseMapper;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.service.PatentFeeItemService;
 import com.pig4cloud.pigx.admin.service.PatentFeeReimburseService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PatentFeeReimburseResponse createPatentFeeReimburse(PatentFeeReimburseCreateRequest request) {
-        PatentFeeReimburseEntity entity = BeanUtil.copyProperties(request, PatentFeeReimburseEntity.class);
+        PatentFeeReimburseEntity entity = CopyUtil.copyProperties(request, PatentFeeReimburseEntity.class);
         entity.setFlowKey(PatentFeeReimburseResponse.BIZ_CODE);
         entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
         entity.setIpCode(StrUtil.join(";", request.getIpCode()));
@@ -57,7 +58,7 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
         if (CollUtil.isNotEmpty(request.getFeeItems())) {
             List<PatentFeeItemEntity> items = CollUtil.newArrayList();
             for (PatentFeeItemVO vo : request.getFeeItems()) {
-                PatentFeeItemEntity item = BeanUtil.copyProperties(vo, PatentFeeItemEntity.class);
+                PatentFeeItemEntity item = CopyUtil.copyProperties(vo, PatentFeeItemEntity.class);
                 item.setReimburseId(entity.getId());
                 items.add(item);
             }
@@ -77,7 +78,7 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        BeanUtil.copyProperties(request, entity);
+        CopyUtil.copyProperties(request, entity);
         this.updateById(entity);
 
         // 删除原明细，重新插入，通过 Service 操作
@@ -85,7 +86,7 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
         if (CollUtil.isNotEmpty(request.getFeeItems())) {
             List<PatentFeeItemEntity> items = CollUtil.newArrayList();
             for (PatentFeeItemVO vo : request.getFeeItems()) {
-                PatentFeeItemEntity item = BeanUtil.copyProperties(vo, PatentFeeItemEntity.class);
+                PatentFeeItemEntity item = CopyUtil.copyProperties(vo, PatentFeeItemEntity.class);
                 item.setReimburseId(entity.getId());
                 items.add(item);
             }
@@ -171,7 +172,7 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
     }
 
     private PatentFeeReimburseResponse convertToResponse(PatentFeeReimburseEntity entity) {
-        PatentFeeReimburseResponse response = BeanUtil.copyProperties(entity, PatentFeeReimburseResponse.class);
+        PatentFeeReimburseResponse response = CopyUtil.copyProperties(entity, PatentFeeReimburseResponse.class);
         response.setIpCode(StrUtil.split(entity.getIpCode(), ";"));
         response.setPatTypeName(PatentTypeEnum.getByCode(entity.getPatType()).getDescription());
         return response;

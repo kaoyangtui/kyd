@@ -24,6 +24,7 @@ import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.PatentClaimMapper;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
@@ -84,7 +85,7 @@ public class PatentClaimServiceImpl extends OrderCommonServiceImpl<PatentClaimMa
 
         IPage<PatentClaimEntity> page = baseMapper.selectPageByScope(reqPage, wrapper, DataScope.of());
 
-        return page.convert(entity -> BeanUtil.copyProperties(entity, PatentClaimResponse.class));
+        return page.convert(entity -> CopyUtil.copyProperties(entity, PatentClaimResponse.class));
     }
 
     @Override
@@ -94,7 +95,7 @@ public class PatentClaimServiceImpl extends OrderCommonServiceImpl<PatentClaimMa
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        return BeanUtil.copyProperties(entity, PatentClaimResponse.class);
+        return CopyUtil.copyProperties(entity, PatentClaimResponse.class);
     }
 
 

@@ -20,6 +20,7 @@ import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchTeamMapper;
 import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.ResearchTeamService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.admin.utils.ExportFieldHelper;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +75,7 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
 
         IPage<ResearchTeamEntity> result = baseMapper.selectPage(page, wrapper);
         return result.convert(entity -> {
-            ResearchTeamResponse response = BeanUtil.copyProperties(entity, ResearchTeamResponse.class);
+            ResearchTeamResponse response = CopyUtil.copyProperties(entity, ResearchTeamResponse.class);
             String code = entity.getCode();
             response.setResearchTags(StrUtil.split(entity.getResearchTags(), ";"));
             response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
@@ -94,7 +95,7 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
                 .setSql("view_count = ifnull(view_count,0) + 1")
                 .update();
         String code = entity.getCode();
-        ResearchTeamResponse response = BeanUtil.copyProperties(entity, ResearchTeamResponse.class);
+        ResearchTeamResponse response = CopyUtil.copyProperties(entity, ResearchTeamResponse.class);
         response.setResearchTags(StrUtil.split(entity.getResearchTags(), ";"));
         response.setCompleters(completerService.lambdaQuery().eq(CompleterEntity::getCode, code).list());
         return response;
@@ -104,7 +105,7 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(ResearchTeamCreateRequest request) {
-        ResearchTeamEntity entity = BeanUtil.copyProperties(request, ResearchTeamEntity.class);
+        ResearchTeamEntity entity = CopyUtil.copyProperties(request, ResearchTeamEntity.class);
         entity.setCode(ParamResolver.getStr(ResearchTeamResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
         entity.setResearchTags(StrUtil.join(";", request.getResearchTags()));
         this.save(entity);
@@ -127,7 +128,7 @@ public class ResearchTeamServiceImpl extends ServiceImpl<ResearchTeamMapper, Res
                 .orElseThrow(() -> new BizException("团队不存在或已删除"));
 
         // 2) 组装要更新的字段（null 不会被 MP 更新，默认 NOT_NULL 策略）
-        ResearchTeamEntity entity = BeanUtil.copyProperties(request, ResearchTeamEntity.class);
+        ResearchTeamEntity entity = CopyUtil.copyProperties(request, ResearchTeamEntity.class);
         entity.setResearchTags(
                 CollUtil.isEmpty(request.getResearchTags()) ? null : String.join(";", request.getResearchTags())
         );

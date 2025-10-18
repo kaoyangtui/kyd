@@ -27,6 +27,7 @@ import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.PatentProposalMapper;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
@@ -143,7 +144,7 @@ public class PatentProposalServiceImpl extends OrderCommonServiceImpl<PatentProp
     }
 
     private void doSaveOrUpdate(PatentProposalCreateRequest request, boolean isCreate) throws BizException {
-        PatentProposalEntity entity = BeanUtil.copyProperties(request, PatentProposalEntity.class);
+        PatentProposalEntity entity = CopyUtil.copyProperties(request, PatentProposalEntity.class);
         String code;
         if (!isCreate && request instanceof PatentProposalUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -227,7 +228,7 @@ public class PatentProposalServiceImpl extends OrderCommonServiceImpl<PatentProp
     }
 
     private PatentProposalResponse convertToResponse(PatentProposalEntity entity) {
-        PatentProposalResponse response = BeanUtil.copyProperties(entity, PatentProposalResponse.class);
+        PatentProposalResponse response = CopyUtil.copyProperties(entity, PatentProposalResponse.class);
         response.setTechField(StrUtil.split(entity.getTechField(), ";"));
         response.setClaimsFile(StrUtil.split(entity.getClaimsFile(), ";"));
         response.setDescriptionFile(StrUtil.split(entity.getDescriptionFile(), ";"));

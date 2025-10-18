@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -229,7 +228,7 @@ public class ResultServiceImpl extends OrderCommonServiceImpl<ResultMapper, Resu
     }
 
     private ResultResponse convertToResponse(ResultEntity entity) {
-        ResultResponse response = BeanUtil.copyProperties(entity, ResultResponse.class);
+        ResultResponse response = CopyUtil.copyProperties(entity, ResultResponse.class);
         response.setTechArea(StrUtil.split(entity.getTechArea(), ";"));
         response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));

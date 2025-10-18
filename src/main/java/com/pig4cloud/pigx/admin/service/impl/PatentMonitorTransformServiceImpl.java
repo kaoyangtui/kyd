@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.mapper.PatentMonitorTransformMapper;
 import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.admin.service.PatentMonitorService;
 import com.pig4cloud.pigx.admin.service.PatentMonitorTransformService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -87,7 +88,7 @@ public class PatentMonitorTransformServiceImpl extends ServiceImpl<PatentMonitor
 
         // 4. 批量转换赋值
         return entityPage.convert(entity -> {
-            PatentMonitorTransformResponse resp = BeanUtil.copyProperties(entity, PatentMonitorTransformResponse.class);
+            PatentMonitorTransformResponse resp = CopyUtil.copyProperties(entity, PatentMonitorTransformResponse.class);
 
             // 日志表赋值
             PatentMonitorEntity latestLog = latestLogMap.get(entity.getPid());

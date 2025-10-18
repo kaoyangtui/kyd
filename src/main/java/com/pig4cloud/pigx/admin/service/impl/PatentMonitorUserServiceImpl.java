@@ -13,6 +13,7 @@ import com.pig4cloud.pigx.admin.entity.PatentMonitorEntity;
 import com.pig4cloud.pigx.admin.entity.PatentMonitorUserEntity;
 import com.pig4cloud.pigx.admin.mapper.PatentMonitorUserMapper;
 import com.pig4cloud.pigx.admin.service.PatentMonitorUserService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -73,7 +74,7 @@ public class PatentMonitorUserServiceImpl extends ServiceImpl<PatentMonitorUserM
 
         // 3. 分页批量赋值
         return entityPage.convert(entity -> {
-            PatentMonitorUserResponse resp = BeanUtil.copyProperties(entity, PatentMonitorUserResponse.class);
+            PatentMonitorUserResponse resp = CopyUtil.copyProperties(entity, PatentMonitorUserResponse.class);
             PatentMonitorEntity latestLog = latestLogMap.get(entity.getPid());
             if (latestLog != null) {
                 resp.setEventTime(latestLog.getEventTime());

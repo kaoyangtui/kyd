@@ -15,6 +15,7 @@ import com.pig4cloud.pigx.admin.entity.EventMeetingApplyEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.EventMeetingApplyMapper;
 import com.pig4cloud.pigx.admin.service.EventMeetingApplyService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class EventMeetingApplyServiceImpl extends ServiceImpl<EventMeetingApplyM
         if (CollUtil.isEmpty(page.orders())) {
             wrapper.orderByDesc(EventMeetingApplyEntity::getCreateTime);
         }
-        return this.page(page, wrapper).convert(entity -> BeanUtil.copyProperties(entity, EventMeetingApplyResponse.class));
+        return this.page(page, wrapper).convert(entity -> CopyUtil.copyProperties(entity, EventMeetingApplyResponse.class));
     }
 
     @SneakyThrows
@@ -48,13 +49,13 @@ public class EventMeetingApplyServiceImpl extends ServiceImpl<EventMeetingApplyM
         if (entity == null) {
             throw new BizException("数据不存在");
         }
-        return BeanUtil.copyProperties(entity, EventMeetingApplyResponse.class);
+        return CopyUtil.copyProperties(entity, EventMeetingApplyResponse.class);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createApply(EventMeetingApplyCreateRequest request) {
-        EventMeetingApplyEntity entity = BeanUtil.copyProperties(request, EventMeetingApplyEntity.class);
+        EventMeetingApplyEntity entity = CopyUtil.copyProperties(request, EventMeetingApplyEntity.class);
         entity.setApplyTime(LocalDateTime.now());
         return this.save(entity);
     }

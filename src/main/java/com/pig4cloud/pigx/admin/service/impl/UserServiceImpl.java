@@ -16,6 +16,7 @@ import com.pig4cloud.pigx.admin.entity.UserEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.UserMapper;
 import com.pig4cloud.pigx.admin.service.UserService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -209,7 +210,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
     }
 
     private UserResponse convertToResponse(UserEntity entity) {
-        return BeanUtil.copyProperties(entity, UserResponse.class);
+        return CopyUtil.copyProperties(entity, UserResponse.class);
     }
 
 }

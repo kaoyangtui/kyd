@@ -35,6 +35,7 @@ import com.pig4cloud.pigx.admin.service.CompleterService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.OwnerService;
 import com.pig4cloud.pigx.admin.service.SoftCopyService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -82,7 +83,7 @@ public class SoftCopyServiceImpl extends OrderCommonServiceImpl<SoftCopyMapper, 
 
     @SneakyThrows
     private void doSaveOrUpdate(SoftCopyCreateRequest request, boolean isCreate) {
-        SoftCopyEntity entity = BeanUtil.copyProperties(request, SoftCopyEntity.class);
+        SoftCopyEntity entity = CopyUtil.copyProperties(request, SoftCopyEntity.class);
         String code;
         if (!isCreate && request instanceof SoftCopyUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -183,7 +184,7 @@ public class SoftCopyServiceImpl extends OrderCommonServiceImpl<SoftCopyMapper, 
     }
 
     private SoftCopyResponse convertToResponse(SoftCopyEntity entity) {
-        SoftCopyResponse res = BeanUtil.copyProperties(entity, SoftCopyResponse.class);
+        SoftCopyResponse res = CopyUtil.copyProperties(entity, SoftCopyResponse.class);
         res.setTechField(StrUtil.split(entity.getTechField(), ";"));
         res.setAttachmentUrls(StrUtil.split(entity.getAttachmentUrls(), ";"));
         return res;

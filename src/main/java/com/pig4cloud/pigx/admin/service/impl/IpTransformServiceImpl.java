@@ -24,6 +24,7 @@ import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.IpTransformMapper;
 import com.pig4cloud.pigx.admin.service.*;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
@@ -133,7 +134,7 @@ public class IpTransformServiceImpl extends OrderCommonServiceImpl<IpTransformMa
     }
 
     private void doSaveOrUpdate(IpTransformCreateRequest request, boolean isCreate) {
-        IpTransformEntity entity = BeanUtil.copyProperties(request, IpTransformEntity.class);
+        IpTransformEntity entity = CopyUtil.copyProperties(request, IpTransformEntity.class);
         String code;
         if (!isCreate && request instanceof IpTransformUpdateRequest updateRequest) {
             entity.setId(updateRequest.getId());
@@ -233,7 +234,7 @@ public class IpTransformServiceImpl extends OrderCommonServiceImpl<IpTransformMa
     }
 
     private IpTransformResponse convertToResponse(IpTransformEntity entity) {
-        IpTransformResponse response = BeanUtil.copyProperties(entity, IpTransformResponse.class);
+        IpTransformResponse response = CopyUtil.copyProperties(entity, IpTransformResponse.class);
         response.setIpCode(StrUtil.split(entity.getIpCode(), ";"));
         response.setConsentFileUrl(StrUtil.split(entity.getConsentFileUrl(), ";"));
         response.setPromiseFileUrl(StrUtil.split(entity.getPromiseFileUrl(), ";"));

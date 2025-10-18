@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.entity.ResearchPlatformEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.ResearchPlatformMapper;
 import com.pig4cloud.pigx.admin.service.ResearchPlatformService;
+import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.common.security.service.PigxUser;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
@@ -36,7 +37,7 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean create(ResearchPlatformCreateRequest request) {
-        ResearchPlatformEntity entity = BeanUtil.copyProperties(request, ResearchPlatformEntity.class);
+        ResearchPlatformEntity entity = CopyUtil.copyProperties(request, ResearchPlatformEntity.class);
         entity.setId(null);
         // 平台研究方向用;分隔字符串保存
         entity.setDirection(StrUtil.join(";", request.getDirection()));
@@ -52,7 +53,7 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean update(ResearchPlatformUpdateRequest request) {
-        ResearchPlatformEntity entity = BeanUtil.copyProperties(request, ResearchPlatformEntity.class);
+        ResearchPlatformEntity entity = CopyUtil.copyProperties(request, ResearchPlatformEntity.class);
         entity.setDirection(StrUtil.join(";", request.getDirection()));
         return this.updateById(entity);
     }
@@ -64,7 +65,7 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
         if (entity == null) {
             throw new BizException("科研平台不存在");
         }
-        ResearchPlatformResponse response = BeanUtil.copyProperties(entity, ResearchPlatformResponse.class);
+        ResearchPlatformResponse response = CopyUtil.copyProperties(entity, ResearchPlatformResponse.class);
         response.setDirection(StrUtil.split(entity.getDirection(), ";"));
         return response;
     }
@@ -123,7 +124,7 @@ public class ResearchPlatformServiceImpl extends ServiceImpl<ResearchPlatformMap
         IPage<ResearchPlatformEntity> entityPage = baseMapper.selectPage(page, wrapper);
 
         return entityPage.convert(entity -> {
-            ResearchPlatformResponse response = BeanUtil.copyProperties(entity, ResearchPlatformResponse.class);
+            ResearchPlatformResponse response = CopyUtil.copyProperties(entity, ResearchPlatformResponse.class);
             response.setDirection(StrUtil.split(entity.getDirection(), ";"));
             return response;
         });
