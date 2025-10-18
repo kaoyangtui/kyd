@@ -32,7 +32,7 @@ public class MyToCUserDetailsServiceImpl implements PigxUserDetailsService {
                 user.getMobile(),
                 "",
                 user.getNickname(),
-                "", "", 1L,
+                user.getUsername(), "", 1L,
                 "{noop}" + user.getPassword(),
                 true,
                 true,

@@ -120,6 +120,9 @@ public class PcController {
     @Operation(summary = "科研成果查询")
     public R<IPage<ResultResponse>> result(@RequestBody ResultQueryRequest body) {
         PageRequest pageRequest = body.getPageRequest();
+        if (null == pageRequest) {
+            pageRequest = new PageRequest();
+        }
         ResultPageRequest request = body.getRequest();
         if (CollUtil.isEmpty(pageRequest.getOrders())) {
             List<OrderItem> orders = CollUtil.newArrayList();
@@ -138,6 +141,9 @@ public class PcController {
     @Operation(summary = "专利查询")
     public R<IPage<PatentSearchResponse>> patentKeyword(@RequestBody PatentKeywordQuery body) {
         PageRequest pageRequest = body.getPageRequest();
+        if (null == pageRequest) {
+            pageRequest = new PageRequest();
+        }
         PatentSearchRequest request = body.getRequest();
         return R.ok(patentInfoService.searchPatent(PageUtil.toPage(pageRequest), request));
     }
@@ -148,6 +154,9 @@ public class PcController {
     public R<IPage<DemandResponse>> demand(@RequestBody DemandQueryRequest body) {
 
         PageRequest pageRequest = body.getPageRequest();
+        if (null == pageRequest) {
+            pageRequest = new PageRequest();
+        }
         DemandPageRequest request = body.getRequest();
 
         // 排序：shelf_time desc
@@ -170,6 +179,9 @@ public class PcController {
     public R<IPage<DemandInResponse>> demandIn(@RequestBody DemandInQueryRequest body) {
 
         PageRequest pageRequest = body.getPageRequest();
+        if (null == pageRequest) {
+            pageRequest = new PageRequest();
+        }
         DemandInPageRequest request = body.getRequest();
 
         // 排序：shelf_time desc
