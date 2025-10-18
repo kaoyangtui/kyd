@@ -40,29 +40,29 @@ public class MybatisPlusMetaObjectHandler implements MetaObjectHandler {
         }
         if (metaObject.hasSetter("createBy")) {
             String userName = getUserName();
-            fillValIfNullByName("createBy", userName, metaObject, true);
+            fillValIfNullByName("createBy", userName, metaObject, false);
         }
         if (metaObject.hasSetter("updateBy")) {
             String userName = getUserName();
-            fillValIfNullByName("updateBy", userName, metaObject, true);
+            fillValIfNullByName("updateBy", userName, metaObject, false);
         }
         if (metaObject.hasSetter("createUserId")) {
             Long userId = getUserId();
-            fillValIfNullByName("createUserId", userId, metaObject, true);
+            fillValIfNullByName("createUserId", userId, metaObject, false);
         }
         if (metaObject.hasSetter("createUserName")) {
             String name = getName();
-            fillValIfNullByName("createUserName", name, metaObject, true);
+            fillValIfNullByName("createUserName", name, metaObject, false);
         }
 
         if (metaObject.hasSetter("deptId")) {
             Long deptId = getDeptId();
-            fillValIfNullByName("deptId", deptId, metaObject, true);
+            fillValIfNullByName("deptId", deptId, metaObject, false);
         }
 
         if (metaObject.hasSetter("deptName")) {
             String deptName = getDeptName();
-            fillValIfNullByName("deptName", deptName, metaObject, true);
+            fillValIfNullByName("deptName", deptName, metaObject, false);
         }
 
         if (metaObject.hasSetter("delFlag")) {
