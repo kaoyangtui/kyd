@@ -1,7 +1,6 @@
 package com.pig4cloud.pigx.admin.controller;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -36,6 +35,7 @@ import com.pig4cloud.pigx.admin.dto.transformCase.TransformCaseResponse;
 import com.pig4cloud.pigx.admin.entity.WebFooterInfoEntity;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.CopyUtil;
+import com.pig4cloud.pigx.admin.utils.DateParseUtil;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +45,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -108,8 +110,12 @@ public class PcController {
         }
 
         // 按 createTime 字段倒序排列
-        newsList.sort((o1, o2) -> DateUtil.parse(o2.getCreateTime()).compareTo(DateUtil.parse(o1.getCreateTime())));
-
+        newsList.sort(
+                Comparator.comparing(
+                        (NewsResponse n) -> DateParseUtil.parseLdtOrNull(n.getCreateTime()),
+                        Comparator.nullsLast(LocalDateTime::compareTo)
+                ).reversed()
+        );
         // 只返回前10条
         List<NewsResponse> result = newsList.size() > 10 ? newsList.subList(0, 10) : newsList;
 
