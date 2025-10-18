@@ -3,6 +3,8 @@ package com.pig4cloud.pigx.admin.dto.demand;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 企业需求上下架请求
  */
@@ -11,7 +13,7 @@ import lombok.Data;
 public class DemandShelfRequest {
 
     @Schema(description = "需求ID")
-    private Long id;
+    private List<Long> ids;
 
     @Schema(description = "上下架状态（0-下架 1-上架）")
     private Integer shelfStatus;

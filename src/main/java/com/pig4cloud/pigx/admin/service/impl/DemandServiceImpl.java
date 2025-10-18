@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -150,7 +149,7 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
     @Override
     public Boolean updateShelfStatus(DemandShelfRequest request) {
         return this.update(Wrappers.<DemandEntity>lambdaUpdate()
-                .eq(DemandEntity::getId, request.getId())
+                .in(DemandEntity::getId, request.getIds())
                 .set(DemandEntity::getShelfStatus, request.getShelfStatus())
                 .set(DemandEntity::getShelfTime, LocalDateTime.now()));
     }
