@@ -48,8 +48,10 @@ public class DemandInResponse extends BaseResponse {
     private LocalDateTime shelfTime;
     @Schema(description = "所属领域")
     private List<String> field;
-    @Schema(description = "需求有效期")
-    private LocalDate validUntil;
+    @Schema(description = "有效期开始时间")
+    private LocalDate validStart;
+    @Schema(description = "有效期结束时间")
+    private LocalDate validEnd;
     @Schema(description = "需求描述")
     private String description;
     @Schema(description = "需求标签")

@@ -95,10 +95,16 @@ public class DemandInEntity extends Model<DemandInEntity> {
     private String field;
 
     /**
-     * 需求有效期
+     * 有效期开始时间
      */
-    @Schema(description = "需求有效期")
-    private LocalDate validUntil;
+    @Schema(description = "有效期开始时间")
+    private LocalDate validStart;
+
+    /**
+     * 有效期结束时间
+     */
+    @Schema(description = "有效期结束时间")
+    private LocalDate validEnd;
 
     /**
      * 需求描述
