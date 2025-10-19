@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "活动会议报名信息响应")
@@ -17,7 +19,7 @@ public class EventMeetingApplyResponse extends BaseResponse {
     private Long meetingId;
 
     @Schema(description = "报名时间")
-    private String applyTime;
+    private LocalDateTime applyTime;
 
     @Schema(description = "姓名")
     private String name;
