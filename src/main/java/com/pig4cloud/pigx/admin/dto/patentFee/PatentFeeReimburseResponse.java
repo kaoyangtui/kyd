@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.dto.patentFee;
 
+import com.pig4cloud.pigx.admin.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -8,12 +9,15 @@ import java.util.List;
 
 @Data
 @Schema(description = "专利费用报销响应")
-public class PatentFeeReimburseResponse {
+public class PatentFeeReimburseResponse extends BaseResponse {
 
     public static final String BIZ_CODE = "PATENT_FEE_REIMBURSE";
 
     @Schema(description = "主键ID")
     private Long id;
+
+    @Schema(description = "编码")
+    private String code;
 
     @Schema(description = "流程实例 ID")
     private String flowInstId;
@@ -80,13 +84,4 @@ public class PatentFeeReimburseResponse {
 
     @Schema(description = "费用明细")
     private List<PatentFeeItemVO> feeItems;
-
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    @Schema(description = "创建人")
-    private String createBy;
-
-    @Schema(description = "所属院系")
-    private String deptName;
 }

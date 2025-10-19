@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.constants.PatentTypeEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.patentFee.*;
+import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.PatentFeeItemEntity;
 import com.pig4cloud.pigx.admin.entity.PatentFeeReimburseEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
@@ -24,6 +25,7 @@ import com.pig4cloud.pigx.admin.service.PatentFeeItemService;
 import com.pig4cloud.pigx.admin.service.PatentFeeReimburseService;
 import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
+import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
 import com.pig4cloud.pigx.order.base.OrderCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -47,6 +49,8 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
     @Transactional(rollbackFor = Exception.class)
     public PatentFeeReimburseResponse createPatentFeeReimburse(PatentFeeReimburseCreateRequest request) {
         PatentFeeReimburseEntity entity = CopyUtil.copyProperties(request, PatentFeeReimburseEntity.class);
+        String code = ParamResolver.getStr(PatentFeeReimburseResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
+        entity.setCode(code);
         entity.setFlowKey(PatentFeeReimburseResponse.BIZ_CODE);
         entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
         entity.setIpCode(StrUtil.join(";", request.getIpCode()));

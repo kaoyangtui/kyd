@@ -31,6 +31,12 @@ public class PatentFeeReimburseEntity extends Model<PatentFeeReimburseEntity> {
     private Long id;
 
     /**
+     * 编码
+     */
+    @Schema(description = "编码")
+    private String code;
+
+    /**
      * 流程实例 ID
      */
     @Schema(description = "流程实例 ID")
@@ -136,6 +142,13 @@ public class PatentFeeReimburseEntity extends Model<PatentFeeReimburseEntity> {
     @Schema(description="所属院系")
     private Long deptId;
 
+    /**
+     * 组织名称
+     */
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "组织名称")
+    private String deptName;
+
 	/**
 	* 创建/提交人
 	*/
@@ -177,4 +190,12 @@ public class PatentFeeReimburseEntity extends Model<PatentFeeReimburseEntity> {
 	*/
     @Schema(description="租户")
     private Long tenantId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人ID")
+    private Long createUserId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人姓名")
+    private String createUserName;
 }

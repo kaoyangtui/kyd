@@ -32,9 +32,9 @@ public class ResultEntity extends Model<ResultEntity> {
     private Long id;
 
     /**
-     * 成果编码，CG开头+雪花算法ID
+     * 编码
      */
-    @Schema(description = "成果编码，CG开头+雪花算法ID")
+    @Schema(description = "编码")
     private String code;
 
     /**
