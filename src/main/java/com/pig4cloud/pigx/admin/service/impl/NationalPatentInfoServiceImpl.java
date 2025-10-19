@@ -111,7 +111,7 @@ public class NationalPatentInfoServiceImpl extends ServiceImpl<NationalPatentInf
                 order = "+appDate";
                 break; // 申请日正序（示例）
             default:
-                order = "+appDate";
+                order = "-pubDate";
                 break; // 默认
         }
 
