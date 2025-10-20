@@ -256,7 +256,7 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             }
         }
         StringBuilder whereSql = new StringBuilder();
-        whereSql.append("t1.del_flag = 0 AND t2.shelf_status = 1 ");
+        whereSql.append("t1.del_flag = 0 AND t1.merge_flag='1' AND t2.shelf_status = 1 ");
 
         if (StrUtil.isNotBlank(request.getKeyword())) {
             whereSql.append("AND MATCH(app_number, pub_number, inventor_name, patent_words, title_key, cl_key, bg_key) ");
