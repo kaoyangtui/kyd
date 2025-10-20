@@ -53,7 +53,8 @@ public class FileController {
     @GetMapping("/page")
     @Operation(summary = "分页查询文档")
     //@PreAuthorize("@pms.hasPermission('file_view')")
-    public R<IPage<FileResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject FilePageRequest request) {
+    public R<IPage<FileResponse>> page(@ParameterObject PageRequest pageRequest,
+                                       @ParameterObject FilePageRequest request) {
         return R.ok(fileService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 

@@ -135,6 +135,10 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileEntity> impleme
             page.setCurrent(1);
         }
 
+        if (CollUtil.isEmpty(page.orders())) {
+            wrapper.orderByDesc(FileEntity::getCreateTime);
+        }
+
         Page<FileEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
 
         return resPage.convert(e -> CopyUtil.copyProperties(e, FileResponse.class));

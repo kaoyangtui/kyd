@@ -42,8 +42,14 @@ public class PcServiceImpl implements PcService {
         PortalStatisticResponse resp = new PortalStatisticResponse();
         resp.setPatentCount(
                 ObjectUtil.defaultIfNull(
-                        patentInfoService.count(new LambdaQueryWrapper<PatentInfoEntity>()
-                                .eq(PatentInfoEntity::getMergeFlag, "1")),
+                        patentInfoService.count(
+                                new LambdaQueryWrapper<PatentInfoEntity>()
+                                        .eq(PatentInfoEntity::getMergeFlag, "1")
+                                        // 关联上下架表，仅统计上架（可去重/防重复）
+                                        .inSql(PatentInfoEntity::getPid,
+                                                "SELECT DISTINCT pid FROM t_patent_shelf WHERE shelf_status = 1"
+                                        )
+                        ),
                         0L
                 )
         );
