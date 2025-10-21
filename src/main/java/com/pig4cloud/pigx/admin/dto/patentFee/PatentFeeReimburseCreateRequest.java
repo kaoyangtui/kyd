@@ -13,7 +13,7 @@ public class  PatentFeeReimburseCreateRequest {
     private String ipType;
 
     @Schema(description = "知识产权编码，多个以分号分隔")
-    private List<String> ipCode;
+    private String ipCode;
 
     @Schema(description = "专利申请号")
     private String appNumber;

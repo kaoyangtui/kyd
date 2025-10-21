@@ -66,14 +66,6 @@ public class NationalPatentFollowEntity extends Model<NationalPatentFollowEntity
 	@TableField(fill = FieldFill.INSERT_UPDATE)
     @Schema(description="updateTime")
     private LocalDateTime updateTime;
- 
-	/**
-	* delFlag
-	*/
-    @TableLogic
-	@TableField(fill = FieldFill.INSERT)
-    @Schema(description="delFlag")
-    private String delFlag;
 
 	/**
 	* 租户ID

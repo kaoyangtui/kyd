@@ -57,7 +57,6 @@ public class NationalPatentFollowServiceImpl
         e.setPid(req.getPid());
         e.setNote(note);
         e.setTags(tags);
-        e.setDelFlag("0");
         return this.save(e);
     }
 

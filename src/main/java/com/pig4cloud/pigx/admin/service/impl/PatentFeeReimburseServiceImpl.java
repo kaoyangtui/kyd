@@ -53,7 +53,6 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
         entity.setCode(code);
         entity.setFlowKey(PatentFeeReimburseResponse.BIZ_CODE);
         entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-        entity.setIpCode(StrUtil.join(";", request.getIpCode()));
         Map<String, Object> params = MapUtil.newHashMap();
         params.put("orderName", "【专利费用报销】" + entity.getTitle());
         super.saveOrUpdateOrder(params, entity);
@@ -177,7 +176,6 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
 
     private PatentFeeReimburseResponse convertToResponse(PatentFeeReimburseEntity entity) {
         PatentFeeReimburseResponse response = CopyUtil.copyProperties(entity, PatentFeeReimburseResponse.class);
-        response.setIpCode(StrUtil.split(entity.getIpCode(), ";"));
         response.setPatTypeName(PatentTypeEnum.getByCode(entity.getPatType()).getDescription());
         return response;
     }
