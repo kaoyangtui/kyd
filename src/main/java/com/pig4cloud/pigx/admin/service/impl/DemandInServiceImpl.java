@@ -15,12 +15,14 @@ import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.demandIn.DemandInUpdateRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandInEntity;
+import com.pig4cloud.pigx.admin.entity.DimEcEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.DemandInMapper;
 import com.pig4cloud.pigx.admin.service.DemandInService;
+import com.pig4cloud.pigx.admin.service.DimEcService;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,7 @@ public class DemandInServiceImpl extends OrderCommonServiceImpl<DemandInMapper, 
 
     private final FileService fileService;
     private final JsonFlowHandle jsonFlowHandle;
+    private final DimEcService dimEcService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -181,9 +185,22 @@ public class DemandInServiceImpl extends OrderCommonServiceImpl<DemandInMapper, 
 
     private DemandInResponse convertToResponse(DemandInEntity entity) {
         DemandInResponse response = CopyUtil.copyProperties(entity, DemandInResponse.class);
-        response.setTags(StrUtil.split(entity.getTags(), ";"));
-        response.setField(StrUtil.split(entity.getField(), ";"));
-        response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
+        if (StrUtil.isNotBlank(entity.getTags())) {
+            response.setTags(StrUtil.split(entity.getTags(), ";"));
+        }
+        if (StrUtil.isNotBlank(entity.getField())) {
+            response.setField(StrUtil.split(entity.getField(), ";"));
+            List<String> fieldNameList = dimEcService.lambdaQuery()
+                    .in(DimEcEntity::getCode, response.getField())
+                    .list()
+                    .stream()
+                    .map(DimEcEntity::getName)
+                    .collect(Collectors.toList());
+            response.setFieldName(fieldNameList);
+        }
+        if (StrUtil.isNotBlank(entity.getAttachFileUrl())) {
+            response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
+        }
         return response;
     }
 
