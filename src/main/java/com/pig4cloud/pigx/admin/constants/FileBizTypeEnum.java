@@ -23,7 +23,11 @@ public enum FileBizTypeEnum {
     IP_TRANSFORM_RECORD("知识产权转化", "火炬中心备案文件"),
     IC_LAYOUT_CERT("集成电路布图登记", "证书"),
     PLANT_VARIETY_CERT("植物新品种权登记", "证书"),
-    SOFT_COPY_CERT("软著登记", "证书")
+    SOFT_COPY_CERT("软著登记", "证书"),
+    PATENT_FEE_REIMBURSE_ACCEPT("专利费用报销", "专利受理通知书"),
+    PATENT_FEE_REIMBURSE_AGENT("专利费用报销", "委托代理合同"),
+    PATENT_FEE_REIMBURSE_APP_BOOK("专利费用报销", "专利申请说明书"),
+    PATENT_FEE_REIMBURSE_CONTRACT("专利费用报销", "项目合同或任务书")
     ;
 
     private final String bizName;
