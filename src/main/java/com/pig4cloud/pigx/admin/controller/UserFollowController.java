@@ -18,6 +18,7 @@ import com.pig4cloud.pigx.admin.dto.user.UserFollowRemoveRequest;
 import com.pig4cloud.pigx.admin.service.*;
 import com.pig4cloud.pigx.admin.utils.PageUtil;
 import com.pig4cloud.pigx.common.core.util.R;
+import com.pig4cloud.pigx.common.security.service.PigxUser;
 import com.pig4cloud.pigx.common.security.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,18 +48,30 @@ public class UserFollowController {
     @PostMapping("/create")
     @Operation(summary = "关注")
     public R<Boolean> follow(@RequestBody UserFollowCreateRequest request) {
+        PigxUser user = SecurityUtils.getUser();
+        if (user == null) {
+            return R.failed("请先登录");
+        }
         return R.ok(userFollowService.follow(SecurityUtils.getUser().getId(), request.getFollowType(), request.getFollowId()));
     }
 
     @PostMapping("/uncreate")
     @Operation(summary = "取消关注")
     public R<Boolean> unfollow(@RequestBody UserFollowRemoveRequest request) {
+        PigxUser user = SecurityUtils.getUser();
+        if (user == null) {
+            return R.failed("请先登录");
+        }
         return R.ok(userFollowService.unfollow(SecurityUtils.getUser().getId(), request.getFollowType(), request.getFollowId()));
     }
 
     @GetMapping("/check")
     @Operation(summary = "是否已关注")
     public R<Boolean> isFollowed(@RequestParam String followType, @RequestParam Long followId) {
+        PigxUser user = SecurityUtils.getUser();
+        if (user == null) {
+            return R.ok(false);
+        }
         return R.ok(userFollowService.isFollowed(SecurityUtils.getUser().getId(), followType, followId));
     }
 

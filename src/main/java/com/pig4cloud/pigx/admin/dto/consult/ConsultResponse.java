@@ -15,6 +15,8 @@ public class ConsultResponse extends BaseResponse {
     private Long id;
     @Schema(description = "咨询类型")
     private String type;
+    @Schema(description = "咨询类型名称")
+    private String typeName;
     @Schema(description = "咨询目标编码")
     private String targetCode;
     @Schema(description = "咨询目标名称")

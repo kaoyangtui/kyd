@@ -13,11 +13,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.constants.PatentTypeEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.patentFee.*;
-import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.PatentFeeItemEntity;
 import com.pig4cloud.pigx.admin.entity.PatentFeeReimburseEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
+import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
 import com.pig4cloud.pigx.admin.jsonflow.JsonFlowHandle;
 import com.pig4cloud.pigx.admin.mapper.PatentFeeReimburseMapper;
 import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
@@ -33,13 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<PatentFeeReimburseMapper, PatentFeeReimburseEntity> implements PatentFeeReimburseService {
+public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<PatentFeeReimburseMapper, PatentFeeReimburseEntity> implements PatentFeeReimburseService, FlowStatusUpdater {
 
     private final PatentFeeItemService patentFeeItemService;
     private final ResearchProjectMapper researchProjectMapper;
@@ -178,5 +180,20 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
         PatentFeeReimburseResponse response = CopyUtil.copyProperties(entity, PatentFeeReimburseResponse.class);
         response.setPatTypeName(PatentTypeEnum.getByCode(entity.getPatType()).getDescription());
         return response;
+    }
+
+    @Override
+    public String flowKey() {
+        return PatentFeeReimburseResponse.BIZ_CODE;
+    }
+
+    @Override
+    public void update(FlowStatusUpdateDTO dto) {
+        this.lambdaUpdate()
+                .eq(PatentFeeReimburseEntity::getFlowInstId, dto.getFlowInstId())
+                .set(dto.getFlowStatus() != null, PatentFeeReimburseEntity::getFlowStatus, dto.getFlowStatus())
+                .set(dto.getFlowStatus() != null, PatentFeeReimburseEntity::getFlowStatusTime, LocalDateTime.now())
+                .set(StrUtil.isNotBlank(dto.getCurrentNodeName()), PatentFeeReimburseEntity::getCurrentNodeName, dto.getCurrentNodeName())
+                .update();
     }
 }

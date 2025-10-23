@@ -176,7 +176,9 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
-        return CopyUtil.copyProperties(entity, ConsultResponse.class);
+        ConsultResponse consultResponse = CopyUtil.copyProperties(entity, ConsultResponse.class);
+        consultResponse.setTypeName(ConsultTypeEnum.of(entity.getType()).getValue());
+        return consultResponse;
     }
 
     @Override
@@ -213,7 +215,11 @@ public class ConsultServiceImpl extends ServiceImpl<ConsultMapper, ConsultEntity
         }
 
         IPage<ConsultEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
-        return entityPage.convert(e -> CopyUtil.copyProperties(e, ConsultResponse.class));
+        return entityPage.convert(e -> {
+            ConsultResponse consultResponse = CopyUtil.copyProperties(e, ConsultResponse.class);
+            consultResponse.setTypeName(ConsultTypeEnum.of(e.getType()).getValue());
+            return consultResponse;
+        });
     }
 
     @SneakyThrows
