@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.patentFee.*;
 import com.pig4cloud.pigx.admin.entity.PatentFeeItemEntity;
 import com.pig4cloud.pigx.admin.entity.PatentFeeReimburseEntity;
+import com.pig4cloud.pigx.admin.entity.PatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
@@ -27,6 +28,7 @@ import com.pig4cloud.pigx.admin.mapper.ResearchProjectMapper;
 import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.PatentFeeItemService;
 import com.pig4cloud.pigx.admin.service.PatentFeeReimburseService;
+import com.pig4cloud.pigx.admin.service.PatentInfoService;
 import com.pig4cloud.pigx.admin.utils.CopyUtil;
 import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import com.pig4cloud.pigx.common.data.resolver.ParamResolver;
@@ -51,12 +53,24 @@ public class PatentFeeReimburseServiceImpl extends OrderCommonServiceImpl<Patent
     private final ResearchProjectMapper researchProjectMapper;
     private final JsonFlowHandle jsonFlowHandle;
     private final FileService fileService;
+    private final PatentInfoService patentInfoService;
 
     // CREATE 不变
+    @SneakyThrows
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PatentFeeReimburseResponse createPatentFeeReimburse(PatentFeeReimburseCreateRequest request) {
         PatentFeeReimburseEntity entity = CopyUtil.copyProperties(request, PatentFeeReimburseEntity.class);
+        PatentInfoEntity patentInfo = patentInfoService.lambdaQuery()
+                .eq(PatentInfoEntity::getPid, entity.getIpCode())
+                .one();
+        if (patentInfo == null) {
+            throw new BizException("专利信息不存在");
+        }
+        entity.setTitle(patentInfo.getTitle());
+        entity.setAppNumber(patentInfo.getAppNumber());
+        entity.setAppDate(patentInfo.getAppDate());
+        entity.setPatType(patentInfo.getPatType());
         String code = ParamResolver.getStr(PatentFeeReimburseResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
         entity.setCode(code);
         entity.setFlowKey(PatentFeeReimburseResponse.BIZ_CODE);

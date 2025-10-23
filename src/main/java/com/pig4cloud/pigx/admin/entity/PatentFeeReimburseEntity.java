@@ -81,6 +81,12 @@ public class PatentFeeReimburseEntity extends Model<PatentFeeReimburseEntity> {
     @Schema(description="专利申请号")
     private String appNumber;
 
+    /**
+     * 申请日
+     */
+    @Schema(description = "申请日")
+    private String appDate;
+
 	/**
 	* 专利名称
 	*/

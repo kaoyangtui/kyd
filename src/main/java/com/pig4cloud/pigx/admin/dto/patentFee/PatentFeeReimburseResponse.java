@@ -43,6 +43,9 @@ public class PatentFeeReimburseResponse extends BaseResponse {
     @Schema(description = "专利申请号")
     private String appNumber;
 
+    @Schema(description = "申请日")
+    private String appDate;
+
     @Schema(description = "专利名称")
     private String title;
 

@@ -17,6 +17,7 @@ import com.pig4cloud.pigx.admin.dto.demandIn.DemandInResponse;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.entity.DemandEntity;
 import com.pig4cloud.pigx.admin.entity.DemandSignupEntity;
+import com.pig4cloud.pigx.admin.entity.DimEcEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +48,7 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
     private final DemandSignupService demandSignupService;
     private final JsonFlowHandle jsonFlowHandle;
     private final SysUserService sysUserService;
+    private final DimEcService dimEcService;
 
 
     @Override
@@ -73,9 +76,6 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
         if (ObjectUtil.isNull(entity)) {
             throw new BizException("数据不存在");
         }
-        //List<DemandReceiveEntity> demandReceiveList = demandReceiveService.lambdaQuery()
-        //        .eq(DemandReceiveEntity::getDemandId, entity.getId())
-        //        .list();
         List<DemandSignupEntity> demandSignupList = demandSignupService.lambdaQuery()
                 .eq(DemandSignupEntity::getDemandId, entity.getId())
                 .list();
@@ -85,7 +85,6 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
                 .update();
         DemandResponse demandResponse = convertToResponse(entity);
         demandResponse.setDemandSignupList(demandSignupList);
-        //demandResponse.setDemandReceiveList(demandReceiveList);
         return demandResponse;
     }
 
@@ -214,14 +213,27 @@ public class DemandServiceImpl extends OrderCommonServiceImpl<DemandMapper, Dema
         }
     }
 
-
-
     private DemandResponse convertToResponse(DemandEntity entity) {
         DemandResponse response = CopyUtil.copyProperties(entity, DemandResponse.class);
-        response.setTags(StrUtil.split(entity.getTags(), ";"));
-        response.setField(StrUtil.split(entity.getField(), ";"));
-        response.setCompanyArea(StrUtil.split(entity.getCompanyArea(), ";"));
-        response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
+        if (StrUtil.isNotBlank(entity.getTags())) {
+            response.setTags(StrUtil.split(entity.getTags(), ";"));
+        }
+        if (StrUtil.isNotBlank(entity.getField())) {
+            response.setField(StrUtil.split(entity.getField(), ";"));
+            List<String> fieldNameList = dimEcService.lambdaQuery()
+                    .in(DimEcEntity::getCode, response.getField())
+                    .list()
+                    .stream()
+                    .map(DimEcEntity::getName)
+                    .collect(Collectors.toList());
+            response.setFieldName(fieldNameList);
+        }
+        if (StrUtil.isNotBlank(entity.getCompanyArea())) {
+            response.setCompanyArea(StrUtil.split(entity.getCompanyArea(), ";"));
+        }
+        if (StrUtil.isNotBlank(entity.getAttachFileUrl())) {
+            response.setAttachFileUrl(StrUtil.split(entity.getAttachFileUrl(), ";"));
+        }
         return response;
     }
 
