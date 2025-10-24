@@ -47,7 +47,7 @@ rocketmq:
 # 📦 中科院专利接口配置
 # =========================
 yt:
-  base-url: http://14.103.193.249:9898/admin/cnipr
+  base-url: http://14.103.193.249:9899/admin/cnipr
   sf1-v1-url: ${yt.base-url}/page
   pi11-url:  ${yt.base-url}/pdfUrl
   pi12-url:  ${yt.base-url}/absUrl
