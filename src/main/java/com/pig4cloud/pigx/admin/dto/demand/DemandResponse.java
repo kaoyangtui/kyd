@@ -89,4 +89,7 @@ public class DemandResponse extends BaseResponse {
 
     @Schema(description = "当前流程节点名称")
     private String currentNodeName;
+
+    @Schema(description="匹配度分数 0-100")
+    private Integer matchScore;
 }

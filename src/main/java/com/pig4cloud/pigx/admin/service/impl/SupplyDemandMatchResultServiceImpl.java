@@ -3,6 +3,7 @@ package com.pig4cloud.pigx.admin.service.impl;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.ModelBizNameEnum;
 import com.pig4cloud.pigx.admin.constants.ModelVolcEnum;
@@ -79,13 +80,56 @@ public class SupplyDemandMatchResultServiceImpl extends ServiceImpl<SupplyDemand
     }
 
     @Override
-    public List<SupplyDemandMatchResultEntity> getMatchEntity(String demandType,
+    public IPage<SupplyDemandMatchResultEntity> pageMatchByDemand(String demandType,
+                                                                  Long demandId,
+                                                                  String supplyType,
+                                                                  IPage page) {
+        return this.lambdaQuery()
+                .select(SupplyDemandMatchResultEntity::getSupplyId, SupplyDemandMatchResultEntity::getMatchScore)
+                .eq(SupplyDemandMatchResultEntity::getDemandType, demandType)
+                .eq(SupplyDemandMatchResultEntity::getDemandId, demandId)
+                .eq(SupplyDemandMatchResultEntity::getSupplyType, supplyType)
+                .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue())
+                .orderByDesc(SupplyDemandMatchResultEntity::getMatchScore)
+                .page(page);
+    }
+
+    @Override
+    public IPage<SupplyDemandMatchResultEntity> pageMatchBySupply(String demandType,
+                                                                  Long supplyId,
+                                                                  String supplyType,
+                                                                  IPage page) {
+        return this.lambdaQuery()
+                .select(SupplyDemandMatchResultEntity::getSupplyId, SupplyDemandMatchResultEntity::getMatchScore)
+                .eq(SupplyDemandMatchResultEntity::getDemandType, demandType)
+                .eq(SupplyDemandMatchResultEntity::getSupplyType, supplyType)
+                .eq(SupplyDemandMatchResultEntity::getSupplyId, supplyId)
+                .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue())
+                .orderByDesc(SupplyDemandMatchResultEntity::getMatchScore)
+                .page(page);
+    }
+
+    @Override
+    public List<SupplyDemandMatchResultEntity> getMatchByDemand(String demandType,
                                                               Long demandId,
                                                               String supplyType) {
         return this.lambdaQuery()
                 .eq(SupplyDemandMatchResultEntity::getDemandType, demandType)
                 .eq(SupplyDemandMatchResultEntity::getDemandId, demandId)
                 .eq(SupplyDemandMatchResultEntity::getSupplyType, supplyType)
+                .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue())
+                .orderByDesc(SupplyDemandMatchResultEntity::getMatchScore)
+                .list();
+    }
+
+    @Override
+    public List<SupplyDemandMatchResultEntity> getMatchBySupply(String demandType,
+                                                                Long supplyId,
+                                                                String supplyType) {
+        return this.lambdaQuery()
+                .eq(SupplyDemandMatchResultEntity::getDemandType, demandType)
+                .eq(SupplyDemandMatchResultEntity::getSupplyType, supplyType)
+                .eq(SupplyDemandMatchResultEntity::getSupplyId, supplyId)
                 .eq(SupplyDemandMatchResultEntity::getMatchStatus, ModelStatusEnum.SUCCESS.getValue())
                 .orderByDesc(SupplyDemandMatchResultEntity::getMatchScore)
                 .list();

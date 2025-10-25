@@ -1,5 +1,6 @@
 package com.pig4cloud.pigx.admin.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.pig4cloud.pigx.admin.entity.SupplyDemandMatchResultEntity;
 
@@ -15,9 +16,23 @@ public interface SupplyDemandMatchResultService extends IService<SupplyDemandMat
                                         String supplyContent
     );
 
-    List<SupplyDemandMatchResultEntity> getMatchEntity(String demandType,
+    IPage<SupplyDemandMatchResultEntity> pageMatchByDemand(String demandType,
+                                                           Long demandId,
+                                                           String supplyType,
+                                                           IPage page);
+
+    IPage<SupplyDemandMatchResultEntity> pageMatchBySupply(String demandType,
+                                                           Long supplyId,
+                                                           String supplyType,
+                                                           IPage page);
+
+    List<SupplyDemandMatchResultEntity> getMatchByDemand(String demandType,
                                                        Long demandId,
                                                        String supplyType);
+
+    List<SupplyDemandMatchResultEntity> getMatchBySupply(String demandType,
+                                                         Long supplyId,
+                                                         String supplyType);
 
     List<Long> getMatchId(String supplyType);
 }

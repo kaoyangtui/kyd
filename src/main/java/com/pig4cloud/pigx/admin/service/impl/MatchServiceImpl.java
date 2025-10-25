@@ -18,11 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-// 其它 import 保持不变
 
 @RequiredArgsConstructor
 @Service
@@ -35,12 +32,12 @@ public class MatchServiceImpl implements MatchService {
     private final DimEcService dimEcService;
 
     /**
-     * 计算匹配并批量更新专利/成果的 maxMatchScore
+     * 计算匹配并批量更新：需求/专利/成果 的 maxMatchScore
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean demandMatch() {
-        // 1. 一次性查出所有 NEC code -> name
+        // 1) NEC code -> name 映射
         Map<String, String> necNameMap = dimEcService.lambdaQuery()
                 .list()
                 .stream()
@@ -48,11 +45,10 @@ public class MatchServiceImpl implements MatchService {
                 .collect(Collectors.toMap(
                         DimEcEntity::getCode,
                         DimEcEntity::getName,
-                        // 遇到重复 code 取第一个
                         (a, b) -> a
                 ));
 
-        // 2. 获取需求、专利、成果（含已有 maxMatchScore）
+        // 2) 拉取数据
         List<DemandEntity> demandList = demandService.lambdaQuery()
                 .eq(DemandEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .list();
@@ -60,30 +56,29 @@ public class MatchServiceImpl implements MatchService {
         List<PatentInfoEntity> patentList = patentInfoService.lambdaQuery()
                 .eq(PatentInfoEntity::getStatusCode, PatentStatusEnum.VALID.getCode())
                 .eq(PatentInfoEntity::getMergeFlag, "1")
-                .in(PatentInfoEntity::getPatType, PatentTypeEnum.INVENTION.getCode(), PatentTypeEnum.UTILITY_MODEL.getCode())
+                .in(PatentInfoEntity::getPatType,
+                        PatentTypeEnum.INVENTION.getCode(),
+                        PatentTypeEnum.UTILITY_MODEL.getCode())
                 .list();
 
         List<ResultEntity> resultList = resultService.lambdaQuery()
                 .eq(ResultEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .list();
 
-        // 2.1 把当前库里的 max 分数记下来，后续只收集“提升”的
+        // 2.1 当前库中的最高分快照
+        Map<Long, Long> demandCurrentMax = demandList.stream()
+                .collect(Collectors.toMap(DemandEntity::getId, d -> defaultZero(d.getMaxMatchScore())));
         Map<Long, Long> patentCurrentMax = patentList.stream()
-                .collect(Collectors.toMap(
-                        PatentInfoEntity::getId,
-                        p -> defaultZero(p.getMaxMatchScore())
-                ));
+                .collect(Collectors.toMap(PatentInfoEntity::getId, p -> defaultZero(p.getMaxMatchScore())));
         Map<Long, Long> resultCurrentMax = resultList.stream()
-                .collect(Collectors.toMap(
-                        ResultEntity::getId,
-                        r -> defaultZero(r.getMaxMatchScore())
-                ));
+                .collect(Collectors.toMap(ResultEntity::getId, r -> defaultZero(r.getMaxMatchScore())));
 
-        // 2.2 用于累计新的（更高的）max
-        Map<Long, Long> patentNewMax = new java.util.HashMap<>(patentCurrentMax);
-        Map<Long, Long> resultNewMax = new java.util.HashMap<>(resultCurrentMax);
+        // 2.2 newMax 容器（初始为当前值）
+        Map<Long, Long> demandNewMax = new HashMap<>(demandCurrentMax);
+        Map<Long, Long> patentNewMax = new HashMap<>(patentCurrentMax);
+        Map<Long, Long> resultNewMax = new HashMap<>(resultCurrentMax);
 
-        // 3. 匹配（过程中只做计算与入结果表；同时刷新内存中的 newMax）
+        // 3) 逐需求进行匹配
         for (DemandEntity demand : demandList) {
             String demandField = demand.getField();
             String demandNecName = convertNecCodeToName(demandField, necNameMap);
@@ -102,14 +97,13 @@ public class MatchServiceImpl implements MatchService {
                             PatentInfoResponse.BIZ_CODE, patent.getId(), JSONUtil.toJsonStr(patentDTO)
                     );
 
-                    // 刷新“内存中的最高分”（仅当更高）
-                    Integer score = matchResult != null ? matchResult.getMatchScore() : null;
+                    Integer score = matchResult == null ? null : matchResult.getMatchScore();
                     if (score != null) {
                         long s = score.longValue();
-                        Long cur = patentNewMax.getOrDefault(patent.getId(), 0L);
-                        if (s > cur) {
-                            patentNewMax.put(patent.getId(), s);
-                        }
+                        // 专利侧 newMax
+                        patentNewMax.merge(patent.getId(), s, Math::max);
+                        // 需求侧 newMax（★关键补充）
+                        demandNewMax.merge(demand.getId(), s, Math::max);
                     }
                 }
             }
@@ -128,19 +122,29 @@ public class MatchServiceImpl implements MatchService {
                             ResultResponse.BIZ_CODE, result.getId(), JSONUtil.toJsonStr(resultDTO)
                     );
 
-                    Integer score = matchResult != null ? matchResult.getMatchScore() : null;
+                    Integer score = matchResult == null ? null : matchResult.getMatchScore();
                     if (score != null) {
                         long s = score.longValue();
-                        Long cur = resultNewMax.getOrDefault(result.getId(), 0L);
-                        if (s > cur) {
-                            resultNewMax.put(result.getId(), s);
-                        }
+                        // 成果侧 newMax
+                        resultNewMax.merge(result.getId(), s, Math::max);
+                        // 需求侧 newMax（★关键补充）
+                        demandNewMax.merge(demand.getId(), s, Math::max);
                     }
                 }
             }
         }
 
-        // 4. 汇总出“需要更新”的对象，批量落库（仅更新更高的）
+        // 4) 仅更新“更高”的 maxMatchScore
+        List<DemandEntity> demandToUpdate = demandNewMax.entrySet().stream()
+                .filter(e -> e.getValue() > demandCurrentMax.getOrDefault(e.getKey(), 0L))
+                .map(e -> {
+                    DemandEntity d = new DemandEntity();
+                    d.setId(e.getKey());
+                    d.setMaxMatchScore(e.getValue());
+                    return d;
+                })
+                .toList();
+
         List<PatentInfoEntity> patentToUpdate = patentNewMax.entrySet().stream()
                 .filter(e -> e.getValue() > patentCurrentMax.getOrDefault(e.getKey(), 0L))
                 .map(e -> {
@@ -161,8 +165,10 @@ public class MatchServiceImpl implements MatchService {
                 })
                 .toList();
 
+        if (!demandToUpdate.isEmpty()) {
+            demandService.updateBatchById(demandToUpdate);
+        }
         if (!patentToUpdate.isEmpty()) {
-            // MyBatis-Plus: 仅非空字段会更新；只填了 id + maxMatchScore
             patentInfoService.updateBatchById(patentToUpdate);
         }
         if (!resultToUpdate.isEmpty()) {
@@ -172,38 +178,34 @@ public class MatchServiceImpl implements MatchService {
         return true;
     }
 
+    /* ================= 工具方法 ================= */
+
     private static long defaultZero(Long val) {
         return val == null ? 0L : val;
     }
 
+    /**
+     * NEC 匹配：a 与 b 均为分号分隔的 code 列表；若存在“b 的任一项以 a 的任一项为前缀”则匹配。
+     */
     public boolean isFieldNecMatch(String a, String b) {
-        if (StrUtil.isBlank(a) || StrUtil.isBlank(b)) {
-            return false;
-        }
-        // 拆成List并去空格
+        if (StrUtil.isBlank(a) || StrUtil.isBlank(b)) return false;
         List<String> aList = Arrays.stream(a.split(";"))
-                .map(String::trim)
-                .filter(StrUtil::isNotBlank)
-                .toList();
+                .map(String::trim).filter(StrUtil::isNotBlank).toList();
         List<String> bList = Arrays.stream(b.split(";"))
-                .map(String::trim)
-                .filter(StrUtil::isNotBlank)
-                .toList();
-        // 任意field是任意nec的前缀
-        for (String aItem : aList) {
-            for (String bItem : bList) {
-                if (bItem.startsWith(aItem)) {
-                    return true;
-                }
+                .map(String::trim).filter(StrUtil::isNotBlank).toList();
+        for (String av : aList) {
+            for (String bv : bList) {
+                if (bv.startsWith(av)) return true;
             }
         }
         return false;
     }
 
+    /**
+     * 把 NEC 代码串（; 分隔）转换为名称串（; 分隔），找不到码的保持原码。
+     */
     private String convertNecCodeToName(String necCodes, Map<String, String> necNameMap) {
-        if (StrUtil.isBlank(necCodes)) {
-            return necCodes;
-        }
+        if (StrUtil.isBlank(necCodes)) return necCodes;
         return Arrays.stream(necCodes.split(";"))
                 .map(String::trim)
                 .filter(StrUtil::isNotBlank)
