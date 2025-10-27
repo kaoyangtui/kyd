@@ -83,6 +83,12 @@ public class CompleterEntity extends Model<CompleterEntity> {
     private Integer completerLeader;
 
     /**
+     * 职称
+     */
+    @Schema(description = "职称")
+    private Integer positionTitle;
+
+    /**
      * 删除标识
      */
     @TableLogic
