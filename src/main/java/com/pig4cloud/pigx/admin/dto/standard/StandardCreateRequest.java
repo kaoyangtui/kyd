@@ -5,6 +5,7 @@ import com.pig4cloud.pigx.admin.entity.OwnerEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -24,13 +25,13 @@ public class StandardCreateRequest {
     private String type;
 
     @Schema(description = "发布时间")
-    private String pubDate;
+    private LocalDate pubDate;
 
     @Schema(description = "实施时间")
-    private String implDate;
+    private LocalDate implDate;
 
     @Schema(description = "校外起草人（多个用分号分隔）")
-    private String drafterOutName;
+    private List<String> drafterOutName;
 
     @Schema(description = "标准文本地址（多个用分号分隔）")
     private List<String> fileUrls;

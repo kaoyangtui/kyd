@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -10,7 +9,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
@@ -88,6 +86,10 @@ public class PlantVarietyServiceImpl extends OrderCommonServiceImpl<PlantVariety
         } else {
             code = ParamResolver.getStr(PlantVarietyResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
             entity.setCode(code);
+        }
+
+        if (CollUtil.isNotEmpty(request.getBreederOutName())) {
+            entity.setBreederOutName(StrUtil.join(";", request.getBreederOutName()));
         }
 
         if (CollUtil.isNotEmpty(request.getCertFileUrl())) {
@@ -182,6 +184,7 @@ public class PlantVarietyServiceImpl extends OrderCommonServiceImpl<PlantVariety
 
     private PlantVarietyResponse convertToResponse(PlantVarietyEntity entity) {
         PlantVarietyResponse response = CopyUtil.copyProperties(entity, PlantVarietyResponse.class);
+        response.setBreederOutName(StrUtil.split(entity.getBreederOutName(), ";"));
         response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
         return response;
     }

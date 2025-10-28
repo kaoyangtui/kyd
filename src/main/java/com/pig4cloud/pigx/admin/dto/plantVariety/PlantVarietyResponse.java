@@ -64,7 +64,7 @@ public class PlantVarietyResponse extends BaseResponse {
     private LocalDate authDate;
 
     @Schema(description = "校外培育人姓名")
-    private String breederOutName;
+    private List<String> breederOutName;
 
     @Schema(description = "证书附件URL")
     private List<String> certFileUrl;

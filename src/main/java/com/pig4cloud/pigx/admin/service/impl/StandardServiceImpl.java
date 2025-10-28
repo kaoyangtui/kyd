@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -86,7 +85,9 @@ public class StandardServiceImpl extends OrderCommonServiceImpl<StandardMapper, 
             code = ParamResolver.getStr(StandardResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
             entity.setCode(code);
         }
-
+        if (CollUtil.isNotEmpty(request.getDrafterOutName())) {
+            entity.setDrafterOutName(StrUtil.join(";", request.getDrafterOutName()));
+        }
         // 附件处理
         if (CollUtil.isNotEmpty(request.getFileUrls())) {
             List<FileCreateRequest> fileCreateRequestList = CollUtil.newArrayList();
@@ -185,6 +186,7 @@ public class StandardServiceImpl extends OrderCommonServiceImpl<StandardMapper, 
 
     private StandardResponse convertToResponse(StandardEntity entity) {
         StandardResponse response = CopyUtil.copyProperties(entity, StandardResponse.class);
+        response.setDrafterOutName(StrUtil.split(entity.getDrafterOutName(), ";"));
         response.setFileUrls(StrUtil.split(entity.getFileUrl(), ";"));
         return response;
     }

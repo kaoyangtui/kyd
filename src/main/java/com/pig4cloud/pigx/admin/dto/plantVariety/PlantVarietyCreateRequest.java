@@ -31,8 +31,8 @@ public class PlantVarietyCreateRequest {
     @Schema(description = "授权时间")
     private LocalDate authDate;
 
-    @Schema(description = "校外培育人姓名，多个用;分隔")
-    private String breederOutName;
+    @Schema(description = "校外培育人姓名")
+    private List<String> breederOutName;
 
     @Schema(description = "证书附件URL")
     private List<String> certFileUrl;
