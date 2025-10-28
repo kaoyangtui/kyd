@@ -72,7 +72,8 @@ public class IcLayoutController {
     @GetMapping("/page")
     @Operation(summary = "分页查询")
     //@PreAuthorize("@pms.hasPermission('ic_layout_view')")
-    public R<IPage<IcLayoutResponse>> page(@ParameterObject PageRequest pageRequest, @ParameterObject IcLayoutPageRequest request) {
+    public R<IPage<IcLayoutResponse>> page(@ParameterObject PageRequest pageRequest,
+                                           @ParameterObject IcLayoutPageRequest request) {
         return R.ok(icLayoutService.pageResult(PageUtil.toPage(pageRequest), request));
     }
 

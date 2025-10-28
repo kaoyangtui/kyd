@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -10,7 +9,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
 import com.pig4cloud.pigx.admin.constants.FlowStatusEnum;
 import com.pig4cloud.pigx.admin.constants.IpTypeEnum;
@@ -141,7 +139,9 @@ public class IcLayoutServiceImpl extends OrderCommonServiceImpl<IcLayoutMapper, 
             code = ParamResolver.getStr(IcLayoutResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr();
             entity.setCode(code);
         }
-
+        if (CollUtil.isNotEmpty(request.getCreatorOutName())) {
+            entity.setCreatorOutName(StrUtil.join(";", request.getCreatorOutName()));
+        }
         // 设置负责人
         if (CollUtil.isNotEmpty(request.getCompleters())) {
             request.getCompleters().stream()
@@ -186,7 +186,6 @@ public class IcLayoutServiceImpl extends OrderCommonServiceImpl<IcLayoutMapper, 
         } else {
             entity.setFlowKey(IcLayoutResponse.BIZ_CODE);
             entity.setFlowInstId(IdUtil.getSnowflakeNextIdStr());
-            entity.setCode(ParamResolver.getStr(IcLayoutResponse.BIZ_CODE) + IdUtil.getSnowflakeNextIdStr());
             Map<String, Object> params = MapUtil.newHashMap();
             params.put("orderName", entity.getName());
             super.saveOrUpdateOrder(params, entity);
@@ -200,6 +199,7 @@ public class IcLayoutServiceImpl extends OrderCommonServiceImpl<IcLayoutMapper, 
     private IcLayoutResponse convertToResponse(IcLayoutEntity entity) {
         IcLayoutResponse response = CopyUtil.copyProperties(entity, IcLayoutResponse.class);
         response.setCertFileUrl(StrUtil.split(entity.getCertFileUrl(), ";"));
+        response.setCreatorOutName(StrUtil.split(entity.getCreatorOutName(), ";"));
         return response;
     }
 

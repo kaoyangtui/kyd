@@ -54,8 +54,8 @@ public class IcLayoutResponse extends BaseResponse {
     @Schema(description = "证书附件")
     private List<String> certFileUrl;
 
-    @Schema(description = "校外创作人姓名")
-    private String creatorOutName;
+    @Schema(description = "校外创作人，多个用;分隔")
+    private List<String> creatorOutName;
 
     @Schema(description = "负责人编码")
     private String leaderCode;

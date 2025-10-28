@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -8,18 +7,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadCreateRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadPageRequest;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadResponse;
 import com.pig4cloud.pigx.admin.dto.commonDownload.CommonDownloadUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.AssetPolicyEntity;
 import com.pig4cloud.pigx.admin.entity.CommonDownloadEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.CommonDownloadMapper;
 import com.pig4cloud.pigx.admin.service.CommonDownloadService;
 import com.pig4cloud.pigx.admin.utils.CopyUtil;
-import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -61,7 +57,7 @@ public class CommonDownloadServiceImpl extends ServiceImpl<CommonDownloadMapper,
             wrapper.orderByDesc(CommonDownloadEntity::getCreateTime);
         }
 
-        IPage<CommonDownloadEntity> resPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<CommonDownloadEntity> resPage = baseMapper.selectPage(page, wrapper);
         return resPage.convert(this::convertToResponse);
     }
 

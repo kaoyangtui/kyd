@@ -31,7 +31,7 @@ public class IcLayoutCreateRequest {
     private List<String> certFileUrl;
 
     @Schema(description = "校外创作人，多个用;分隔")
-    private String creatorOutName;
+    private List<String> creatorOutName;
 
     @Schema(description = "完成人信息")
     private List<CompleterEntity> completers;

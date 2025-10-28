@@ -1,6 +1,5 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -8,18 +7,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.pig4cloud.pigx.admin.constants.CommonConstants;
 import com.pig4cloud.pigx.admin.dto.notice.NoticeCreateRequest;
 import com.pig4cloud.pigx.admin.dto.notice.NoticePageRequest;
 import com.pig4cloud.pigx.admin.dto.notice.NoticeResponse;
 import com.pig4cloud.pigx.admin.dto.notice.NoticeUpdateRequest;
-import com.pig4cloud.pigx.admin.entity.IpTransformEntity;
 import com.pig4cloud.pigx.admin.entity.NoticeEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.mapper.NoticeMapper;
 import com.pig4cloud.pigx.admin.service.NoticeService;
 import com.pig4cloud.pigx.admin.utils.CopyUtil;
-import com.pig4cloud.pigx.common.data.datascope.DataScope;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -95,7 +91,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, NoticeEntity> i
             wrapper.orderByDesc(NoticeEntity::getCreateTime);
         }
 
-        IPage<NoticeEntity> entityPage = baseMapper.selectPageByScope(page, wrapper, DataScope.of());
+        IPage<NoticeEntity> entityPage = baseMapper.selectPage(page, wrapper);
         return entityPage.convert(this::convertToResponse);
     }
 
