@@ -30,10 +30,10 @@ public class StandardCreateRequest {
     @Schema(description = "实施时间")
     private LocalDate implDate;
 
-    @Schema(description = "校外起草人（多个用分号分隔）")
+    @Schema(description = "校外起草人")
     private List<String> drafterOutName;
 
-    @Schema(description = "标准文本地址（多个用分号分隔）")
+    @Schema(description = "标准文本地址")
     private List<String> fileUrls;
 
     @Schema(description = "起草单位列表")

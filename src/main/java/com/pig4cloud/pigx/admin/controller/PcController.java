@@ -130,6 +130,10 @@ public class PcController {
             pageRequest = new PageRequest();
         }
         ResultPageRequest request = body.getRequest();
+        if (null == request) {
+            request = new ResultPageRequest();
+        }
+        request.setShelfStatus(1);
         if (CollUtil.isEmpty(pageRequest.getOrders())) {
             List<OrderItem> orders = CollUtil.newArrayList();
             OrderItem orderItem = new OrderItem();
@@ -138,7 +142,6 @@ public class PcController {
             orders.add(orderItem);
             pageRequest.setOrders(orders);
         }
-        request.setShelfStatus(1);
         return R.ok(resultService.pageResult(PageUtil.toPage(pageRequest), request, false));
     }
 
