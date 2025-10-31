@@ -30,9 +30,9 @@ public class ResultResponse extends BaseResponse {
     private Long id;
 
     /**
-     * 成果编码，CG开头+雪花算法ID
+     * 成果编码
      */
-    @Schema(description = "成果编码，CG开头+雪花算法ID")
+    @Schema(description = "成果编码")
     private String code;
 
     /**
@@ -50,7 +50,7 @@ public class ResultResponse extends BaseResponse {
     /**
      * 流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止
      */
-    @Schema(description = "流程状态：-2撤回 -1发起 0运行中 1完结 2作废 3终止")
+    @Schema(description = "流程状态")
     private Integer flowStatus;
 
     @Schema(description = "流程状态触发时间")
