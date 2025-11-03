@@ -86,7 +86,7 @@ public class CompleterEntity extends Model<CompleterEntity> {
      * 职称
      */
     @Schema(description = "职称")
-    private Integer positionTitle;
+    private String positionTitle;
 
     /**
      * 删除标识
