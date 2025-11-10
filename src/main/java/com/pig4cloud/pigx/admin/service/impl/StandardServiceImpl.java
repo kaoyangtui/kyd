@@ -87,6 +87,8 @@ public class StandardServiceImpl extends OrderCommonServiceImpl<StandardMapper, 
         }
         if (CollUtil.isNotEmpty(request.getDrafterOutName())) {
             entity.setDrafterOutName(StrUtil.join(";", request.getDrafterOutName()));
+        }else{
+            entity.setDrafterOutName(null);
         }
         // 附件处理
         if (CollUtil.isNotEmpty(request.getFileUrls())) {
