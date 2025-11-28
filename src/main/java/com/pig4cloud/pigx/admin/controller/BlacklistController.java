@@ -27,6 +27,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -83,13 +85,23 @@ public class BlacklistController {
         if (response == null) {
             throw new IllegalStateException("无法获取 HttpServletResponse");
         }
-        IPage<BlacklistResponse> pageData = blacklistService.pageResult(new Page<>(), request.getQuery());
+        BlacklistPageRequest query = request.getQuery() == null
+                ? new BlacklistPageRequest()
+                : request.getQuery();
+        List<String> fieldKeys = request.getExport() == null
+                ? Collections.emptyList()
+                : request.getExport().getFieldKeys();
+        if (fieldKeys == null || fieldKeys.isEmpty()) {
+            throw new IllegalArgumentException("导出字段不能为空");
+        }
+
+        IPage<BlacklistResponse> pageData = blacklistService.pageResult(new Page<>(), query);
         ExcelExportUtil.exportByBean(
                 response,
                 "黑名单导出",
                 "黑名单",
                 pageData.getRecords(),
-                request.getExport().getFieldKeys(),
+                fieldKeys,
                 BlacklistResponse.class
         );
     }
