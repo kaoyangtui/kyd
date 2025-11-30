@@ -88,13 +88,32 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 .stream()
                 .collect(Collectors.toMap(PatentDetailCacheEntity::getPid, e -> e, (a, b) -> a));
 
-
         Map<String, List<PatentInventorEntity>> inventorMap =
                 patentInventorService.lambdaQuery()
                         .in(PatentInventorEntity::getPid, pidList)
                         .list()
                         .stream()
                         .collect(Collectors.groupingBy(PatentInventorEntity::getPid));
+
+        Set<String> shelfPidSet = patentShelfService.lambdaQuery()
+                .select(PatentShelfEntity::getPid)
+                .eq(PatentShelfEntity::getShelfStatus, 1)
+                .in(PatentShelfEntity::getPid, pidList)
+                .list()
+                .stream()
+                .map(PatentShelfEntity::getPid)
+                .collect(Collectors.toSet());
+
+        Long currentUserId = SecurityUtils.getUser().getId();
+        Set<String> monitorPidSet = patentMonitorUserMapper.selectList(
+                        new LambdaQueryWrapper<PatentMonitorUserEntity>()
+                                .eq(PatentMonitorUserEntity::getCreateUserId, currentUserId)
+                                .in(PatentMonitorUserEntity::getPid, pidList)
+                )
+                .stream()
+                .map(PatentMonitorUserEntity::getPid)
+                .collect(Collectors.toSet());
+
         String code = SecurityUtils.getUser().getUsername();
         return entityPage.convert(entity -> {
             PatentInfoResponse response = CopyUtil.copyProperties(entity, PatentInfoResponse.class);
@@ -109,17 +128,10 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
                 response.setPatTypeName("未知");
             }
             // 上下架标识
-            boolean shelfFlag = patentShelfService.lambdaQuery()
-                    .eq(PatentShelfEntity::getPid, entity.getPid())
-                    .eq(PatentShelfEntity::getShelfStatus, 1)
-                    .exists();
+            boolean shelfFlag = shelfPidSet.contains(entity.getPid());
             response.setShelfFlag(shelfFlag ? "1" : "0");
             // 监控标识
-            boolean monitorFlag = patentMonitorUserMapper.exists(
-                    new LambdaQueryWrapper<PatentMonitorUserEntity>()
-                            .eq(PatentMonitorUserEntity::getPid, entity.getPid())
-                            .eq(PatentMonitorUserEntity::getCreateUserId, SecurityUtils.getUser().getId())
-            );
+            boolean monitorFlag = monitorPidSet.contains(entity.getPid());
             response.setMonitorFlag(monitorFlag ? "1" : "0");
             // 认领按钮是否显示
             List<PatentInventorEntity> inventorList = inventorMap.get(entity.getPid());
