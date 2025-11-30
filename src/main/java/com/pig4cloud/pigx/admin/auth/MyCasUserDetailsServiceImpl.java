@@ -81,7 +81,6 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
             throw new BizException("用户不存在");
         }
 
-
         // 远程用户信息查询
         UserDTO userDTO = new UserDTO();
         userDTO.setUsername(username);
@@ -142,7 +141,8 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
             deptName = CollUtil.getFirst(info.getDeptList()).getName();
         }
 
-        log.info("[CAS-LOGIN] convertUserDetails username={}, userId={}, tenantId={}, deptId={}, roles={}, permsCount={}",
+        log.info(
+                "[CAS-LOGIN] convertUserDetails username={}, userId={}, tenantId={}, deptId={}, roles={}, permsCount={}",
                 info.getUsername(), info.getUserId(), info.getTenantId(), deptId,
                 info.getRoleList() != null ? info.getRoleList().size() : 0,
                 info.getPermissions() != null ? info.getPermissions().size() : 0);
@@ -155,8 +155,7 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
                 true, true, UserTypeEnum.TOB.getStatus(),
                 !CommonConstants.STATUS_LOCK.equals(info.getPasswordExpireFlag()),
                 !CommonConstants.STATUS_LOCK.equals(info.getLockFlag()),
-                authorities, info.getCode()
-        );
+                authorities, info.getCode());
     }
 
     // check-token 使用
@@ -193,10 +192,12 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
         try {
             String base = StrUtil.endWith(casHost, "/") ? casHost : casHost + "/";
             String encodedService = URLUtil.encodeAll(service, java.nio.charset.StandardCharsets.UTF_8);
-            String url = base + "serviceValidate?ticket=" + URLUtil.encodeAll(ticket, java.nio.charset.StandardCharsets.UTF_8)
+            String url = base + "serviceValidate?ticket="
+                    + URLUtil.encodeAll(ticket, java.nio.charset.StandardCharsets.UTF_8)
                     + "&service=" + encodedService;
 
-            log.info("[CAS-LOGIN] validateTicket request -> host={}, serviceLen={}, ticketLen={}, ticketHash8={}, url={}",
+            log.info(
+                    "[CAS-LOGIN] validateTicket request -> host={}, serviceLen={}, ticketLen={}, ticketHash8={}, url={}",
                     casHost, service.length(), ticket.length(), shortHash(ticket), url);
 
             long t0 = System.currentTimeMillis();
@@ -238,20 +239,24 @@ public class MyCasUserDetailsServiceImpl implements PigxUserDetailsService {
     /* ========================= 私有工具方法 ========================= */
 
     private static String maskTicket(String ticket) {
-        if (ticket == null) return "null";
+        if (ticket == null)
+            return "null";
         int len = ticket.length();
-        if (len <= 6) return "***";
+        if (len <= 6)
+            return "***";
         return ticket.substring(0, 3) + "***" + ticket.substring(len - 3);
     }
 
     private static String shortHash(String s) {
-        if (s == null) return "null";
+        if (s == null)
+            return "null";
         // 使用 md5 取前 8 位作为日志哈希标识
         return SecureUtil.md5(s).substring(0, 8);
     }
 
     private static List<String> authoritiesToStrings(Collection<? extends GrantedAuthority> auths) {
-        if (auths == null) return Collections.emptyList();
+        if (auths == null)
+            return Collections.emptyList();
         List<String> list = new ArrayList<>(auths.size());
         for (GrantedAuthority a : auths) {
             list.add(a.getAuthority());
