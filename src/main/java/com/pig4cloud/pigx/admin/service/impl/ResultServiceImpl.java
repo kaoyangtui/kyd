@@ -1,6 +1,7 @@
 package com.pig4cloud.pigx.admin.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -10,10 +11,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pig4cloud.pigx.admin.constants.FileBizTypeEnum;
+import com.pig4cloud.pigx.admin.constants.MaturityEnum;
+import com.pig4cloud.pigx.admin.constants.TransWayEnum;
 import com.pig4cloud.pigx.admin.dto.IdListRequest;
 import com.pig4cloud.pigx.admin.dto.file.FileCreateRequest;
 import com.pig4cloud.pigx.admin.dto.result.*;
-import com.pig4cloud.pigx.admin.entity.*;
+import com.pig4cloud.pigx.admin.entity.CompleterEntity;
+import com.pig4cloud.pigx.admin.entity.ResearchProjectEntity;
+import com.pig4cloud.pigx.admin.entity.ResultEntity;
 import com.pig4cloud.pigx.admin.exception.BizException;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdateDTO;
 import com.pig4cloud.pigx.admin.jsonflow.FlowStatusUpdater;
@@ -37,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 科研成果表
@@ -230,7 +236,20 @@ public class ResultServiceImpl extends OrderCommonServiceImpl<ResultMapper, Resu
     private ResultResponse convertToResponse(ResultEntity entity) {
         ResultResponse response = CopyUtil.copyProperties(entity, ResultResponse.class);
         response.setTechArea(StrUtil.split(entity.getTechArea(), ";"));
-        response.setTransWay(StrUtil.split(entity.getTransWay(), ";"));
+        // 传递方式：code 列表
+        List<String> transWayCodes = StrUtil.split(entity.getTransWay(), ";");
+        response.setTransWay(transWayCodes);
+
+        // 传递方式：name 列表（用 TechTypeEnum 转）
+        List<String> transWayNames = CollUtil.isEmpty(transWayCodes)
+                ? CollUtil.newArrayList()
+                : transWayCodes.stream()
+                .map(Convert::toInt)
+                .map(TransWayEnum::of)
+                .map(TransWayEnum::getLabel)
+                .collect(Collectors.toList());
+        response.setTransWayName(transWayNames);
+
         response.setImgUrl(StrUtil.split(entity.getImgUrl(), ";"));
         response.setFileUrl(StrUtil.split(entity.getFileUrl(), ";"));
         ResearchProjectEntity researchProject = researchProjectMapper.selectById(entity.getResearchProjectId());
@@ -238,6 +257,7 @@ public class ResultServiceImpl extends OrderCommonServiceImpl<ResultMapper, Resu
             response.setResearchProjectType(researchProject.getProjectType());
             response.setResearchProjectName(researchProject.getProjectName());
         }
+        response.setMaturityName(MaturityEnum.of(Integer.valueOf(entity.getMaturity())).getLabel());
         return response;
     }
 

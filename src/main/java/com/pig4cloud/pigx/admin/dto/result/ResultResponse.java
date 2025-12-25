@@ -121,6 +121,12 @@ public class ResultResponse extends BaseResponse {
     private String maturity;
 
     /**
+     * 技术成熟度名称
+     */
+    @Schema(description = "技术成熟度名称")
+    private String maturityName;
+
+    /**
      * 是否有实物，0否1是
      */
     @Schema(description = "是否有实物，0否1是")
@@ -131,6 +137,12 @@ public class ResultResponse extends BaseResponse {
      */
     @Schema(description = "转化方式，多选用;分隔")
     private List<String> transWay;
+
+    /**
+     * 转化方式名称，多选用;分隔
+     */
+    @Schema(description = "转化方式名称，多选用;分隔")
+    private List<String> transWayName;
 
     /**
      * 转化价格(万元)
