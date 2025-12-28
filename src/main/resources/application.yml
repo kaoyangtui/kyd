@@ -76,7 +76,7 @@ pigx:
     skip-table:
       - QRTZ_  #quartz 定时任务的表
       - ACT_   #工作流相关的表
-    show-sql: false
+    show-sql: true
 
 # 文件上传配置
 file:
