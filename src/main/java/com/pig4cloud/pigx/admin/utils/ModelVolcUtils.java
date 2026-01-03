@@ -11,6 +11,7 @@ import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author zhaoliang
  */
+@Slf4j
 @Component
 public class ModelVolcUtils {
 
@@ -63,6 +65,7 @@ public class ModelVolcUtils {
             String systemPrompt                   // 可选的 system 提示词，传 null/空则不加
     ) {
         if (prompts == null || prompts.isEmpty()) {
+            log.info("[ModelBatch] empty prompts");
             Map<String, Object> empty = new HashMap<>();
             empty.put("success_count", 0);
             empty.put("fail_count", 0);
@@ -77,6 +80,10 @@ public class ModelVolcUtils {
         if (maxConcurrency <= 0) {
             maxConcurrency = Math.min(prompts.size(), 512); // 稳妥默认并发
         }
+
+        long startAt = System.currentTimeMillis();
+        log.info("[ModelBatch] start: size={}, model={}, concurrency={}, timeout={}s",
+                prompts.size(), model, maxConcurrency, timeout.getSeconds());
 
         // 1) 为 Batch Chat 单独实例化 ArkService（避免与在线流式互相影响）
         ConnectionPool connectionPool = new ConnectionPool(maxConcurrency, 10, TimeUnit.MINUTES);
@@ -101,6 +108,7 @@ public class ModelVolcUtils {
         // 结果与失败列表：并发安全
         List<Map<String, Object>> results = Collections.synchronizedList(new ArrayList<>());
         List<Map<String, Object>> failures = Collections.synchronizedList(new ArrayList<>());
+        boolean[] done = new boolean[prompts.size()];
 
         for (int i = 0; i < prompts.size(); i++) {
             final int idx = i;
@@ -158,6 +166,7 @@ public class ModelVolcUtils {
                     fail.put("error", e.getMessage());
                     failures.add(fail);
                 } finally {
+                    done[idx] = true;
                     latch.countDown();
                 }
             });
@@ -165,12 +174,28 @@ public class ModelVolcUtils {
 
         // 7) 等待全部完成，关闭资源
         try {
-            latch.await();
+            boolean finished = latch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+            if (!finished) {
+                // 标记超时未完成的任务
+                int timeoutCount = 0;
+                for (int i = 0; i < done.length; i++) {
+                    if (!done[i]) {
+                        timeoutCount++;
+                        Map<String, Object> fail = new HashMap<>();
+                        fail.put("index", i);
+                        fail.put("prompt", prompts.get(i));
+                        fail.put("error", "timeout");
+                        failures.add(fail);
+                    }
+                }
+                log.warn("[ModelBatch] timeout, unfinished={}", timeoutCount);
+            }
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
+        } finally {
+            executor.shutdownNow();
+            service.shutdownExecutor();
         }
-        executor.shutdown();
-        service.shutdownExecutor();
 
         // 8) 结果按原输入顺序排序（index 升序）
         results.sort(Comparator.comparingInt(m -> ((Number) m.getOrDefault("index", 0)).intValue()));
@@ -182,6 +207,9 @@ public class ModelVolcUtils {
         res.put("fail_count", failure.get());
         res.put("results", results);
         res.put("failures", failures);
+
+        long costMs = System.currentTimeMillis() - startAt;
+        log.info("[ModelBatch] done: success={}, failure={}, costMs={}", success.get(), failure.get(), costMs);
         return res;
     }
 

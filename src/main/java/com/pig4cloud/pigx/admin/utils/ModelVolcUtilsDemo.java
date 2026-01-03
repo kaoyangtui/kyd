@@ -18,7 +18,7 @@ public class ModelVolcUtilsDemo {
         }
 
         // 2) 替换为你的“批量推理接入点 ID”（ep-bi-...）
-        final String MODEL_ID = "ep-bi-20251002112246-8lclx";
+        final String MODEL_ID = "ep-bi-20260103165830-p9d6p";
 
         // 3) 准备测试 prompts（示例三条）
         List<String> prompts = Arrays.asList(

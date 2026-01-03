@@ -10,19 +10,21 @@ import com.pig4cloud.pigx.admin.dto.demand.DemandResponse;
 import com.pig4cloud.pigx.admin.dto.match.DemandMatchDTO;
 import com.pig4cloud.pigx.admin.dto.match.PatentMatchDTO;
 import com.pig4cloud.pigx.admin.dto.match.ResultMatchDTO;
+import com.pig4cloud.pigx.admin.dto.match.SupplyDemandMatchRequest;
 import com.pig4cloud.pigx.admin.dto.patent.PatentInfoResponse;
 import com.pig4cloud.pigx.admin.dto.result.ResultResponse;
 import com.pig4cloud.pigx.admin.entity.*;
 import com.pig4cloud.pigx.admin.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class MatchServiceImpl implements MatchService {
 
     private final DemandServiceImpl demandService;
@@ -30,12 +32,12 @@ public class MatchServiceImpl implements MatchService {
     private final ResultService resultService;
     private final SupplyDemandMatchResultService supplyDemandMatchResultService;
     private final DimEcService dimEcService;
+    private static final int MATCH_BATCH_SIZE = 100;
 
     /**
      * 计算匹配并批量更新：需求/专利/成果 的 maxMatchScore
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public Boolean demandMatch() {
         // 1) NEC code -> name 映射
         Map<String, String> necNameMap = dimEcService.lambdaQuery()
@@ -65,6 +67,9 @@ public class MatchServiceImpl implements MatchService {
                 .eq(ResultEntity::getFlowStatus, FlowStatusEnum.FINISH.getStatus())
                 .list();
 
+        log.info("[MatchJob] start demandMatch: demand={}, patent={}, result={}",
+                demandList.size(), patentList.size(), resultList.size());
+
         // 2.1 当前库中的最高分快照
         Map<Long, Long> demandCurrentMax = demandList.stream()
                 .collect(Collectors.toMap(DemandEntity::getId, d -> defaultZero(d.getMaxMatchScore())));
@@ -73,10 +78,9 @@ public class MatchServiceImpl implements MatchService {
         Map<Long, Long> resultCurrentMax = resultList.stream()
                 .collect(Collectors.toMap(ResultEntity::getId, r -> defaultZero(r.getMaxMatchScore())));
 
-        // 2.2 newMax 容器（初始为当前值）
-        Map<Long, Long> demandNewMax = new HashMap<>(demandCurrentMax);
-        Map<Long, Long> patentNewMax = new HashMap<>(patentCurrentMax);
-        Map<Long, Long> resultNewMax = new HashMap<>(resultCurrentMax);
+        long demandUpdated = 0;
+        long patentUpdated = 0;
+        long resultUpdated = 0;
 
         // 3) 逐需求进行匹配
         for (DemandEntity demand : demandList) {
@@ -84,6 +88,7 @@ public class MatchServiceImpl implements MatchService {
             String demandNecName = convertNecCodeToName(demandField, necNameMap);
 
             // 3.1 需求 vs 专利
+            List<SupplyDemandMatchRequest> patentBatch = new ArrayList<>();
             for (PatentInfoEntity patent : patentList) {
                 if (isFieldNecMatch(demandField, patent.getNec())) {
                     DemandMatchDTO demandDTO = BeanUtil.toBean(demand, DemandMatchDTO.class);
@@ -92,23 +97,55 @@ public class MatchServiceImpl implements MatchService {
                     PatentMatchDTO patentDTO = BeanUtil.toBean(patent, PatentMatchDTO.class);
                     patentDTO.setNec(convertNecCodeToName(patent.getNec(), necNameMap));
 
-                    SupplyDemandMatchResultEntity matchResult = supplyDemandMatchResultService.match(
-                            DemandResponse.BIZ_CODE, demand.getId(), JSONUtil.toJsonStr(demandDTO),
-                            PatentInfoResponse.BIZ_CODE, patent.getId(), JSONUtil.toJsonStr(patentDTO)
-                    );
+                    SupplyDemandMatchRequest req = new SupplyDemandMatchRequest();
+                    req.setDemandType(DemandResponse.BIZ_CODE);
+                    req.setDemandId(demand.getId());
+                    req.setDemandContent(JSONUtil.toJsonStr(demandDTO));
+                    req.setSupplyType(PatentInfoResponse.BIZ_CODE);
+                    req.setSupplyId(patent.getId());
+                    req.setSupplyContent(JSONUtil.toJsonStr(patentDTO));
+                    patentBatch.add(req);
 
-                    Integer score = matchResult == null ? null : matchResult.getMatchScore();
-                    if (score != null) {
-                        long s = score.longValue();
-                        // 专利侧 newMax
-                        patentNewMax.merge(patent.getId(), s, Math::max);
-                        // 需求侧 newMax（★关键补充）
-                        demandNewMax.merge(demand.getId(), s, Math::max);
+                    if (patentBatch.size() >= MATCH_BATCH_SIZE) {
+                        List<SupplyDemandMatchResultEntity> matches = supplyDemandMatchResultService.matchBatch(patentBatch);
+                        demandUpdated += updateMaxScoreBatch(matches, SupplyDemandMatchResultEntity::getDemandId,
+                                demandCurrentMax, (id, score) -> {
+                                    DemandEntity d = new DemandEntity();
+                                    d.setId(id);
+                                    d.setMaxMatchScore(score);
+                                    return d;
+                                }, demandService::updateBatchById);
+                        patentUpdated += updateMaxScoreBatch(matches, SupplyDemandMatchResultEntity::getSupplyId,
+                                patentCurrentMax, (id, score) -> {
+                                    PatentInfoEntity p = new PatentInfoEntity();
+                                    p.setId(id);
+                                    p.setMaxMatchScore(score);
+                                    return p;
+                                }, patentInfoService::updateBatchById);
+                        patentBatch.clear();
                     }
                 }
             }
+            if (!patentBatch.isEmpty()) {
+                List<SupplyDemandMatchResultEntity> matches = supplyDemandMatchResultService.matchBatch(patentBatch);
+                demandUpdated += updateMaxScoreBatch(matches, SupplyDemandMatchResultEntity::getDemandId,
+                        demandCurrentMax, (id, score) -> {
+                            DemandEntity d = new DemandEntity();
+                            d.setId(id);
+                            d.setMaxMatchScore(score);
+                            return d;
+                        }, demandService::updateBatchById);
+                patentUpdated += updateMaxScoreBatch(matches, SupplyDemandMatchResultEntity::getSupplyId,
+                        patentCurrentMax, (id, score) -> {
+                            PatentInfoEntity p = new PatentInfoEntity();
+                            p.setId(id);
+                            p.setMaxMatchScore(score);
+                            return p;
+                        }, patentInfoService::updateBatchById);
+            }
 
             // 3.2 需求 vs 成果
+            List<SupplyDemandMatchRequest> resultBatch = new ArrayList<>();
             for (ResultEntity result : resultList) {
                 if (isFieldNecMatch(demandField, result.getTechArea())) {
                     DemandMatchDTO demandDTO = BeanUtil.toBean(demand, DemandMatchDTO.class);
@@ -117,63 +154,56 @@ public class MatchServiceImpl implements MatchService {
                     ResultMatchDTO resultDTO = BeanUtil.toBean(result, ResultMatchDTO.class);
                     resultDTO.setNec(convertNecCodeToName(result.getTechArea(), necNameMap));
 
-                    SupplyDemandMatchResultEntity matchResult = supplyDemandMatchResultService.match(
-                            DemandResponse.BIZ_CODE, demand.getId(), JSONUtil.toJsonStr(demandDTO),
-                            ResultResponse.BIZ_CODE, result.getId(), JSONUtil.toJsonStr(resultDTO)
-                    );
+                    SupplyDemandMatchRequest req = new SupplyDemandMatchRequest();
+                    req.setDemandType(DemandResponse.BIZ_CODE);
+                    req.setDemandId(demand.getId());
+                    req.setDemandContent(JSONUtil.toJsonStr(demandDTO));
+                    req.setSupplyType(ResultResponse.BIZ_CODE);
+                    req.setSupplyId(result.getId());
+                    req.setSupplyContent(JSONUtil.toJsonStr(resultDTO));
+                    resultBatch.add(req);
 
-                    Integer score = matchResult == null ? null : matchResult.getMatchScore();
-                    if (score != null) {
-                        long s = score.longValue();
-                        // 成果侧 newMax
-                        resultNewMax.merge(result.getId(), s, Math::max);
-                        // 需求侧 newMax（★关键补充）
-                        demandNewMax.merge(demand.getId(), s, Math::max);
+                    if (resultBatch.size() >= MATCH_BATCH_SIZE) {
+                        List<SupplyDemandMatchResultEntity> matches = supplyDemandMatchResultService.matchBatch(resultBatch);
+                        demandUpdated += updateMaxScoreBatch(matches, SupplyDemandMatchResultEntity::getDemandId,
+                                demandCurrentMax, (id, score) -> {
+                                    DemandEntity d = new DemandEntity();
+                                    d.setId(id);
+                                    d.setMaxMatchScore(score);
+                                    return d;
+                                }, demandService::updateBatchById);
+                        resultUpdated += updateMaxScoreBatch(matches, SupplyDemandMatchResultEntity::getSupplyId,
+                                resultCurrentMax, (id, score) -> {
+                                    ResultEntity r = new ResultEntity();
+                                    r.setId(id);
+                                    r.setMaxMatchScore(score);
+                                    return r;
+                                }, resultService::updateBatchById);
+                        resultBatch.clear();
                     }
                 }
             }
+            if (!resultBatch.isEmpty()) {
+                List<SupplyDemandMatchResultEntity> matches = supplyDemandMatchResultService.matchBatch(resultBatch);
+                demandUpdated += updateMaxScoreBatch(matches, SupplyDemandMatchResultEntity::getDemandId,
+                        demandCurrentMax, (id, score) -> {
+                            DemandEntity d = new DemandEntity();
+                            d.setId(id);
+                            d.setMaxMatchScore(score);
+                            return d;
+                        }, demandService::updateBatchById);
+                resultUpdated += updateMaxScoreBatch(matches, SupplyDemandMatchResultEntity::getSupplyId,
+                        resultCurrentMax, (id, score) -> {
+                            ResultEntity r = new ResultEntity();
+                            r.setId(id);
+                            r.setMaxMatchScore(score);
+                            return r;
+                        }, resultService::updateBatchById);
+            }
         }
 
-        // 4) 仅更新“更高”的 maxMatchScore
-        List<DemandEntity> demandToUpdate = demandNewMax.entrySet().stream()
-                .filter(e -> e.getValue() > demandCurrentMax.getOrDefault(e.getKey(), 0L))
-                .map(e -> {
-                    DemandEntity d = new DemandEntity();
-                    d.setId(e.getKey());
-                    d.setMaxMatchScore(e.getValue());
-                    return d;
-                })
-                .toList();
-
-        List<PatentInfoEntity> patentToUpdate = patentNewMax.entrySet().stream()
-                .filter(e -> e.getValue() > patentCurrentMax.getOrDefault(e.getKey(), 0L))
-                .map(e -> {
-                    PatentInfoEntity p = new PatentInfoEntity();
-                    p.setId(e.getKey());
-                    p.setMaxMatchScore(e.getValue());
-                    return p;
-                })
-                .toList();
-
-        List<ResultEntity> resultToUpdate = resultNewMax.entrySet().stream()
-                .filter(e -> e.getValue() > resultCurrentMax.getOrDefault(e.getKey(), 0L))
-                .map(e -> {
-                    ResultEntity r = new ResultEntity();
-                    r.setId(e.getKey());
-                    r.setMaxMatchScore(e.getValue());
-                    return r;
-                })
-                .toList();
-
-        if (!demandToUpdate.isEmpty()) {
-            demandService.updateBatchById(demandToUpdate);
-        }
-        if (!patentToUpdate.isEmpty()) {
-            patentInfoService.updateBatchById(patentToUpdate);
-        }
-        if (!resultToUpdate.isEmpty()) {
-            resultService.updateBatchById(resultToUpdate);
-        }
+        log.info("[MatchJob] demandMatch done: demandUpdated={}, patentUpdated={}, resultUpdated={}",
+                demandUpdated, patentUpdated, resultUpdated);
 
         return true;
     }
@@ -182,6 +212,44 @@ public class MatchServiceImpl implements MatchService {
 
     private static long defaultZero(Long val) {
         return val == null ? 0L : val;
+    }
+
+    private <T> int updateMaxScoreBatch(List<SupplyDemandMatchResultEntity> matches,
+                                        java.util.function.Function<SupplyDemandMatchResultEntity, Long> idGetter,
+                                        Map<Long, Long> currentMax,
+                                        java.util.function.BiFunction<Long, Long, T> entityBuilder,
+                                        java.util.function.Consumer<List<T>> updater) {
+        if (matches == null || matches.isEmpty()) {
+            return 0;
+        }
+        Map<Long, Long> updated = new HashMap<>();
+        for (SupplyDemandMatchResultEntity matchResult : matches) {
+            Integer score = matchResult.getMatchScore();
+            if (score == null) {
+                continue;
+            }
+            Long id = idGetter.apply(matchResult);
+            if (id == null) {
+                continue;
+            }
+            long newScore = score.longValue();
+            long current = currentMax.getOrDefault(id, 0L);
+            if (newScore > current) {
+                long existing = updated.getOrDefault(id, current);
+                if (newScore > existing) {
+                    updated.put(id, newScore);
+                }
+                currentMax.put(id, Math.max(current, newScore));
+            }
+        }
+        if (updated.isEmpty()) {
+            return 0;
+        }
+        List<T> toUpdate = updated.entrySet().stream()
+                .map(e -> entityBuilder.apply(e.getKey(), e.getValue()))
+                .toList();
+        updater.accept(toUpdate);
+        return toUpdate.size();
     }
 
     /**

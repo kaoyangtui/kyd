@@ -116,10 +116,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
     @Override
     @Transactional
     public void updateProfile(UserProfileUpdateRequest request) {
-        // 假设通过安全上下文获取当前用户ID
-        Long userId = request.getId();
+        // 仅允许修改当前登录用户，忽略请求体中的 id
+        Long userId = SecurityUtils.getUser().getId();
         if (userId == null) {
-            userId = SecurityUtils.getUser().getId();
+            throw new BizException("无法获取当前用户");
         }
 
         UserEntity entity = this.getById(userId);

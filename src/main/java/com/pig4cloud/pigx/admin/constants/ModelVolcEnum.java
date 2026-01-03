@@ -11,6 +11,7 @@ public enum ModelVolcEnum {
     DEEP_SEEK_R1("ep-20250731154231-nn5qb"),
     DEEP_SEEK_V3("ep-20250731155108-98sm4"),
     DOUBAO_SEED_1_6("ep-20250930133740-w4l6h"),
+    BATCH_MATCH("ep-bi-20260103165830-p9d6p"),
     ;
 
     // 获取枚举值

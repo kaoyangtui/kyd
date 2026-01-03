@@ -62,9 +62,13 @@ public class MatchController {
         IPage<SupplyDemandMatchResultEntity> matchPage =
                 supplyDemandMatchResultService.pageMatchByDemand(
                         DemandResponse.BIZ_CODE, demandId, PatentInfoResponse.BIZ_CODE, mpPage);
+        long distinctTotal = supplyDemandMatchResultService.countDistinctSupplyByDemand(
+                DemandResponse.BIZ_CODE, demandId, PatentInfoResponse.BIZ_CODE);
 
         IPage<PatentInfoResponse> page = assembleByMatches(
                 matchPage,
+                SupplyDemandMatchResultEntity::getSupplyId,
+                distinctTotal,
                 (ids) -> {
                     PatentPageRequest req = new PatentPageRequest();
                     req.setIds(ids);
@@ -86,9 +90,13 @@ public class MatchController {
         IPage<SupplyDemandMatchResultEntity> matchPage =
                 supplyDemandMatchResultService.pageMatchBySupply(
                         DemandResponse.BIZ_CODE, patentId, PatentInfoResponse.BIZ_CODE, mpPage);
+        long distinctTotal = supplyDemandMatchResultService.countDistinctDemandBySupply(
+                DemandResponse.BIZ_CODE, patentId, PatentInfoResponse.BIZ_CODE);
 
         IPage<DemandResponse> page = assembleByMatches(
                 matchPage,
+                SupplyDemandMatchResultEntity::getDemandId,
+                distinctTotal,
                 (ids) -> {
                     // 如果已有 DemandPageRequest 则用它；没有就写一个只含 ids 的请求 DTO
                     var req = new DemandPageRequest();
@@ -111,9 +119,13 @@ public class MatchController {
         IPage<SupplyDemandMatchResultEntity> matchPage =
                 supplyDemandMatchResultService.pageMatchByDemand(
                         DemandResponse.BIZ_CODE, demandId, ResultResponse.BIZ_CODE, mpPage);
+        long distinctTotal = supplyDemandMatchResultService.countDistinctSupplyByDemand(
+                DemandResponse.BIZ_CODE, demandId, ResultResponse.BIZ_CODE);
 
         IPage<ResultResponse> page = assembleByMatches(
                 matchPage,
+                SupplyDemandMatchResultEntity::getSupplyId,
+                distinctTotal,
                 (ids) -> {
                     ResultPageRequest req = new ResultPageRequest();
                     req.setIds(ids);
@@ -135,9 +147,13 @@ public class MatchController {
         IPage<SupplyDemandMatchResultEntity> matchPage =
                 supplyDemandMatchResultService.pageMatchBySupply(
                         DemandResponse.BIZ_CODE, resultId, ResultResponse.BIZ_CODE, mpPage);
+        long distinctTotal = supplyDemandMatchResultService.countDistinctDemandBySupply(
+                DemandResponse.BIZ_CODE, resultId, ResultResponse.BIZ_CODE);
 
         IPage<DemandResponse> page = assembleByMatches(
                 matchPage,
+                SupplyDemandMatchResultEntity::getDemandId,
+                distinctTotal,
                 (ids) -> {
                     var req = new DemandPageRequest();
                     req.setIds(ids);
@@ -173,26 +189,28 @@ public class MatchController {
 
     private static <T> IPage<T> assembleByMatches(
             IPage<SupplyDemandMatchResultEntity> matchPage,
+            Function<SupplyDemandMatchResultEntity, Long> idSelector,
+            long distinctTotal,
             Function<List<Long>, IPage<T>> detailPageLoader,
             BiConsumer<T, Integer> scoreSetter,
             Function<T, Long> idGetter) {
 
         // 1) 先拿到 supplyId 顺序，并去重（保持顺序）
         List<Long> orderedIds = matchPage.getRecords().stream()
-                .map(SupplyDemandMatchResultEntity::getSupplyId)
+                .map(idSelector)
                 .filter(java.util.Objects::nonNull)
                 .distinct() // 去重，避免同一供给被重复展示
                 .toList();
 
         if (orderedIds.isEmpty()) {
-            return new Page<>(matchPage.getCurrent(), matchPage.getSize(), matchPage.getTotal());
+            return new Page<>(matchPage.getCurrent(), matchPage.getSize(), distinctTotal);
         }
 
         // 2) 分数取最大（已保证）
         Map<Long, Integer> scoreMap = matchPage.getRecords().stream()
-                .filter(r -> r.getSupplyId() != null)
+                .filter(r -> idSelector.apply(r) != null)
                 .collect(Collectors.toMap(
-                        SupplyDemandMatchResultEntity::getSupplyId,
+                        idSelector,
                         SupplyDemandMatchResultEntity::getMatchScore,
                         Integer::max
                 ));
@@ -220,7 +238,7 @@ public class MatchController {
                 .toList();
 
         // 6) 返回与匹配分页元信息一致的 Page，但 records 用我们重排后的
-        Page<T> page = new Page<>(matchPage.getCurrent(), matchPage.getSize(), matchPage.getTotal());
+        Page<T> page = new Page<>(matchPage.getCurrent(), matchPage.getSize(), distinctTotal);
         page.setRecords(ordered);
         return page;
     }
