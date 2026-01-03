@@ -196,6 +196,12 @@ public class PatentInfoServiceImpl extends ServiceImpl<PatentInfoMapper, PatentI
             wrapper.ge(StrUtil.isNotBlank(beginPubDate), PatentInfoEntity::getPubDate, beginPubDate);
             wrapper.le(StrUtil.isNotBlank(endPubDate), PatentInfoEntity::getPubDate, endPubDate);
 
+            // ===== GrantDate =====
+            String beginGrantDate = formatDotDate(request.getBeginGrantDate());
+            String endGrantDate = formatDotDate(request.getEndGrantDate());
+            wrapper.ge(StrUtil.isNotBlank(beginGrantDate), PatentInfoEntity::getGrantDate, beginGrantDate);
+            wrapper.le(StrUtil.isNotBlank(endGrantDate), PatentInfoEntity::getGrantDate, endGrantDate);
+
             wrapper.eq(StrUtil.isNotBlank(request.getAgencyName()), PatentInfoEntity::getAgencyName, request.getAgencyName());
             wrapper.eq(StrUtil.isNotBlank(request.getLeaderCode()), PatentInfoEntity::getLeaderCode, request.getLeaderCode());
             wrapper.eq(StrUtil.isNotBlank(request.getMergeFlag()), PatentInfoEntity::getMergeFlag, request.getMergeFlag());

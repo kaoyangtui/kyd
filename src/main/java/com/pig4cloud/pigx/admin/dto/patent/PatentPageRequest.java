@@ -46,6 +46,13 @@ public class PatentPageRequest extends BasePageQuery {
     @Schema(description = "公开日止")
     private LocalDate endPubDate;
 
+
+    @Schema(description = "授权日起")
+    private LocalDate beginGrantDate;
+
+    @Schema(description = "授权日止")
+    private LocalDate endGrantDate;
+
     @Schema(description = "代理机构")
     private String agencyName;
 

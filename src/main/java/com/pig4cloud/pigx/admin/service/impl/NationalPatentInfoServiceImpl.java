@@ -23,6 +23,7 @@ import com.pig4cloud.pigx.admin.entity.NationalPatentFollowEntity;
 import com.pig4cloud.pigx.admin.entity.NationalPatentInfoEntity;
 import com.pig4cloud.pigx.admin.entity.PatentLogEntity;
 import com.pig4cloud.pigx.admin.mapper.NationalPatentInfoMapper;
+import com.pig4cloud.pigx.admin.service.FileService;
 import com.pig4cloud.pigx.admin.service.NationalPatentDetailService;
 import com.pig4cloud.pigx.admin.service.NationalPatentFollowService;
 import com.pig4cloud.pigx.admin.service.NationalPatentInfoService;
@@ -36,6 +37,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -46,6 +52,25 @@ public class NationalPatentInfoServiceImpl extends ServiceImpl<NationalPatentInf
     private final YtService ytService;
     private final NationalPatentDetailService nationalPatentDetailService;
     private final NationalPatentFollowService nationalPatentFollowService;
+    private final FileService fileService;
+    private static final ExecutorService IMAGE_CACHE_EXECUTOR = new ThreadPoolExecutor(
+            2,
+            4,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(200),
+            new ThreadFactory() {
+                private int idx = 1;
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "patent-img-cache-" + idx++);
+                    t.setDaemon(true);
+                    return t;
+                }
+            },
+            new ThreadPoolExecutor.DiscardPolicy()
+    );
 
     @Override
     public IPage<PatentInfoResponse> searchList(PatentSearchListReq req) {
@@ -135,6 +160,7 @@ public class NationalPatentInfoServiceImpl extends ServiceImpl<NationalPatentInf
         if (!messages.isEmpty()) {
             this.upsertBatchFromMessages(messages, 500);
             nationalPatentDetailService.upsertBatchFromMessages(messages, 500);
+            cacheImagesAsync(messages);
         }
 
         // === 5) 批量判定“是否已关注” ===
@@ -144,6 +170,16 @@ public class NationalPatentInfoServiceImpl extends ServiceImpl<NationalPatentInf
                 .filter(StrUtil::isNotBlank)
                 .distinct()
                 .collect(Collectors.toList());
+
+        final Map<String, String> localDrawsMap = pids.isEmpty()
+                ? Collections.emptyMap()
+                : this.lambdaQuery()
+                .select(NationalPatentInfoEntity::getPid, NationalPatentInfoEntity::getDraws)
+                .in(NationalPatentInfoEntity::getPid, pids)
+                .list()
+                .stream()
+                .filter(it -> StrUtil.isNotBlank(it.getPid()))
+                .collect(Collectors.toMap(NationalPatentInfoEntity::getPid, NationalPatentInfoEntity::getDraws, (a, b) -> a));
 
         Set<String> followedPidSet;
         if (!pids.isEmpty()) {
@@ -160,6 +196,10 @@ public class NationalPatentInfoServiceImpl extends ServiceImpl<NationalPatentInf
             PatentTypeEnum type = PatentTypeEnum.getByCode(dto.getPatType());
             dto.setPatTypeName(type != null ? type.getDescription() : "未知");
             dto.setFollowFlag(followedPidSet.contains(dto.getPid()) ? "1" : "0");
+            String localDraws = localDrawsMap.get(dto.getPid());
+            if (StrUtil.isNotBlank(localDraws)) {
+                dto.setDraws(localDraws);
+            }
             return dto;
         });
     }
@@ -286,6 +326,8 @@ public class NationalPatentInfoServiceImpl extends ServiceImpl<NationalPatentInf
     public PatentDetailResponse getDetailByPid(String pid) {
         NationalPatentInfoEntity info = this.lambdaQuery().eq(NationalPatentInfoEntity::getPid, pid).one();
         NationalPatentDetailEntity detail = nationalPatentDetailService.lambdaQuery().eq(NationalPatentDetailEntity::getPid, pid).one();
+
+        cacheDetailImagesAsync(info, detail);
 
         PatentDetailResponse resp = new PatentDetailResponse();
         if (info != null) {
@@ -447,5 +489,257 @@ public class NationalPatentInfoServiceImpl extends ServiceImpl<NationalPatentInf
         return CollUtil.isNotEmpty(applicants) && CollUtil.isNotEmpty(patentees)
                 && !CollUtil.containsAny(patentees, applicants)
                 ? "1" : "0";
+    }
+
+    private String cacheImageUrl(String url, String dir) {
+        if (StrUtil.isBlank(url) || isLocalUrl(url)) {
+            return url;
+        }
+        try {
+            String uploaded = fileService.uploadFileByUrl(url, dir, FileGroupTypeEnum.IMAGE);
+            return StrUtil.isNotBlank(uploaded) ? uploaded : url;
+        } catch (Exception e) {
+            log.warn("缓存图片失败, url={}, err={}", url, e.getMessage());
+            return url;
+        }
+    }
+
+    private String cacheUrlList(String raw, String dir) {
+        if (StrUtil.isBlank(raw)) {
+            return raw;
+        }
+        boolean rawIsArray = raw.trim().startsWith("[");
+        List<String> urls = parseUrlList(raw);
+        if (CollUtil.isEmpty(urls)) {
+            return raw;
+        }
+        List<String> cached = new ArrayList<>(urls.size());
+        for (String url : urls) {
+            cached.add(cacheImageUrl(url, dir));
+        }
+        if (!rawIsArray && cached.size() == 1) {
+            return cached.get(0);
+        }
+        return JSONUtil.toJsonStr(cached);
+    }
+
+    private List<String> parseUrlList(String raw) {
+        if (StrUtil.isBlank(raw)) {
+            return Collections.emptyList();
+        }
+        try {
+            if (raw.trim().startsWith("[")) {
+                return JSONUtil.parseArray(raw).toList(String.class);
+            }
+        } catch (Exception ignored) {
+        }
+        return StrUtil.isNotBlank(raw) ? Collections.singletonList(raw) : Collections.emptyList();
+    }
+
+    private boolean isLocalUrl(String url) {
+        if (StrUtil.isBlank(url)) {
+            return false;
+        }
+        String trimmed = url.trim();
+        if (trimmed.startsWith("[")) {
+            return false;
+        }
+        if (!url.startsWith("http")) {
+            return true;
+        }
+        return url.contains("/admin/sys-file/oss/file")
+                || url.contains("/sys-file/oss/file");
+    }
+
+    private void cacheImagesAsync(List<String> messages) {
+        if (CollUtil.isEmpty(messages)) {
+            return;
+        }
+        IMAGE_CACHE_EXECUTOR.execute(() -> {
+            try {
+                List<JSONObject> objs = new ArrayList<>(messages.size());
+                List<String> pids = new ArrayList<>();
+                for (String msg : messages) {
+                    if (StrUtil.isBlank(msg)) {
+                        continue;
+                    }
+                    JSONObject obj = JSONUtil.parseObj(msg);
+                    objs.add(obj);
+                    String pid = obj.getStr("pid");
+                    if (StrUtil.isNotBlank(pid)) {
+                        pids.add(pid);
+                    }
+                }
+                if (pids.isEmpty()) {
+                    return;
+                }
+                Map<String, NationalPatentInfoEntity> infoMap = this.lambdaQuery()
+                        .in(NationalPatentInfoEntity::getPid, pids)
+                        .list()
+                        .stream()
+                        .collect(Collectors.toMap(NationalPatentInfoEntity::getPid, it -> it, (a, b) -> a));
+                Map<String, NationalPatentDetailEntity> detailMap = nationalPatentDetailService.lambdaQuery()
+                        .in(NationalPatentDetailEntity::getPid, pids)
+                        .list()
+                        .stream()
+                        .collect(Collectors.toMap(NationalPatentDetailEntity::getPid, it -> it, (a, b) -> a));
+
+                for (JSONObject obj : objs) {
+                    String pid = obj.getStr("pid");
+                    if (StrUtil.isBlank(pid)) {
+                        continue;
+                    }
+                    String draws = obj.getStr("draws");
+                    if (StrUtil.isNotBlank(draws)) {
+                        NationalPatentInfoEntity info = infoMap.get(pid);
+                        if (info == null || StrUtil.isBlank(info.getDraws())) {
+                            this.lambdaUpdate()
+                                    .eq(NationalPatentInfoEntity::getPid, pid)
+                                    .set(NationalPatentInfoEntity::getDraws, draws)
+                                    .update();
+                        }
+                        if (info == null || !isLocalUrl(info.getDraws())) {
+                            String cached = cacheImageUrl(draws, PatentFileTypeEnum.ABSTRACT.getCode());
+                            if (StrUtil.isNotBlank(cached) && !cached.equals(draws) && isLocalUrl(cached)) {
+                                this.lambdaUpdate()
+                                        .eq(NationalPatentInfoEntity::getPid, pid)
+                                        .set(NationalPatentInfoEntity::getDraws, cached)
+                                        .update();
+                            }
+                        }
+                    }
+
+                    NationalPatentDetailEntity detail = detailMap.get(pid);
+                    if (detail == null) {
+                        continue;
+                    }
+                    boolean changed = false;
+                    String rawDetailDraws = obj.getStr("draws");
+                    if (StrUtil.isNotBlank(rawDetailDraws)) {
+                        nationalPatentDetailService.lambdaUpdate()
+                                .eq(NationalPatentDetailEntity::getPid, pid)
+                                .isNull(NationalPatentDetailEntity::getDraws)
+                                .set(NationalPatentDetailEntity::getDraws, rawDetailDraws)
+                                .update();
+                    }
+                    String rawDrawsPic = obj.getStr("drawsPic");
+                    if (StrUtil.isNotBlank(rawDrawsPic)) {
+                        nationalPatentDetailService.lambdaUpdate()
+                                .eq(NationalPatentDetailEntity::getPid, pid)
+                                .isNull(NationalPatentDetailEntity::getDrawsPic)
+                                .set(NationalPatentDetailEntity::getDrawsPic, rawDrawsPic)
+                                .update();
+                    }
+                    String rawTif = obj.getStr("tifDistributePath");
+                    if (StrUtil.isNotBlank(rawTif)) {
+                        nationalPatentDetailService.lambdaUpdate()
+                                .eq(NationalPatentDetailEntity::getPid, pid)
+                                .isNull(NationalPatentDetailEntity::getTifDistributePath)
+                                .set(NationalPatentDetailEntity::getTifDistributePath, rawTif)
+                                .update();
+                    }
+                    if (StrUtil.isNotBlank(detail.getDraws()) && !isLocalUrl(detail.getDraws())) {
+                        String cachedDraws = cacheImageUrl(detail.getDraws(), PatentFileTypeEnum.ABSTRACT.getCode());
+                        if (StrUtil.isNotBlank(cachedDraws) && !cachedDraws.equals(detail.getDraws()) && isLocalUrl(cachedDraws)) {
+                            detail.setDraws(cachedDraws);
+                            changed = true;
+                        }
+                    }
+                    if (StrUtil.isNotBlank(detail.getDrawsPic()) && !isLocalUrl(detail.getDrawsPic())) {
+                        String cachedDrawsPic = cacheUrlList(detail.getDrawsPic(), PatentFileTypeEnum.SPECIFICATION.getCode());
+                        if (StrUtil.isNotBlank(cachedDrawsPic) && !cachedDrawsPic.equals(detail.getDrawsPic())) {
+                            detail.setDrawsPic(cachedDrawsPic);
+                            changed = true;
+                        }
+                    }
+                    if (StrUtil.isNotBlank(detail.getTifDistributePath()) && !isLocalUrl(detail.getTifDistributePath())) {
+                        String cachedDesign = cacheUrlList(detail.getTifDistributePath(), PatentFileTypeEnum.DESIGN.getCode());
+                        if (StrUtil.isNotBlank(cachedDesign) && !cachedDesign.equals(detail.getTifDistributePath())) {
+                            detail.setTifDistributePath(cachedDesign);
+                            changed = true;
+                        }
+                    }
+                    if (changed) {
+                        nationalPatentDetailService.updateById(detail);
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("异步缓存专利图片失败: {}", e.getMessage());
+            }
+        });
+    }
+
+    private void cacheDetailImagesAsync(NationalPatentInfoEntity info, NationalPatentDetailEntity detail) {
+        if (info == null && detail == null) {
+            return;
+        }
+        IMAGE_CACHE_EXECUTOR.execute(() -> {
+            try {
+                if (info != null && StrUtil.isNotBlank(info.getDraws()) && !isLocalUrl(info.getDraws())) {
+                    this.lambdaUpdate()
+                            .eq(NationalPatentInfoEntity::getPid, info.getPid())
+                            .isNull(NationalPatentInfoEntity::getDraws)
+                            .set(NationalPatentInfoEntity::getDraws, info.getDraws())
+                            .update();
+                    String cached = cacheImageUrl(info.getDraws(), PatentFileTypeEnum.ABSTRACT.getCode());
+                    if (StrUtil.isNotBlank(cached) && !cached.equals(info.getDraws()) && isLocalUrl(cached)) {
+                        this.lambdaUpdate()
+                                .eq(NationalPatentInfoEntity::getPid, info.getPid())
+                                .set(NationalPatentInfoEntity::getDraws, cached)
+                                .update();
+                    }
+                }
+                if (detail != null) {
+                    boolean changed = false;
+                    if (StrUtil.isNotBlank(detail.getDraws())) {
+                        nationalPatentDetailService.lambdaUpdate()
+                                .eq(NationalPatentDetailEntity::getPid, detail.getPid())
+                                .isNull(NationalPatentDetailEntity::getDraws)
+                                .set(NationalPatentDetailEntity::getDraws, detail.getDraws())
+                                .update();
+                    }
+                    if (StrUtil.isNotBlank(detail.getDrawsPic())) {
+                        nationalPatentDetailService.lambdaUpdate()
+                                .eq(NationalPatentDetailEntity::getPid, detail.getPid())
+                                .isNull(NationalPatentDetailEntity::getDrawsPic)
+                                .set(NationalPatentDetailEntity::getDrawsPic, detail.getDrawsPic())
+                                .update();
+                    }
+                    if (StrUtil.isNotBlank(detail.getTifDistributePath())) {
+                        nationalPatentDetailService.lambdaUpdate()
+                                .eq(NationalPatentDetailEntity::getPid, detail.getPid())
+                                .isNull(NationalPatentDetailEntity::getTifDistributePath)
+                                .set(NationalPatentDetailEntity::getTifDistributePath, detail.getTifDistributePath())
+                                .update();
+                    }
+                    if (StrUtil.isNotBlank(detail.getDraws()) && !isLocalUrl(detail.getDraws())) {
+                        String cachedDraws = cacheImageUrl(detail.getDraws(), PatentFileTypeEnum.ABSTRACT.getCode());
+                        if (StrUtil.isNotBlank(cachedDraws) && !cachedDraws.equals(detail.getDraws()) && isLocalUrl(cachedDraws)) {
+                            detail.setDraws(cachedDraws);
+                            changed = true;
+                        }
+                    }
+                    if (StrUtil.isNotBlank(detail.getDrawsPic()) && !isLocalUrl(detail.getDrawsPic())) {
+                        String cachedDrawsPic = cacheUrlList(detail.getDrawsPic(), PatentFileTypeEnum.SPECIFICATION.getCode());
+                        if (StrUtil.isNotBlank(cachedDrawsPic) && !cachedDrawsPic.equals(detail.getDrawsPic())) {
+                            detail.setDrawsPic(cachedDrawsPic);
+                            changed = true;
+                        }
+                    }
+                    if (StrUtil.isNotBlank(detail.getTifDistributePath()) && !isLocalUrl(detail.getTifDistributePath())) {
+                        String cachedDesign = cacheUrlList(detail.getTifDistributePath(), PatentFileTypeEnum.DESIGN.getCode());
+                        if (StrUtil.isNotBlank(cachedDesign) && !cachedDesign.equals(detail.getTifDistributePath())) {
+                            detail.setTifDistributePath(cachedDesign);
+                            changed = true;
+                        }
+                    }
+                    if (changed) {
+                        nationalPatentDetailService.updateById(detail);
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("异步缓存详情图片失败: {}", e.getMessage());
+            }
+        });
     }
 }
